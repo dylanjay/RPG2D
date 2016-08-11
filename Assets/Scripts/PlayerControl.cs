@@ -6,17 +6,31 @@ public class PlayerControl : MonoBehaviour {
     public float moveSpeed = 0f;
 
     Animator anim;
+    GameObject inv;
+    bool inventoryCheck = false;
 
     // Use this for initialization
     void Start()
     {
         anim = GetComponent<Animator>();
+        inv = GameObject.Find("Inventory Panel");
+        inv.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetButtonDown("Inventory") && !inventoryCheck)
+        {
+            inv.SetActive(true);
+            inventoryCheck = true;
+        }
 
+        else if(Input.GetButtonDown("Inventory") && inventoryCheck)
+        {
+            inv.SetActive(false);
+            inventoryCheck = false;
+        }
     }
 
     void FixedUpdate()
