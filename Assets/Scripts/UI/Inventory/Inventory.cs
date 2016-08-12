@@ -44,13 +44,13 @@ public class Inventory : MonoBehaviour {
     public void AddItem(int id)
     {
         Item itemToAdd = database.FetchItemByID(id);
-        if (itemToAdd.Stackable && CheckInventory(itemToAdd))
+        if (itemToAdd.stackable && CheckInventory(itemToAdd))
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].ID == id)
+                if (items[i].id == id)
                 {
-                    ItemData data = slots[i].transform.FindChild(itemToAdd.Title).GetComponent<ItemData>();
+                    ItemData data = slots[i].transform.FindChild(itemToAdd.title).GetComponent<ItemData>();
                     data.amount++;
                     data.transform.FindChild("Stack Amount").GetComponent<Text>().text = data.amount.ToString();
                 }
@@ -61,7 +61,7 @@ public class Inventory : MonoBehaviour {
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].ID == -1)
+                if (items[i].id == -1)
                 {
                     items[i] = itemToAdd;
                     GameObject itemObj = Instantiate(inventoryItem);
@@ -70,9 +70,9 @@ public class Inventory : MonoBehaviour {
                     itemObj.GetComponent<ItemData>().slot = i;
                     itemObj.transform.SetParent(slots[i].transform);
                     itemObj.transform.position = Vector2.zero;
-                    itemObj.GetComponent<Image>().sprite = itemToAdd.Sprite;
-                    itemObj.name = itemToAdd.Title;
-                    slots[i].name = itemToAdd.Title + " Slot";
+                    itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
+                    itemObj.name = itemToAdd.title;
+                    slots[i].name = itemToAdd.title + " Slot";
 
                     break;
                 }
@@ -84,7 +84,7 @@ public class Inventory : MonoBehaviour {
     {
         for(int i = 0; i < items.Count; i++)
         {
-            if(items[i].ID == item.ID)
+            if(items[i].id == item.id)
             {
                 return true;
             }

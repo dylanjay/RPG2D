@@ -3,15 +3,17 @@ using System.Collections;
 using UnityEngine.EventSystems;
 using System;
 
-public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler {
+public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUpHandler, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler {
 
     public Item item;
     public int amount;
     public int slot;
 
-    private Inventory inv;
-    private Tooltip tooltip;
-    private Vector2 offset;
+    Inventory inv;
+    Tooltip tooltip;
+    Vector2 offset;
+
+    bool dragged = false;
 
     void Start()
     {
@@ -24,24 +26,40 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerDo
         if (item != null)
         {
             offset = eventData.position - new Vector2(this.transform.position.x, this.transform.position.y);
-            this.transform.SetParent(this.transform.parent.parent);
-            this.transform.position = eventData.position - offset;
+            transform.SetParent(this.transform.parent.parent);
+            transform.position = eventData.position - offset;
             GetComponent<CanvasGroup>().blocksRaycasts = false;
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if(!dragged)
+        {
+            transform.SetParent(inv.slots[slot].transform);
+            transform.position = inv.slots[slot].transform.transform.position;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
+        }
+
+        else
+        {
+            dragged = false;
         }
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        dragged = true;
         if (item != null)
         {
-            this.transform.position = eventData.position - offset;
+            transform.position = eventData.position - offset;
         }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        this.transform.SetParent(inv.slots[slot].transform);
-        this.transform.position = inv.slots[slot].transform.transform.position;
+        transform.SetParent(inv.slots[slot].transform);
+        transform.position = inv.slots[slot].transform.transform.position;
         GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
