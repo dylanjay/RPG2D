@@ -1,0 +1,84 @@
+[
+  {
+    "id": 0,
+    "name": "player",
+    "stats": [
+      {
+        "name": "Health",
+        "value": 10
+      },
+      {
+        "name": "Defence",
+        "value": 5
+      },
+	  {
+        "name": "Attack",
+        "value": 5
+      },
+	  {
+        "name": "Magic",
+        "value": 5
+      },
+	  {
+        "name": "Mana",
+        "value": 5
+      }
+    ]
+    
+  },
+  {
+    "id": 1,
+    "name": "mob",
+    "stats": [
+      {
+        "name": "Health",
+        "value": 10
+      },
+      {
+        "name": "Defence",
+        "value": 5
+      },
+	  {
+        "name": "Attack",
+        "value": 5
+      },
+	  {
+        "name": "Magic",
+        "value": 5
+      },
+	  {
+        "name": "Mana",
+        "value": 5
+      }
+    ]
+    
+  },
+  {
+    "id": 2,
+    "name": "npc",
+    "stats": [
+      {
+        "name": "Health",
+        "value": 10
+      },
+      {
+        "name": "Defence",
+        "value": 5
+      },
+	  {
+        "name": "Attack",
+        "value": 5
+      },
+	  {
+        "name": "Magic",
+        "value": 5
+      },
+	  {
+        "name": "Mana",
+        "value": 5
+      }
+    ]
+    
+  }
+  
+]
