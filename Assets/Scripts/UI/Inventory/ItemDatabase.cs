@@ -14,8 +14,7 @@ public class ItemDatabase : MonoBehaviour {
         //itemData = JsonMapper.ToObject(File.ReadAllText(Application.dataPath + "/StreamingAssets/Items.json"));
         Item[] items = JsonMapper.ToObject<Item[]>(File.ReadAllText(Application.dataPath + "/StreamingAssets/Items.json"));
         database = new List<Item>(items);
-        Debug.Log(database[0].stats.Count);
-        setSprites();
+        SetSprites();
     }
 
     public Item FetchItemByID(int id)
@@ -31,11 +30,11 @@ public class ItemDatabase : MonoBehaviour {
         return null;
     }
 
-    void setSprites()
+    void SetSprites()
     {
         for(int i = 0; i < database.Count; i++)
         {
-            database[i].setSprite();
+            database[i].SetSprite();
         }
     }
 }

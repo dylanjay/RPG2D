@@ -43,7 +43,7 @@ public class Item {
         id = -1;
     }
 
-    public void setSprite()
+    public void SetSprite()
     {
         sprite = Resources.Load<Sprite>("Items/" + slug);
     }

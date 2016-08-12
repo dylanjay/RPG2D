@@ -43,10 +43,8 @@ public class Tooltip : MonoBehaviour {
         /*"Power: " + item.stats[i] + "\n" +
         "Defence: " + item.defence + "\n" +
         "Vitality: " + item.vitality + "\n";*/
-        Debug.Log(item.stats.Count);
         for(int i = 0; i < item.stats.Count; i++)
         {
-            Debug.Log(item.stats[i].name);
             data += item.stats[i].name + ": " + item.stats[i].value + "\n";
         }
 
