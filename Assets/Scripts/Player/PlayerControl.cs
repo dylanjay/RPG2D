@@ -3,33 +3,54 @@ using System.Collections;
 
 public class PlayerControl : MonoBehaviour {
 
+    public static PlayerControl instance { get { return _instance; } }
+    private static PlayerControl _instance;
+
     public float moveSpeed = 0f;
 
     Animator anim;
-    GameObject inv;
-    bool inventoryCheck = false;
+    GameObject inventoryPanel;
+    Inventory inv;
+    Transform slotPanel;
+    Tooltip tooltip;
+    public bool inventoryCheck = false;
 
     // Use this for initialization
     void Start()
     {
+        _instance = this;
+        inv = Inventory.instance;
         anim = GetComponent<Animator>();
-        inv = GameObject.Find("Inventory Panel");
-        inv.SetActive(false);
+        inventoryPanel = GameObject.Find("Inventory Panel");
+        slotPanel = GameObject.Find("Slot Panel").transform;
+        tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
+        inventoryPanel.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetButtonDown("Inventory") && !inventoryCheck)
+        if (Input.GetButtonDown("Inventory") && !inventoryCheck)
         {
-            inv.SetActive(true);
+            inventoryPanel.SetActive(true);
             inventoryCheck = true;
         }
 
         else if(Input.GetButtonDown("Inventory") && inventoryCheck)
         {
-            inv.SetActive(false);
             inventoryCheck = false;
+
+            if (tooltip.tooltip.activeSelf)
+            {
+                tooltip.Deactivate();
+            }
+
+            if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
+            {
+                slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>().Reset();
+            }
+
+            inventoryPanel.SetActive(false);
         }
     }
 
@@ -72,5 +93,14 @@ public class PlayerControl : MonoBehaviour {
         anim.SetFloat("SpeedY", moveY);
 
         GetComponent<Rigidbody2D>().velocity = new Vector2(moveSpeed * moveX, moveSpeed * moveY);
+    }
+
+    void OnTriggerStay2D(Collider2D other)
+    {
+        if(other.GetComponent<ItemComponent>() && Input.GetButtonDown("Use"))
+        {
+            inv.AddItem(other.GetComponent<ItemComponent>().itemID);
+            other.gameObject.SetActive(false);
+        }
     }
 }

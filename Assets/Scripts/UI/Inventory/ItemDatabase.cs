@@ -9,8 +9,13 @@ public class ItemDatabase : MonoBehaviour {
     public List<Item> database;
     JsonData itemData;
 
-    void Start()
+    private static ItemDatabase _instance;
+    public static ItemDatabase instance { get { return _instance; } }
+
+    //void Start()
+    void Awake()
     {
+        _instance = this;
         //itemData = JsonMapper.ToObject(File.ReadAllText(Application.dataPath + "/StreamingAssets/Items.json"));
         Item[] items = JsonMapper.ToObject<Item[]>(File.ReadAllText(Application.dataPath + "/StreamingAssets/Items.json"));
         database = new List<Item>(items);

@@ -5,6 +5,9 @@ using System.Collections.Generic;
 
 public class Inventory : MonoBehaviour {
 
+    public static Inventory instance { get { return _instance; } }
+    private static Inventory _instance;
+
     GameObject inventoryPanel;
     GameObject slotPanel;
     ItemDatabase database;
@@ -17,6 +20,8 @@ public class Inventory : MonoBehaviour {
 
     void Start()
     {
+        _instance = this;
+
         database = GetComponent<ItemDatabase>();
 
         slotSize = 16;

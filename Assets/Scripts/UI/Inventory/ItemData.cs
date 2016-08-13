@@ -10,19 +10,24 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
     public int slot;
 
     Inventory inv;
+    PlayerControl player;
     Tooltip tooltip;
     Vector2 offset;
+
+    public bool clicked = false;
 
     bool dragged = false;
 
     void Start()
     {
-        inv = GameObject.Find("Inventory").GetComponent<Inventory>();
-        tooltip = inv.GetComponent<Tooltip>();
+        inv = Inventory.instance;
+        player = GameObject.Find("Player").GetComponent<PlayerControl>();
+        tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        clicked = true;
         if (item != null)
         {
             offset = eventData.position - new Vector2(this.transform.position.x, this.transform.position.y);
@@ -32,13 +37,20 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
         }
     }
 
+    public void Reset()
+    {
+        clicked = false;
+        transform.SetParent(inv.slots[slot].transform);
+        transform.position = inv.slots[slot].transform.transform.position;
+        GetComponent<CanvasGroup>().blocksRaycasts = true;
+    }
+
+
     public void OnPointerUp(PointerEventData eventData)
     {
         if(!dragged)
         {
-            transform.SetParent(inv.slots[slot].transform);
-            transform.position = inv.slots[slot].transform.transform.position;
-            GetComponent<CanvasGroup>().blocksRaycasts = true;
+            Reset();
         }
 
         else
@@ -58,6 +70,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        clicked = false;
         transform.SetParent(inv.slots[slot].transform);
         transform.position = inv.slots[slot].transform.transform.position;
         GetComponent<CanvasGroup>().blocksRaycasts = true;
