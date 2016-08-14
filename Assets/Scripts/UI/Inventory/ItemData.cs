@@ -21,7 +21,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
     void Start()
     {
         inv = Inventory.instance;
-        player = GameObject.Find("Player").GetComponent<PlayerControl>();
+        player = PlayerControl.instance;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
     }
 
@@ -70,10 +70,20 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        clicked = false;
-        transform.SetParent(inv.slots[slot].transform);
-        transform.position = inv.slots[slot].transform.transform.position;
-        GetComponent<CanvasGroup>().blocksRaycasts = true;
+        if (eventData.hovered.Count > 0)
+        {
+            clicked = false;
+            transform.SetParent(inv.slots[slot].transform);
+            transform.position = inv.slots[slot].transform.transform.position;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
+        }
+
+        else
+        {
+            inv.items[slot] = new Item();
+            inv.slots[slot].name = "Empty Slot";
+            player.DropItem(eventData.position, eventData.pointerDrag.GetComponent<ItemData>());
+        }
     }
 
     public void OnPointerEnter(PointerEventData eventData)

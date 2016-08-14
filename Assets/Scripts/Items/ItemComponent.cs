@@ -2,17 +2,25 @@
 using System.Collections;
 
 [RequireComponent(typeof(Collider2D))]
+[RequireComponent(typeof(Rigidbody2D))]
 public class ItemComponent : MonoBehaviour {
 
     public Item item;
 
     public int itemID = 0;
+    public int stackAmount = 0;
 
     void Start()
     {
         item = ItemDatabase.instance.FetchItemByID(itemID);
         item.SetSprite();
         GetComponent<SpriteRenderer>().sprite = item.sprite;
+    }
+
+    public void setItem(int id, int stackNum)
+    {
+        itemID = id;
+        stackAmount = stackNum;
     }
 
     void OnTriggerEnter2D(Collider2D other)

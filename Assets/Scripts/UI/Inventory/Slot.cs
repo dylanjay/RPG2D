@@ -5,7 +5,7 @@ using System;
 
 public class Slot : MonoBehaviour, IDropHandler {
 
-    public int id;
+    public int slotID;
 
     Inventory inv;
 
@@ -17,16 +17,16 @@ public class Slot : MonoBehaviour, IDropHandler {
     public void OnDrop(PointerEventData eventData)
     {
         ItemData droppedItem = eventData.pointerDrag.GetComponent<ItemData>();
-        if(inv.items[id].id == -1)
+        if(inv.items[slotID].id == -1)
         {
             inv.items[droppedItem.slot] = new Item();
             inv.slots[droppedItem.slot].name = "Empty Slot";
-            inv.items[id] = droppedItem.item;
-            inv.slots[id].name = droppedItem.item.title + " Slot";
-            droppedItem.slot = id;
+            inv.items[slotID] = droppedItem.item;
+            inv.slots[slotID].name = droppedItem.item.title + " Slot";
+            droppedItem.slot = slotID;
         }
 
-        else if(droppedItem.slot != id)
+        else if(droppedItem.slot != slotID)
         {
             Transform item = this.transform.GetChild(0);
             item.GetComponent<ItemData>().slot = droppedItem.slot;
@@ -34,13 +34,13 @@ public class Slot : MonoBehaviour, IDropHandler {
             item.transform.position = inv.slots[droppedItem.slot].transform.position;
             inv.slots[droppedItem.slot].name = item.GetComponent<ItemData>().item.title + " Slot";
 
-            droppedItem.slot = id;
+            droppedItem.slot = slotID;
             droppedItem.transform.SetParent(this.transform);
             droppedItem.transform.position = this.transform.position;
 
             inv.items[droppedItem.slot] = item.GetComponent<ItemData>().item;
-            inv.items[id] = droppedItem.item;
-            inv.slots[id].name = droppedItem.item.title + " Slot";
+            inv.items[slotID] = droppedItem.item;
+            inv.slots[slotID].name = droppedItem.item.title + " Slot";
         }
     }
 }

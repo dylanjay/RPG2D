@@ -31,13 +31,13 @@ public class Inventory : MonoBehaviour {
         {
             items.Add(new Item());
             slots.Add(Instantiate(inventorySlot));
-            slots[i].GetComponent<Slot>().id = i;
+            slots[i].GetComponent<Slot>().slotID = i;
             slots[i].transform.SetParent(slotPanel.transform);
             slots[i].name = "Empty Slot";
         }
 
+        //NEEDS TO BE DELETED
         AddItem(0);
-        AddItem(1);
         AddItem(1);
         AddItem(1);
         AddItem(1);
@@ -49,6 +49,7 @@ public class Inventory : MonoBehaviour {
     public void AddItem(int id)
     {
         Item itemToAdd = database.FetchItemByID(id);
+        Debug.Log(itemToAdd.title);
         if (itemToAdd.stackable && CheckInventory(itemToAdd))
         {
             for (int i = 0; i < items.Count; i++)
@@ -70,11 +71,12 @@ public class Inventory : MonoBehaviour {
                 {
                     items[i] = itemToAdd;
                     GameObject itemObj = Instantiate(inventoryItem);
+                    //itemObj.transform.position = slots[i].transform.position;
                     itemObj.GetComponent<ItemData>().item = itemToAdd;
                     itemObj.GetComponent<ItemData>().amount = 1;
                     itemObj.GetComponent<ItemData>().slot = i;
                     itemObj.transform.SetParent(slots[i].transform);
-                    itemObj.transform.position = Vector2.zero;
+                    itemObj.transform.localPosition = Vector2.zero;
                     itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
                     itemObj.name = itemToAdd.title;
                     slots[i].name = itemToAdd.title + " Slot";
