@@ -10,6 +10,7 @@ public class PlayerControl : MonoBehaviour {
 
     Animator anim;
     GameObject inventoryPanel;
+    GameObject equipmentPanel;
     Inventory inv;
     Transform slotPanel;
     Tooltip tooltip;
@@ -29,9 +30,11 @@ public class PlayerControl : MonoBehaviour {
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
         inventoryPanel = GameObject.Find("Inventory Panel");
+        equipmentPanel = GameObject.Find("Equipment Panel");
         slotPanel = GameObject.Find("Slot Panel").transform;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
         inventoryPanel.SetActive(false);
+        equipmentPanel.SetActive(false);
     }
 
     // Update is called once per frame
@@ -45,6 +48,7 @@ public class PlayerControl : MonoBehaviour {
         if (Input.GetButtonDown("Inventory") && !inventoryCheck)
         {
             inventoryPanel.SetActive(true);
+            equipmentPanel.SetActive(true);
             inventoryCheck = true;
         }
 
@@ -63,6 +67,7 @@ public class PlayerControl : MonoBehaviour {
             }
 
             inventoryPanel.SetActive(false);
+            equipmentPanel.SetActive(false);
         }
     }
 
@@ -129,13 +134,13 @@ public class PlayerControl : MonoBehaviour {
     public void DropItem(Vector2 position, ItemData itemData)
     {
         //MoveTo(position);
-        if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
+        /*if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
         {
             Destroy(slotPanel.GetChild(slotPanel.childCount - 1).gameObject);
-        }
+        }*/
         GameObject itemInstance = Instantiate(Resources.Load("Prefabs/Item", typeof(GameObject)), transform.position, transform.rotation) as GameObject;
-        itemInstance.GetComponent<ItemComponent>().setItem(itemData.item.id, itemData.amount);
-        //itemInstance.GetComponent<Rigidbody2D>().AddForce(new Vector2(2, 5));
+        itemInstance.GetComponent<ItemComponent>().reset(itemData.item.id);
+        itemInstance.GetComponent<ItemComponent>().setStack(itemData.stackAmount);
     }
 
     void OnTriggerStay2D(Collider2D other)

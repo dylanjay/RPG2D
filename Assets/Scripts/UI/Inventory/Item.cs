@@ -23,33 +23,16 @@ public class Item {
         id = -1;
     }
 
-    public void SetSprite()
+    public Item(int ID, string Title, int Value, string Desc, bool Stack, int Rarity, string Slug, List<Stat> Stats)
     {
+        id = ID;
+        title = Title;
+        value = Value;
+        description = Desc;
+        stackable = Stack;
+        rarity = Rarity;
+        slug = Slug;
+        stats = Stats;
         sprite = Resources.Load<Sprite>("Items/" + slug);
-    }
-
-    public virtual void OnTriggerEnter2D(Collider2D other)
-    {
-
-    }
-
-    public virtual void OnTriggerStay2D(Collider2D other)
-    {
-
-    }
-
-    public virtual void OnTriggerExit2D(Collider2D other)
-    {
-
-    }
-
-    public virtual void OnCollisionEnter2D(Collision2D other)
-    {
-
-    }
-
-    public virtual void OnCollisionExit2D(Collision2D other)
-    {
-
     }
 }
