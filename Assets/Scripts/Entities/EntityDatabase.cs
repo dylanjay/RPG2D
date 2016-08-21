@@ -6,33 +6,79 @@ using System.IO;
 
 public class EntityDatabase : MonoBehaviour {
 
-    public List<Entity> database;
-    JsonData entityData;
+    public List<string> entityNames = new List<string>();
+    public Dictionary<string, Entity> entityDict = new Dictionary<string, Entity>();
+    JsonData data;
 
     private static EntityDatabase _instance;
     public static EntityDatabase instance { get { return _instance; } }
 
     void Awake()
     {
-        //entityData = JsonMapper.ToObject(File.ReadAllText(Application.dataPath + "/StreamingAssets/Entities.json"));
-        Entity[] entities = JsonMapper.ToObject<Entity[]>(File.ReadAllText(Application.dataPath + "/StreamingAssets/Entities.json"));
-        database = new List<Entity>(entities);
-
         _instance = this;
-        Debug.Log(database[0].stats[0].name);
+        data = JsonMapper.ToObject(File.ReadAllText(Application.dataPath + "/StreamingAssets/Entities.json"));
+        FillDatabase();
     }
 
-    public Entity FetchEntityByID(int id)
+    public Entity GetEntityByID(int id)
     {
-        for (int i = 0; i < database.Count; i++)
+        string listName = entityNames[id];
+        if (GetEntityByName(listName) == null)
         {
-            if (database[i].id == id)
-            {
-                return database[i];
-            }
+            return null;
+        }
+        int dictID = GetEntityByName(listName).id;
+        if (id != dictID)
+        {
+            Debug.LogError(listName + " has the wrong id");
         }
 
+        return GetEntityByName(listName);
+    }
+
+    public Entity GetEntityByName(string name)
+    {
+        if (entityDict.ContainsKey(name))
+        {
+            return entityDict[name];
+        }
         return null;
+    }
+
+    void FillDatabase()
+    {
+
+        for (int i = 0; i < data.Count; i++)
+        {
+            string name = (string)data[i]["name"];
+            entityNames.Add(name);
+            Dictionary<string, int> stats = new Dictionary<string, int>();
+            for (int j = 0; j < data[i]["stats"].Count; j++)
+            {
+                stats.Add((string)data[i]["stats"][j]["name"], (int)data[i]["stats"][j]["value"]);
+            }
+
+            if ((string)data[i]["type"] == "Player")
+            {
+                Player entity = new Player((int)data[i]["id"], stats);
+                entityDict.Add(name, entity);
+            }
+
+            /*else if ((string)data[i]["type"] == "Hostile")
+            {
+                Hostile entity = new Hostile((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
+                 (int)data[i]["rarity"], (string)data[i]["slug"], stats);
+                entityDict.Add(name, entity);
+            }
+
+            else if ((string)data[i]["type"] == "Neutral")
+            {
+                Neutral entity = new Neutral((int)data[i]["id"], (string)data[i]["title"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
+                 (int)data[i]["rarity"], (string)data[i]["slug"], stats);
+                entityDict.Add(name, entity);
+            }*/
+
+        }
     }
 
 }

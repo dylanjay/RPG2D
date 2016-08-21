@@ -2,12 +2,23 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Entity : ScriptableObject{
+public class Entity{
 
     public int id { get; set; }
     //public string name { get; set; }
-    public List<Stat> stats { get; set; }
-    
+    public Dictionary<string, int> stats { get; set; }
+
+    public Entity()
+    {
+        id = -1;
+    }
+
+    public Entity(int id, Dictionary<string, int> stats)
+    {
+        this.id = id;
+        this.stats = stats;
+    }
+
     public virtual void OnTriggerEnter2D(Collider2D other)
     {
         

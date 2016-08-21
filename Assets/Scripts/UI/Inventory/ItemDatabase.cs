@@ -14,8 +14,6 @@ public class ItemDatabase : MonoBehaviour {
     private static ItemDatabase _instance;
     public static ItemDatabase instance { get { return _instance; } }
 
-    Item[] items;
-
     void Awake()
     {
         _instance = this;

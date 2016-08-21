@@ -1,7 +1,8 @@
 [
   {
     "id": 0,
-    "name": "player",
+    "name": "Dylan",
+	"type": "Player",
     "stats": [
       {
         "name": "Health",
@@ -28,7 +29,8 @@
   },
   {
     "id": 1,
-    "name": "mob",
+    "name": "Mark",
+	"type": "Hostile",
     "stats": [
       {
         "name": "Health",
@@ -55,7 +57,8 @@
   },
   {
     "id": 2,
-    "name": "npc",
+    "name": "Raymond",
+	"type": "Neutral",
     "stats": [
       {
         "name": "Health",

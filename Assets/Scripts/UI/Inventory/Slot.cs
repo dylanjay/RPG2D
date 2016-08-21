@@ -70,6 +70,7 @@ public class Slot : MonoBehaviour, IDropHandler {
 
                 if (check)
                 {
+                    inv.equippedItem = true;
                     droppedItem.transferSuccess = true;
                     if (equipment[this.name].id == -1)
                     {
