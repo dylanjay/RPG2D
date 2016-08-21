@@ -2,6 +2,8 @@
   {
     "id": 0,
     "title": "Steel Gloves",
+    "type": "Wearable",
+    "subtype":  "Gloves",
     "value": 6,
     "stats": [
       {
@@ -20,7 +22,7 @@
         "range": 0
       }
     ],
-    "description": "Gloves made from steel",
+    "description": "Hand wrappies to keep the finger sausages warm at night ",
     "stackable": false,
     "rarity": 2,
     "slug":  "steel_gloves"
@@ -28,6 +30,8 @@
   {
     "id": 1,
     "title": "Steel Sword",
+    "type": "Weapon",
+    "subtype":  "Sword",
     "value": 543,
     "stats": [
       {
@@ -46,9 +50,36 @@
         "range": 5
       }
     ],
-    "description": "A sword made from steel",
+    "description": "Pointy Stabby Shiny Swordy",
     "stackable": true,
     "rarity": 6,
-    "slug":  "steel_sword"
+    "slug": "steel_sword"
+  },
+  {
+    "id": 2,
+    "title": "Health Potions",
+    "type":  "Consumable",
+    "value": 2,
+    "stats": [
+      {
+        "name": "Power",
+        "value": 0,
+        "range": 0
+      },
+      {
+        "name": "Defence",
+        "value": 0,
+        "range": 0
+      },
+      {
+        "name": "Vitality",
+        "value": 10,
+        "range": 0
+      }
+    ],
+    "description": "Red Jelly that you smother on you're severed leg and a new one pops out",
+    "stackable": true,
+    "rarity": 1,
+    "slug":  "health_potion"
   }
 ]

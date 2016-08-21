@@ -6,7 +6,8 @@ public class Tooltip : MonoBehaviour {
 
     Item item;
     string data;
-    GameObject tooltip;
+
+    public GameObject tooltip;
 
     void Start()
     {
@@ -40,9 +41,6 @@ public class Tooltip : MonoBehaviour {
             "<color=#ffb845>" + item.description + "</color>\n\n" +
             "<color=#e9ff24>Value: " + item.value + " gold</color>\n\n" +
             "Rarity: " + item.rarity + "\n";
-        /*"Power: " + item.stats[i] + "\n" +
-        "Defence: " + item.defence + "\n" +
-        "Vitality: " + item.vitality + "\n";*/
         for(int i = 0; i < item.stats.Count; i++)
         {
             data += item.stats[i].name + ": " + item.stats[i].value + "\n";

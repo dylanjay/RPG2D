@@ -5,8 +5,12 @@ using System.Collections.Generic;
 
 public class Inventory : MonoBehaviour {
 
+    public static Inventory instance { get { return _instance; } }
+    private static Inventory _instance;
+
     GameObject inventoryPanel;
     GameObject slotPanel;
+    GameObject equipmentPanel;
     ItemDatabase database;
     public GameObject inventorySlot;
     public GameObject inventoryItem;
@@ -14,25 +18,36 @@ public class Inventory : MonoBehaviour {
     int slotSize;
     public List<Item> items = new List<Item>();
     public List<GameObject> slots = new List<GameObject>();
+    //Player player;
+    public Dictionary<string, Item> equipmentSlots = new Dictionary<string, Item>();
 
     void Start()
     {
+        _instance = this;
+
         database = GetComponent<ItemDatabase>();
+        //player = Player.instance;
 
         slotSize = 16;
         inventoryPanel = GameObject.Find("Inventory Panel");
         slotPanel = inventoryPanel.transform.FindChild("Slot Panel").gameObject;
+        equipmentPanel = GameObject.Find("Equipment Slot Panel");
         for(int i = 0; i < slotSize; i++)
         {
             items.Add(new Item());
             slots.Add(Instantiate(inventorySlot));
-            slots[i].GetComponent<Slot>().id = i;
+            slots[i].GetComponent<Slot>().slotID = i;
             slots[i].transform.SetParent(slotPanel.transform);
             slots[i].name = "Empty Slot";
         }
 
+        for(int i = 0; i < equipmentPanel.transform.childCount; i++)
+        {
+            equipmentSlots.Add(equipmentPanel.transform.GetChild(i).name, new Item());
+        }
+
+        //NEEDS TO BE DELETED
         AddItem(0);
-        AddItem(1);
         AddItem(1);
         AddItem(1);
         AddItem(1);
@@ -43,7 +58,7 @@ public class Inventory : MonoBehaviour {
 
     public void AddItem(int id)
     {
-        Item itemToAdd = database.FetchItemByID(id);
+        Item itemToAdd = database.GetItemByID(id);
         if (itemToAdd.stackable && CheckInventory(itemToAdd))
         {
             for (int i = 0; i < items.Count; i++)
@@ -51,8 +66,8 @@ public class Inventory : MonoBehaviour {
                 if (items[i].id == id)
                 {
                     ItemData data = slots[i].transform.FindChild(itemToAdd.title).GetComponent<ItemData>();
-                    data.amount++;
-                    data.transform.FindChild("Stack Amount").GetComponent<Text>().text = data.amount.ToString();
+                    data.stackAmount++;
+                    data.transform.FindChild("Stack Amount").GetComponent<Text>().text = data.stackAmount.ToString();
                 }
             }
         }
@@ -66,10 +81,10 @@ public class Inventory : MonoBehaviour {
                     items[i] = itemToAdd;
                     GameObject itemObj = Instantiate(inventoryItem);
                     itemObj.GetComponent<ItemData>().item = itemToAdd;
-                    itemObj.GetComponent<ItemData>().amount = 1;
+                    itemObj.GetComponent<ItemData>().stackAmount = 1;
                     itemObj.GetComponent<ItemData>().slot = i;
                     itemObj.transform.SetParent(slots[i].transform);
-                    itemObj.transform.position = Vector2.zero;
+                    itemObj.transform.localPosition = Vector2.zero;
                     itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
                     itemObj.name = itemToAdd.title;
                     slots[i].name = itemToAdd.title + " Slot";
