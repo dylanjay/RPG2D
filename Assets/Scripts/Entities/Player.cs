@@ -7,6 +7,17 @@ public class Player : Entity {
     //private static PlayerEntity _instance = this;
     //public static PlayerEntity instance { get { return _instance; } }
 
+    int curLvl = 1;
+    const int maxLvl = 69;
+
+    int curExp = 0;
+    int[] expToLvl = new int[maxLvl];
+
+    void Awake()
+    {
+        exp
+    }
+
     public Player() : base()
     {
 
