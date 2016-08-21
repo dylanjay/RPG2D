@@ -19,7 +19,7 @@ public class Inventory : MonoBehaviour {
     public List<Item> items = new List<Item>();
     public List<GameObject> slots = new List<GameObject>();
     Player player;
-    EntityDatabase entityDatabase;
+
     public Dictionary<string, Item> equipmentSlots = new Dictionary<string, Item>();
 
     public bool equippedItem = false;
@@ -28,17 +28,17 @@ public class Inventory : MonoBehaviour {
     {
         _instance = this;
 
-        database = GetComponent<ItemDatabase>();
-        entityDatabase = EntityDatabase.instance;
-
-        player = entityDatabase.GetEntityByID(0) as Player;
-
-        player.UpdateStats(equipmentSlots);
-
         slotSize = 16;
         inventoryPanel = GameObject.Find("Inventory Panel");
         slotPanel = inventoryPanel.transform.FindChild("Slot Panel").gameObject;
         equipmentPanel = GameObject.Find("Equipment Slot Panel");
+
+        database = GetComponent<ItemDatabase>();
+        player = PlayerControl.instance.player;
+
+        player.UpdateStats(equipmentSlots);
+
+        
         for(int i = 0; i < slotSize; i++)
         {
             items.Add(new Item());

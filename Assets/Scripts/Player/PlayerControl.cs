@@ -23,9 +23,15 @@ public class PlayerControl : MonoBehaviour {
     float lerpLength;
     float startTime;
 
+    public Player player;
+    EntityDatabase entityData;
+
     // Use this for initialization
-    void Start()
+    void Awake()
     {
+        entityData = EntityDatabase.instance;
+        player = entityData.GetEntityByName("Dylan") as Player;
+
         _instance = this;
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
@@ -33,6 +39,11 @@ public class PlayerControl : MonoBehaviour {
         equipmentPanel = GameObject.Find("Equipment Panel");
         slotPanel = GameObject.Find("Slot Panel").transform;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
+        
+
+    }
+    void Start()
+    {
         inventoryPanel.SetActive(false);
         equipmentPanel.SetActive(false);
     }

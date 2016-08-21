@@ -64,13 +64,12 @@ public class EntityDatabase : MonoBehaviour {
                 entityDict.Add(name, entity);
             }
 
-            /*else if ((string)data[i]["type"] == "Hostile")
+            else if ((string)data[i]["type"] == "Hostile")
             {
-                Hostile entity = new Hostile((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
-                 (int)data[i]["rarity"], (string)data[i]["slug"], stats);
+                Hostile entity = new Hostile((int)data[i]["id"], stats, (int)data[i]["level"], (int)data[i]["exp"]);
                 entityDict.Add(name, entity);
             }
-
+            /*
             else if ((string)data[i]["type"] == "Neutral")
             {
                 Neutral entity = new Neutral((int)data[i]["id"], (string)data[i]["title"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],

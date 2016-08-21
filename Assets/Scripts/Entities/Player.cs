@@ -7,6 +7,12 @@ public class Player : Entity {
     //private static PlayerEntity _instance = this;
     //public static PlayerEntity instance { get { return _instance; } }
 
+    public int curLvl = 1;
+    public const int maxLvl = 6;
+
+    public int curExp = 0;
+    public int[] expToLvl = new int[maxLvl] {0, 1, 2, 4, 8, 16 };
+
     public Player() : base()
     {
 
@@ -15,6 +21,26 @@ public class Player : Entity {
     public Player(int id, Dictionary<string, int> stats) : base(id, stats)
     {
 
+    }
+
+    public void setExp(int expAmount)
+    {
+        if (curLvl != maxLvl)
+        {
+            curExp += expAmount;
+            for (int i = curLvl; i < maxLvl; i++)
+            {
+                if (curExp >= expToLvl[curLvl])
+                {
+                    curExp -= expToLvl[curLvl];
+                    curLvl++; //function for lvling up?
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
     }
 
     public void UpdateStats(Dictionary<string, Item> equipmentSlots)
