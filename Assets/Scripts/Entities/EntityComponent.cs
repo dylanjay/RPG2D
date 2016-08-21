@@ -11,7 +11,7 @@ public class EntityComponent : MonoBehaviour {
 
     void Start()
     {
-        entity = EntityDatabase.instance.FetchEntityByID(entityID);
+        entity = EntityDatabase.instance.GetEntityByID(entityID);
     }
 
     void OnTriggerEnter2D(Collider2D other)
