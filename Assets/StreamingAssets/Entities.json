@@ -31,6 +31,8 @@
     "id": 1,
     "name": "Mark",
 	"type": "Hostile",
+	"level": 1000,
+	"exp": 1,
     "stats": [
       {
         "name": "Health",
