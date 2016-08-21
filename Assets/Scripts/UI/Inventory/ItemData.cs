@@ -89,31 +89,14 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
         {
             transform.position = eventData.position - offset;
         }
-
-        if (eventData.hovered.Count > 0)
-        {
-            if (eventData.hovered[0] == equipmentPanel)
-            {
-                endInventory = false;
-            }
-
-            else
-            {
-                endInventory = true;
-            }
-        }
-
-        else
-        {
-            endInventory = true;
-        }
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         if (eventData.hovered.Count > 0)
         {
-            if (eventData.hovered[0] == equipmentPanel && transferSuccess)
+            Debug.Log(beginInventory);
+            if ((eventData.hovered[0] == equipmentPanel && (transferSuccess || (!transferSuccess && !beginInventory))) || eventData.hovered[0].name == "Slot Panel" && !transferSuccess && !beginInventory)
             {
                 Transform trans = equipmentPanel.transform.FindChild(equipmentSlot);
                 transform.SetParent(trans);
