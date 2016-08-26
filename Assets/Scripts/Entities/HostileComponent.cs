@@ -47,10 +47,13 @@ public class HostileComponent : MonoBehaviour {
     {
         //Debug.Log("Current curLvl :" + player.curLvl);
         //Debug.Log("Current curexp :" + player.curExp);
-        health -= 5;
-        if (health <= 0)
+        if (other.transform.name == "Sword")
         {
-            onDeath();
+            health -= 5;
+            if (health <= 0)
+            {
+                onDeath();
+            }
         }
     }
 

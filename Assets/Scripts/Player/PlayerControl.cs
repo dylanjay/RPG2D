@@ -26,6 +26,8 @@ public class PlayerControl : MonoBehaviour {
     public Player player;
     EntityDatabase entityData;
 
+    public bool swing = true;
+
     // Use this for initialization
     void Awake()
     {
@@ -51,9 +53,15 @@ public class PlayerControl : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
+        if(!swing)
+        {
+            anim.SetBool("Swing", false);
+            swing = true;
+        }
+
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            inv.AddItem(0);
+            anim.SetBool("Swing", true);
         }
 
         if (Input.GetButtonDown("Inventory") && !inventoryCheck)
