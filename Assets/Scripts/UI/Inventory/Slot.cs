@@ -10,21 +10,34 @@ public class Slot : MonoBehaviour, IDropHandler {
 
     Inventory inv;
     Dictionary<string, Item> equipment;
-    Transform equipmentPanel;
+    GameObject equipmentPanel;
 
     void Start()
     {
         inv = Inventory.instance;
         equipment = inv.equipmentSlots;
-        equipmentPanel = GameObject.Find("Equipment Slot Panel").transform;
+        equipmentPanel = GameObject.Find("Equipment Slot Panel");
     }
 
     public void OnDrop(PointerEventData eventData)
     {
         
         ItemData droppedItem = eventData.pointerDrag.GetComponent<ItemData>();
+        bool endInventory = true;
+        if (eventData.hovered.Count > 0)
+        {
+            if (eventData.hovered[1] == equipmentPanel)
+            {
+                eventData.hovered.Remove(eventData.hovered[0]);
+            }
 
-        if (droppedItem.beginInventory && droppedItem.endInventory)
+            if (eventData.hovered[0] == equipmentPanel || eventData.hovered[1] == equipmentPanel)
+            {
+                endInventory = false;
+            }
+        }
+
+        if (droppedItem.beginInventory && endInventory)
         {
             if (inv.items[slotID].id == -1)
             {
@@ -53,7 +66,7 @@ public class Slot : MonoBehaviour, IDropHandler {
             }
         }
 
-        else if (droppedItem.beginInventory && !droppedItem.endInventory)
+        else if (droppedItem.beginInventory && !endInventory)
         {
             Item curItem = droppedItem.item;
             if ((curItem is Weapon && this.name == "Weapon") || (curItem is Wearable))
@@ -97,8 +110,9 @@ public class Slot : MonoBehaviour, IDropHandler {
             }
         }
 
-        else if (!droppedItem.beginInventory && droppedItem.endInventory)
+        else if (!droppedItem.beginInventory && endInventory)
         {
+            droppedItem.transferSuccess = true;
             if (inv.items[slotID].id == -1)
             {
                 equipment[droppedItem.equipmentSlot] = new Item();
@@ -116,8 +130,8 @@ public class Slot : MonoBehaviour, IDropHandler {
                 itemData.equipmentSlot = droppedItem.equipmentSlot;
                 droppedItem.equipmentSlot = "";
 
-                item.transform.SetParent(equipmentPanel.FindChild(itemData.equipmentSlot));
-                item.transform.position = equipmentPanel.FindChild(itemData.equipmentSlot).position;
+                item.transform.SetParent(equipmentPanel.transform.FindChild(itemData.equipmentSlot));
+                item.transform.position = equipmentPanel.transform.FindChild(itemData.equipmentSlot).position;
 
                 droppedItem.slot = slotID;
                 droppedItem.transform.SetParent(this.transform);
