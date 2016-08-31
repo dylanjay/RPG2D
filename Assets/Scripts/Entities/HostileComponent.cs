@@ -49,6 +49,7 @@ public class HostileComponent : MonoBehaviour {
         //Debug.Log("Current curexp :" + player.curExp);
         if (other.transform.name == "Sword")
         {
+            player.incrementCombo();
             health -= 5;
             if (health <= 0)
             {
