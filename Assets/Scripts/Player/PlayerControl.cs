@@ -24,13 +24,10 @@ public class PlayerControl : MonoBehaviour {
     float startTime;
 
     public Player player;
-    EntityDatabase entityData;
 
     // Use this for initialization
     void Awake()
     {
-        entityData = EntityDatabase.instance;
-        player = entityData.GetEntityByName("Dylan") as Player;
 
         _instance = this;
         inv = Inventory.instance;

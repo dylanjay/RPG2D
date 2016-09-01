@@ -1,42 +1,68 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
-public class Entity{
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
+public class Entity : MonoBehaviour {
 
-    public int id { get; set; }
-    //public string name { get; set; }
-    public Dictionary<string, int> stats { get; set; }
+    //Stats
+    public int ID = 1;
+    public string entityName = "Mark";
+    public string type = "Hostile";
+    public int health = 10;
+    public int defence = 5;
+    public int attack = 5;
+    public int magic = 5;
+    public int mana = 5;
 
-    public Entity()
+    public Hostile hostile;
+
+    Player player;
+
+    void Start()
     {
-        id = -1;
+        player = PlayerControl.instance.player;
     }
 
-    public Entity(int id, Dictionary<string, int> stats)
+    public void onDeath()
     {
-        this.id = id;
-        this.stats = stats;
+        if (health <= 0)
+        {
+            Destroy(this.gameObject);
+            
+            player.setExp(hostile.expGiven);
+
+            //Debug.Log("Current expGiven :" + hostile.expGiven);
+            Debug.Log("Current curLvl :" + player.curLvl);
+            Debug.Log("Current curexp :" + player.curExp);
+        }
     }
 
-    public virtual void OnTriggerEnter2D(Collider2D other)
-    {
-        
-    }
-
-    public virtual void OnTriggerExit2D(Collider2D other)
-    {
-
-    }
-
-    public virtual void OnCollisionEnter2D(Collision2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
 
     }
 
-    public virtual void OnCollisionExit2D(Collision2D other)
+    void OnTriggerExit2D(Collider2D other)
     {
 
     }
+
+    void OnCollisionEnter2D(Collision2D other)
+    {
+        //Debug.Log("Current curLvl :" + player.curLvl);
+        //Debug.Log("Current curexp :" + player.curExp);
+        health -= 5;
+        if (health <= 0)
+        {
+            onDeath();
+        }
+    }
+
+    void OnCollisionExit2D(Collision2D other)
+    {
+
+    }
+
 
 }
