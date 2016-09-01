@@ -38,7 +38,6 @@ public class PlayerControl : MonoBehaviour {
     float startTime;
 
     public Player player;
-    EntityDatabase entityData;
 
     public bool swing = true;
     bool roll = false;

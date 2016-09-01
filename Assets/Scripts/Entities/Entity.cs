@@ -7,7 +7,7 @@ public class Entity : MonoBehaviour {
 
     //Stats
     public string entityName = "Mark";
-    public string type = "Hostile";
+    public string type = "Hostile";//Rude.
     public int health = 10;
     public int defence = 5;
     public int attack = 5;
@@ -50,5 +50,17 @@ public class Entity : MonoBehaviour {
 
     }
 
+    public BehaviorState PercentHealthAboveRatio(float ratio)
+    {
+        return (ratio < .5f ? BehaviorState.Success : BehaviorState.Failure);
+    }
 
+    public BehaviorState Attack()
+    {
+        return BehaviorState.Running;
+    }
+    public BehaviorState HeavyAttack()
+    {
+        return BehaviorState.Running;
+    }
 }
