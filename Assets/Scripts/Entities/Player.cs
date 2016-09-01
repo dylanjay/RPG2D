@@ -14,6 +14,8 @@ public class Player : Entity
     public int curExp = 0;
     public int[] expToLvl = new int[maxLvl] {0, 1, 2, 4, 8, 16 };
 
+    public int combo = 0;
+
     void Awake()
     {
         instance = this;
@@ -23,6 +25,20 @@ public class Player : Entity
     void Start()
     {
         
+    }
+
+    public void incrementCombo()
+    {
+        combo++;
+        this.attack++;
+        Debug.Log("Current combo multiplier: " + combo);
+    }
+
+    public void resetCombo()
+    {
+        this.attack -= combo;
+        combo = 0;
+        Debug.Log("Combo Reset");
     }
 
     public void setExp(int expAmount)
