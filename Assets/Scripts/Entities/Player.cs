@@ -2,39 +2,41 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Player : Entity {
+public class Player : Entity
+{
+    public static Player instance;
 
-    //private static PlayerEntity _instance = this;
-    //public static PlayerEntity instance { get { return _instance; } }
-
+    //Level
     public int curLvl = 1;
     public const int maxLvl = 6;
 
+    //Experience
     public int curExp = 0;
     public int[] expToLvl = new int[maxLvl] {0, 1, 2, 4, 8, 16 };
 
     public int combo = 0;
 
-    public Player() : base()
+    void Awake()
     {
-
+        instance = this;
+        this.health = 50;
     }
 
-    public Player(int id, Dictionary<string, int> stats) : base(id, stats)
+    void Start()
     {
-
+        
     }
 
     public void incrementCombo()
     {
         combo++;
-        stats["Attack"]++;
+        this.attack++;
         Debug.Log("Current combo multiplier: " + combo);
     }
 
     public void resetCombo()
     {
-        stats["Attack"] -= combo;
+        this.attack -= combo;
         combo = 0;
         Debug.Log("Combo Reset");
     }
@@ -72,17 +74,51 @@ public class Player : Entity {
                     switch (stat.name)
                     {
                         case "Power":
-                            stats["Attack"] += stat.value; //Change names accordingly
+                            this.attack += stat.value; //Change names accordingly
                             break;
                         case "Defence":
-                            stats["Defence"] += stat.value;
+                            this.defence += stat.value;
                             break;
                         case "Vitality":
-                            stats["Health"] += stat.value;
+                            this.health += stat.value;
                             break;
                     }
                 }
             }
         }
     }
+
+    protected override void OnTriggerEnter2D(Collider2D other)
+    {
+
+    }
+
+    protected override void OnTriggerExit2D(Collider2D other)
+    {
+
+    }
+
+    protected override void OnCollisionEnter2D(Collision2D other)
+    {
+        health -= 5;
+        if (health <= 0)
+        {
+            onDeath();
+        }
+    }
+
+    protected override void OnCollisionExit2D(Collision2D other)
+    {
+
+    }
+
+    protected override void onDeath()
+    {
+        if (health <= 0)
+        {
+            Destroy(this.gameObject);
+            Debug.Log("Oh no you died!");
+        }
+    }
+
 }

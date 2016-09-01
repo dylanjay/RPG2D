@@ -23,9 +23,6 @@ public class PlayerControl : MonoBehaviour {
     float lerpLength;
     float startTime;
 
-    public Player player;
-    EntityDatabase entityData;
-
     public bool swing = true;
     bool roll = false;
     public float rollSpeed = 0f;
@@ -37,9 +34,11 @@ public class PlayerControl : MonoBehaviour {
 
     void Awake()
     {
-        entityData = EntityDatabase.instance;
-        player = entityData.GetEntityByName("Dylan") as Player;
 
+    }
+
+    void Start()
+    {
         _instance = this;
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
@@ -47,12 +46,6 @@ public class PlayerControl : MonoBehaviour {
         equipmentPanel = GameObject.Find("Equipment Panel");
         slotPanel = GameObject.Find("Slot Panel").transform;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
-        
-
-    }
-
-    void Start()
-    {
         inventoryPanel.SetActive(false);
         equipmentPanel.SetActive(false);
     }
@@ -61,11 +54,11 @@ public class PlayerControl : MonoBehaviour {
     {
         if(comboTimer <= 0)
         {
-            player.resetCombo();
+            Player.instance.resetCombo();
             comboTimer = 3.0f;
         }
 
-        if(player.combo > 0)
+        if(Player.instance.combo > 0)
         {
             comboTimer -= Time.deltaTime;
         }

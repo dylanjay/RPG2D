@@ -4,19 +4,56 @@ using System.Collections.Generic;
 
 public class Hostile : Entity {
 
-    public int lvl { get; set; }
-    public int expGiven { get; set; }
-    Player player;
+    public int lvl = 1;
+    public int expGiven = 1;
 
-    public Hostile() : base()
+    void Awake()
+    {
+        
+    }
+
+    void Start()
+    {
+        
+    }
+
+
+    protected override void OnTriggerEnter2D(Collider2D other)
     {
 
     }
 
-    public Hostile(int id, Dictionary<string, int> stats, int lvl, int expGiven) : base(id, stats)
+    protected override void OnTriggerExit2D(Collider2D other)
     {
-        this.lvl = lvl;
-        this.expGiven = expGiven;
+
+    }
+
+    protected override void OnCollisionEnter2D(Collision2D other)
+    {
+        health -= 5;
+        if (health <= 0)
+        {
+            onDeath();
+        }
+    }
+
+    protected override void OnCollisionExit2D(Collision2D other)
+    {
+
+    }
+
+    protected override void onDeath()
+    {
+        if (health <= 0)
+        {
+            Destroy(this.gameObject);
+
+            Player.instance.setExp(this.expGiven);
+
+            //Debug.Log("Current expGiven :" + hostile.expGiven);
+            Debug.Log("Current curLvl :" + Player.instance.curLvl);
+            Debug.Log("Current curexp :" + Player.instance.curExp);
+        }
     }
 
 }

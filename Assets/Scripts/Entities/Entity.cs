@@ -1,42 +1,54 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
-public class Entity{
+[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Collider2D))]
+public class Entity : MonoBehaviour {
 
-    public int id { get; set; }
-    //public string name { get; set; }
-    public Dictionary<string, int> stats { get; set; }
+    //Stats
+    public string entityName = "Mark";
+    public string type = "Hostile";
+    public int health = 10;
+    public int defence = 5;
+    public int attack = 5;
+    public int magic = 5;
+    public int mana = 5;
 
-    public Entity()
+    void Start()
     {
-        id = -1;
+
     }
 
-    public Entity(int id, Dictionary<string, int> stats)
-    {
-        this.id = id;
-        this.stats = stats;
-    }
-
-    public virtual void OnTriggerEnter2D(Collider2D other)
+    protected virtual void onDeath()
     {
         
     }
 
-    public virtual void OnTriggerExit2D(Collider2D other)
+    protected virtual void OnTriggerEnter2D(Collider2D other)
     {
 
     }
 
-    public virtual void OnCollisionEnter2D(Collision2D other)
+    protected virtual void OnTriggerExit2D(Collider2D other)
     {
 
     }
 
-    public virtual void OnCollisionExit2D(Collision2D other)
+    protected virtual void OnCollisionEnter2D(Collision2D other)
+    {
+        //Debug.Log("Current curLvl :" + player.curLvl);
+        //Debug.Log("Current curexp :" + player.curExp);
+        health -= 5;
+        if (health <= 0)
+        {
+            onDeath();
+        }
+    }
+
+    protected virtual void OnCollisionExit2D(Collision2D other)
     {
 
     }
+
 
 }

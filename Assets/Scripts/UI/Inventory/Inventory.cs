@@ -18,7 +18,6 @@ public class Inventory : MonoBehaviour {
     int slotSize;
     public List<Item> items = new List<Item>();
     public List<GameObject> slots = new List<GameObject>();
-    Player player;
 
     public Dictionary<string, Item> equipmentSlots = new Dictionary<string, Item>();
 
@@ -34,10 +33,9 @@ public class Inventory : MonoBehaviour {
         equipmentPanel = GameObject.Find("Equipment Slot Panel");
 
         database = GetComponent<ItemDatabase>();
-        player = PlayerControl.instance.player;
 
-        player.UpdateStats(equipmentSlots);
 
+        Player.instance.UpdateStats(equipmentSlots);
         
         for(int i = 0; i < slotSize; i++)
         {
@@ -67,7 +65,7 @@ public class Inventory : MonoBehaviour {
         
         if (equippedItem)
         {
-            player.UpdateStats(equipmentSlots);
+            Player.instance.UpdateStats(equipmentSlots);
             equippedItem = false;
         }
 
