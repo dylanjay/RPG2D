@@ -11,22 +11,45 @@ using System;
 public class BehaviorLeaf : BehaviorComponent {
 
     [SerializeField]
-    protected Behavior behavior;
-    protected Func<object, Transform> func;
-
-    public void Dank()
+    protected Func<BehaviorState> func;
+    
+    public BehaviorLeaf(string name, Func<BehaviorState> func) : base(name)
     {
-        func = delegate (object s) { return GameObject.Find("").GetComponent<Transform>().GetChild((int)s); };
+        func = this.func;
     }
-
-    public BehaviorLeaf(Behavior behavior)
+    public BehaviorLeaf(string name) : base(name)
     {
-        behavior = this.behavior;
     }
 
     public override BehaviorState Behave()
     {
-        _returnState = behavior();
+        //_returnState = func.Invoke(func);
+        return _returnState;
+    }
+}
+
+public class BehaviorLeaf<T> : BehaviorComponent
+{
+
+    [SerializeField]
+    protected Func<T, BehaviorState> func;
+
+    T value;
+    
+    public BehaviorLeaf(string name, Func<T, BehaviorState> func, T value) : base(name)
+    {
+        this.func = func;
+        this.value = value;
+    }
+
+    public BehaviorLeaf(string name) : base(name)
+    {
+
+    }
+
+    public override BehaviorState Behave()
+    {
+        //_returnState = func.Invoke(func);
         return _returnState;
     }
 }

@@ -1,5 +1,12 @@
-﻿public abstract class BehaviorComposite : BehaviorComponent {
+﻿using System.Collections.Generic;
 
-    public System.Collections.Generic.List<BehaviorComponent> childBehaviors = new System.Collections.Generic.List<BehaviorComponent>();
+public abstract class BehaviorComposite : BehaviorComponent {
+
+    public BehaviorComponent[] childBehaviors;
 	
+    public BehaviorComposite(string name, BehaviorComponent[] childBehaviors) : base(name)
+    {
+        this.childBehaviors = childBehaviors;
+    }
+
 }

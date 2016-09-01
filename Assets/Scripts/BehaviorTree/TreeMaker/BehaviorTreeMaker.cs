@@ -180,7 +180,7 @@ public class BehaviorTreeMaker : MonoBehaviour {
 
 
         BehaviorComponent parentBehavior = parent.GetComponent<BehaviorSlot>().behaviorComponent;
-        if(parentBehavior is BehaviorComposite)
+        /*if(parentBehavior is BehaviorComposite)
         {
             ((BehaviorComposite)parentBehavior).childBehaviors.Add(childNode.GetComponent<BehaviorSlot>().behaviorComponent);
         }
@@ -191,7 +191,7 @@ public class BehaviorTreeMaker : MonoBehaviour {
         else //if is a leaf
         {
             Debug.LogError("Tried to create a child of a leaf.");
-        }
+        }*/
 
         return childNode;
     }

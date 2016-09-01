@@ -24,7 +24,7 @@ public abstract class BehaviorComponent : ScriptableObject{
         protected set { _returnState = value; }
     }
 
-    public BehaviorComponent() { }
+    public BehaviorComponent(string name) { this.name = name; }
 
     /// <summary>
     /// perform the behavior

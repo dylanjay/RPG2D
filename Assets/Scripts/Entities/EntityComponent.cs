@@ -33,4 +33,18 @@ public class EntityComponent : MonoBehaviour {
     {
         entity.OnCollisionEnter2D(other);
     }
+
+    public BehaviorState PercentHealthAboveRatio(float ratio)
+    {
+        return (ratio < .5f ? BehaviorState.Success : BehaviorState.Failure);
+    }
+
+    public BehaviorState Attack()
+    {
+        return BehaviorState.Running;
+    }
+    public BehaviorState HeavyAttack()
+    {
+        return BehaviorState.Running;
+    }
 }

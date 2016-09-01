@@ -9,12 +9,17 @@ using System;
 /// Returns Success if and only if each child has returned success.
 /// </summary>
 
-public class BTSequence : BehaviorComposite
+public class BehaviorSequence : BehaviorComposite
 {
     /// <summary>
     /// This is a summary.
     /// </summary>
     int currentChild = 0;
+
+    public BehaviorSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
+    {
+
+    }
 
     /// <summary>
     /// A helper function to reset the behavior
@@ -26,7 +31,7 @@ public class BTSequence : BehaviorComposite
 
     public override BehaviorState Behave()
     {
-        if(returnState != BehaviorState.Running)
+        if(returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
         {
             Reset();
         }
@@ -40,8 +45,8 @@ public class BTSequence : BehaviorComposite
     /// <returns></returns>
     private BehaviorState _Behave()
     {
-        Debug.Assert(childBehaviors.Count > 0, "Error: Behavior \"" + name + "\" has no children.");
-        while (currentChild < childBehaviors.Count)
+        Debug.Assert(childBehaviors.Length > 0, "Error: Behavior \"" + name + "\" has no children.");
+        while (currentChild < childBehaviors.Length)
         {
             BehaviorState childState = childBehaviors[currentChild].Behave();
             Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehaviors[currentChild].name + "\" of behavior \"" + name + "\" has no defined behavior.");
