@@ -13,6 +13,8 @@ public class Player : Entity {
     public int curExp = 0;
     public int[] expToLvl = new int[maxLvl] {0, 1, 2, 4, 8, 16 };
 
+    public int combo = 0;
+
     public Player() : base()
     {
 
@@ -21,6 +23,20 @@ public class Player : Entity {
     public Player(int id, Dictionary<string, int> stats) : base(id, stats)
     {
 
+    }
+
+    public void incrementCombo()
+    {
+        combo++;
+        stats["Attack"]++;
+        Debug.Log("Current combo multiplier: " + combo);
+    }
+
+    public void resetCombo()
+    {
+        stats["Attack"] -= combo;
+        combo = 0;
+        Debug.Log("Combo Reset");
     }
 
     public void setExp(int expAmount)
