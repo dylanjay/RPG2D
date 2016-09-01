@@ -3,8 +3,22 @@ using System.Collections;
 
 public class PlayerControl : MonoBehaviour {
 
+    public enum Direction { Up = 0, Right = 1, Down = 2, Left = 3 }
+
     public static PlayerControl instance { get { return _instance; } }
     private static PlayerControl _instance;
+
+    //These two variables are dependent on one another to work. Please keep them in order.
+    //Usage: anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], true);
+    public enum AnimParams{ Direction, Moving, SpeedX, SpeedY, Swing }
+    public static int[] AnimParamIDs = new int[]
+    {
+        Animator.StringToHash("Direction"),
+        Animator.StringToHash("Moving"),
+        Animator.StringToHash("SpeedX"),
+        Animator.StringToHash("SpeedY"),
+        Animator.StringToHash("Swing")
+    };
 
     public float moveSpeed = 0f;
 
@@ -22,6 +36,9 @@ public class PlayerControl : MonoBehaviour {
     bool startLerp = false;
     float lerpLength;
     float startTime;
+
+    public Player player;
+    EntityDatabase entityData;
 
     public bool swing = true;
     bool roll = false;
@@ -54,7 +71,7 @@ public class PlayerControl : MonoBehaviour {
     {
         if(comboTimer <= 0)
         {
-            Player.instance.resetCombo();
+            Player.instance.ResetCombo();
             comboTimer = 3.0f;
         }
 
@@ -65,13 +82,13 @@ public class PlayerControl : MonoBehaviour {
 
         if(!swing)
         {
-            anim.SetBool("Swing", false);
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], false);
             swing = true;
         }
 
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            anim.SetBool("Swing", true);
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], true);
         }
 
         if(Input.GetKeyDown(KeyCode.LeftControl))
@@ -131,7 +148,7 @@ public class PlayerControl : MonoBehaviour {
 
         if ((moveX != 0 || moveY != 0) || roll)
         {
-            anim.SetBool("Moving", true);
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], true);
             moving = true;
             if(!roll)
             {
@@ -145,48 +162,48 @@ public class PlayerControl : MonoBehaviour {
             {
                 setLast = true;
             }
-            anim.SetBool("Moving", false);
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], false);
             moving = false;
         }
 
         if(moveX < 0)
         {
-            anim.SetInteger("Direction", 1);
+            anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)Direction.Left);
             if (setLast)
             {
-                lastDirection = new Vector2(-1, 0);
+                lastDirection = Vector2.left;
             }
         }
 
         else if(moveX > 0)
         {
-            anim.SetInteger("Direction", 3);
+            anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)Direction.Right);
             if (setLast)
             {
-                lastDirection = new Vector2(1, 0);
+                lastDirection = Vector2.right;
             }
         }
 
         else if(moveX == 0 && moveY > 0)
         {
-            anim.SetInteger("Direction", 2);
+            anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)Direction.Up);
             if (setLast)
             {
-                lastDirection = new Vector2(0, 1);
+                lastDirection = Vector2.up;
             }
         }
 
         else if(moveX == 0 && moveY < 0)
         {
-            anim.SetInteger("Direction", 0);
+            anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)Direction.Down);
             if (setLast)
             {
-                lastDirection = new Vector2(0, -1);
+                lastDirection = Vector2.down;
             }
         }
 
-        anim.SetFloat("SpeedX", moveX);
-        anim.SetFloat("SpeedY", moveY);
+        anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedX], (int)Direction.Left);
+        anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedY], (int)Direction.Left);
 
         if (!roll)
         {

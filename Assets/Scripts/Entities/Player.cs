@@ -27,21 +27,21 @@ public class Player : Entity
         
     }
 
-    public void incrementCombo()
+    public void IncrementCombo()
     {
         combo++;
         this.attack++;
         Debug.Log("Current combo multiplier: " + combo);
     }
 
-    public void resetCombo()
+    public void ResetCombo()
     {
         this.attack -= combo;
         combo = 0;
         Debug.Log("Combo Reset");
     }
 
-    public void setExp(int expAmount)
+    public void SetExp(int expAmount)
     {
         if (curLvl != maxLvl)
         {
@@ -103,7 +103,7 @@ public class Player : Entity
         health -= 5;
         if (health <= 0)
         {
-            onDeath();
+            OnDeath();
         }
     }
 
@@ -112,7 +112,7 @@ public class Player : Entity
 
     }
 
-    protected override void onDeath()
+    protected override void OnDeath()
     {
         if (health <= 0)
         {

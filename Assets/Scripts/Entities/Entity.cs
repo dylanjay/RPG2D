@@ -19,7 +19,7 @@ public class Entity : MonoBehaviour {
 
     }
 
-    protected virtual void onDeath()
+    protected virtual void OnDeath()
     {
         
     }
@@ -41,7 +41,7 @@ public class Entity : MonoBehaviour {
         health -= 5;
         if (health <= 0)
         {
-            onDeath();
+            OnDeath();
         }
     }
 

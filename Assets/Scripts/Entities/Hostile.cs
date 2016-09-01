@@ -33,7 +33,7 @@ public class Hostile : Entity {
         health -= 5;
         if (health <= 0)
         {
-            onDeath();
+            OnDeath();
         }
     }
 
@@ -42,13 +42,13 @@ public class Hostile : Entity {
 
     }
 
-    protected override void onDeath()
+    protected override void OnDeath()
     {
         if (health <= 0)
         {
             Destroy(this.gameObject);
 
-            Player.instance.setExp(this.expGiven);
+            Player.instance.SetExp(this.expGiven);
 
             //Debug.Log("Current expGiven :" + hostile.expGiven);
             Debug.Log("Current curLvl :" + Player.instance.curLvl);
