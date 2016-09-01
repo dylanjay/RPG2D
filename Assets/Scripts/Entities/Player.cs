@@ -4,19 +4,7 @@ using System.Collections.Generic;
 
 public class Player : Entity
 {
-
-    //private static PlayerEntity _instance = this;
-    //public static PlayerEntity instance { get { return _instance; } }
-
-    //Stats
-    /*public int playerID = 0;
-    public string playerName = "Dylan";
-    public string type = "Player";
-    public int playerHealth = 10;
-    public int playerDefence = 5;
-    public int playerAttack = 5;
-    public int playerMagic = 5;
-    public int playerMana = 5;*/
+    public static Player instance;
 
     //Level
     public int curLvl = 1;
@@ -26,15 +14,16 @@ public class Player : Entity
     public int curExp = 0;
     public int[] expToLvl = new int[maxLvl] {0, 1, 2, 4, 8, 16 };
 
-    public Player() : base()
+    void Awake()
     {
-
+        instance = this;
+        this.health = 50;
     }
 
-    /*public Player(int id, Dictionary<string, int> stats) : base(id, stats)
+    void Start()
     {
-
-    }*/
+        
+    }
 
     public void setExp(int expAmount)
     {
@@ -69,17 +58,51 @@ public class Player : Entity
                     switch (stat.name)
                     {
                         case "Power":
-                            attack += stat.value; //Change names accordingly
+                            this.attack += stat.value; //Change names accordingly
                             break;
                         case "Defence":
-                            defence += stat.value;
+                            this.defence += stat.value;
                             break;
                         case "Vitality":
-                            health += stat.value;
+                            this.health += stat.value;
                             break;
                     }
                 }
             }
         }
     }
+
+    protected override void OnTriggerEnter2D(Collider2D other)
+    {
+
+    }
+
+    protected override void OnTriggerExit2D(Collider2D other)
+    {
+
+    }
+
+    protected override void OnCollisionEnter2D(Collision2D other)
+    {
+        health -= 5;
+        if (health <= 0)
+        {
+            onDeath();
+        }
+    }
+
+    protected override void OnCollisionExit2D(Collision2D other)
+    {
+
+    }
+
+    protected override void onDeath()
+    {
+        if (health <= 0)
+        {
+            Destroy(this.gameObject);
+            Debug.Log("Oh no you died!");
+        }
+    }
+
 }

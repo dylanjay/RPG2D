@@ -23,12 +23,14 @@ public class PlayerControl : MonoBehaviour {
     float lerpLength;
     float startTime;
 
-    public Player player;
-
     // Use this for initialization
     void Awake()
     {
 
+    }
+
+    void Start()
+    {
         _instance = this;
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
@@ -36,11 +38,7 @@ public class PlayerControl : MonoBehaviour {
         equipmentPanel = GameObject.Find("Equipment Panel");
         slotPanel = GameObject.Find("Slot Panel").transform;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
-        
 
-    }
-    void Start()
-    {
         inventoryPanel.SetActive(false);
         equipmentPanel.SetActive(false);
     }
