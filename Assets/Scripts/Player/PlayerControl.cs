@@ -3,8 +3,22 @@ using System.Collections;
 
 public class PlayerControl : MonoBehaviour {
 
+    public enum Direction { Up = 0, Right = 1, Down = 2, Left = 3 }
+
     public static PlayerControl instance { get { return _instance; } }
     private static PlayerControl _instance;
+
+    //These two variables are dependent on one another to work. Please keep them in order.
+    //Usage: anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], true);
+    public enum AnimParams{ Direction, Moving, SpeedX, SpeedY, Swing }
+    public static int[] AnimParamIDs = new int[]
+    {
+        Animator.StringToHash("Direction"),
+        Animator.StringToHash("Moving"),
+        Animator.StringToHash("SpeedX"),
+        Animator.StringToHash("SpeedY"),
+        Animator.StringToHash("Swing")
+    };
 
     public float moveSpeed = 0f;
 
@@ -15,20 +29,16 @@ public class PlayerControl : MonoBehaviour {
     Transform slotPanel;
     Tooltip tooltip;
     public bool inventoryCheck = false;
-
-    Vector2 lerpPos;
-    Vector2 curPos;
-    public float lerpSpeed;
-    bool startLerp = false;
-    float lerpLength;
-    float startTime;
+    
+    public Player player;
 
     public bool swing = true;
-    bool roll = false;
-    public float rollSpeed = 0f;
-    public float rollTimer = 1.0f;
-    Vector2 lastDirection;
-    bool moving = true;
+
+    //The last direction the player was facing. Useful for projectiles/abilities.
+    public Vector2 lastDirection = Vector2.down;
+    //Same as lastDirection, but lastInput also allows itself to be 0,0.
+    private Vector2 lastInput = Vector2.zero;
+    bool moving = false;
 
     public float comboTimer = 3.0f;
 
@@ -54,7 +64,7 @@ public class PlayerControl : MonoBehaviour {
     {
         if(comboTimer <= 0)
         {
-            Player.instance.resetCombo();
+            Player.instance.ResetCombo();
             comboTimer = 3.0f;
         }
 
@@ -65,29 +75,13 @@ public class PlayerControl : MonoBehaviour {
 
         if(!swing)
         {
-            anim.SetBool("Swing", false);
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], false);
             swing = true;
         }
 
         if(Input.GetKeyDown(KeyCode.Space))
         {
-            anim.SetBool("Swing", true);
-        }
-
-        if(Input.GetKeyDown(KeyCode.LeftControl))
-        {
-            roll = true;
-        }
-
-        if (roll)
-        {
-            rollTimer -= Time.deltaTime;
-        }
-
-        if(rollTimer <= 0)
-        {
-            rollTimer = 0.5f;
-            roll = false;
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], true);
         }
 
         if (Input.GetButtonDown("Inventory") && !inventoryCheck)
@@ -114,108 +108,58 @@ public class PlayerControl : MonoBehaviour {
             inventoryPanel.SetActive(false);
             equipmentPanel.SetActive(false);
         }
+
+        UpdatePlayerMovementInput();
+    }
+
+    void UpdatePlayerMovementInput()
+    {
+        float moveX = Input.GetAxisRaw("Horizontal");
+        float moveY = Input.GetAxisRaw("Vertical");
+
+        Vector2 curDirection = new Vector2(moveX, moveY);
+
+        //Store whether or not the input changed between frames, then write to last input.
+        bool inputChanged = curDirection != lastInput;
+        lastInput = curDirection;
+
+        if (inputChanged)
+        {
+            curDirection.Normalize();
+
+            if (moveX != 0 || moveY != 0)
+            {
+                anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], true);
+                moving = true;
+                lastDirection.Set(moveX, moveY);
+                lastDirection.Normalize();
+            }
+            else
+            {
+                anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], false);
+                moving = false;
+            }
+
+            if (moveX != 0)
+            {
+                anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)(moveX * -1) + 2);
+            }
+            else if (moveY != 0)
+            {
+                anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)moveY * -1 + 1);
+            }
+
+            anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedX], moveSpeed * lastDirection.x);
+            anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedY], moveSpeed * lastDirection.y);
+        }
+
     }
 
     void FixedUpdate()
     {
-        if(startLerp)
+        if (moving)
         {
-            float distCovered = (Time.time - startTime) * lerpSpeed;
-            float fracLerp = distCovered / lerpLength;
-            transform.position = Vector2.Lerp(curPos, lerpPos, fracLerp);
-        }   
-        
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveY = Input.GetAxisRaw("Vertical");
-        bool setLast = false;
-
-        if ((moveX != 0 || moveY != 0) || roll)
-        {
-            anim.SetBool("Moving", true);
-            moving = true;
-            if(!roll)
-            {
-                lastDirection = new Vector2(moveX, moveY);
-            }
-        }
-
-        else
-        {
-            if(moving)
-            {
-                setLast = true;
-            }
-            anim.SetBool("Moving", false);
-            moving = false;
-        }
-
-        if(moveX < 0)
-        {
-            anim.SetInteger("Direction", 1);
-            if (setLast)
-            {
-                lastDirection = new Vector2(-1, 0);
-            }
-        }
-
-        else if(moveX > 0)
-        {
-            anim.SetInteger("Direction", 3);
-            if (setLast)
-            {
-                lastDirection = new Vector2(1, 0);
-            }
-        }
-
-        else if(moveX == 0 && moveY > 0)
-        {
-            anim.SetInteger("Direction", 2);
-            if (setLast)
-            {
-                lastDirection = new Vector2(0, 1);
-            }
-        }
-
-        else if(moveX == 0 && moveY < 0)
-        {
-            anim.SetInteger("Direction", 0);
-            if (setLast)
-            {
-                lastDirection = new Vector2(0, -1);
-            }
-        }
-
-        anim.SetFloat("SpeedX", moveX);
-        anim.SetFloat("SpeedY", moveY);
-
-        if (!roll)
-        {
-            GetComponent<Rigidbody2D>().velocity = new Vector2(moveSpeed * moveX, moveSpeed * moveY);
-        }
-
-        else
-        {
-            if (moveX != 0 && moveY != 0)
-            {
-                GetComponent<Rigidbody2D>().velocity = lastDirection * rollSpeed;
-            }
-
-            else
-            {
-                GetComponent<Rigidbody2D>().velocity = lastDirection * rollSpeed;
-            }
-        }
-    }
-
-    void MoveTo(Vector2 position)
-    {
-        lerpPos = position;
-        curPos = transform.position;
-        lerpLength = Vector2.Distance(lerpPos, curPos);
-        startTime = Time.time;
-        while(new Vector2(transform.position.x, transform.position.y) != position)
-        {
-            startLerp = true;
+            transform.Translate(lastDirection * (moveSpeed * Time.deltaTime));
         }
     }
 
