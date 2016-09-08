@@ -4,11 +4,10 @@ using UnityEngine.EventSystems;
 using System;
 using RPG2DAttributes;
 using UnityEngine.UI;
-using uFAction;
 
 public class BehaviorSlot : MonoBehaviour, IDragHandler {
 
-    public class BehaviorFunc<T> : UnityFunc<T, BehaviorState> { }
+    /*public class BehaviorFunc<T> : UnityFunc<T, BehaviorState> { }
     [Serializable]
     public class BehaviorFuncFloat : BehaviorFunc<float> { }
     [Serializable]
@@ -16,7 +15,7 @@ public class BehaviorSlot : MonoBehaviour, IDragHandler {
     [Serializable]
     public class BehaviorFuncInt : BehaviorFunc<int> { }
     [Serializable]
-    public class BehaviorFuncGameObject : BehaviorFunc<GameObject> { }
+    public class BehaviorFuncGameObject : BehaviorFunc<GameObject> { }*/
 
     public GameObject parentObject;
     
@@ -25,9 +24,9 @@ public class BehaviorSlot : MonoBehaviour, IDragHandler {
 
     public Type parameterType;
 
-    [HideInInspector]
+    /*[HideInInspector]
     [SerializeField]
-    public object behaviorFunc = new BehaviorFuncGameObject();
+    public object behaviorFunc = new BehaviorFuncGameObject();*/
 
     private string _nodeName = "";
 
@@ -47,8 +46,8 @@ public class BehaviorSlot : MonoBehaviour, IDragHandler {
         }
     }
 
-    [ShowDelegate("Action")]
-    public object action = new BehaviorFuncGameObject();
+    /*[ShowDelegate("Action")]
+    public object action = new BehaviorFuncGameObject();*/
 
     public void OnDrag(PointerEventData eventData)
     {

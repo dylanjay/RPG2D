@@ -1,5 +1,4 @@
 ﻿using EditorGUIFramework;
-using uFAction;
 using UnityEditor;
 
 namespace Assets.Vexe.uFAction.Scripts.Examples.Editor
@@ -8,7 +7,7 @@ namespace Assets.Vexe.uFAction.Scripts.Examples.Editor
     /// An example editor to show how you can draw a delegate from editor scripts too
     /// so you're not just constrained to use [ShowDelegate]
     /// </summary>
-    [CustomEditor(typeof(BehaviorSlot))]
+    /*[CustomEditor(typeof(BehaviorSlot))]
     public class BehaviorSlotEditor : BetterEditor<BehaviorSlot>
     {
         // Declare our delegate drawer
@@ -35,5 +34,5 @@ namespace Assets.Vexe.uFAction.Scripts.Examples.Editor
             // Finally, we draw the delegate
             delegateDrawer.Draw();
         }
-    }
+    }*/
 }
