@@ -15,15 +15,17 @@ public class BehaviorLeaf : BehaviorComponent {
     
     public BehaviorLeaf(string name, Func<BehaviorState> func) : base(name)
     {
-        func = this.func;
+        this.func = func;
     }
     public BehaviorLeaf(string name) : base(name)
     {
+
     }
 
     public override BehaviorState Behave()
     {
-        //_returnState = func.Invoke(func);
+        Debug.Log(name);
+        _returnState = func();
         return _returnState;
     }
 }
@@ -49,7 +51,8 @@ public class BehaviorLeaf<T> : BehaviorComponent
 
     public override BehaviorState Behave()
     {
-        //_returnState = func.Invoke(func);
+        Debug.Log(name);
+        _returnState = func(value);
         return _returnState;
     }
 }

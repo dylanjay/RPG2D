@@ -3,11 +3,12 @@ using System.Collections;
 
 public class ScriptTreeMake : MonoBehaviour {
 
-	// Use this for initialization
+    // Use this for initialization
+    BehaviorComponent tree; 
 	void Start ()
     {
         //BehaviorComponent[] children = new BehaviorComponent[] { new BehaviorLeaf(), };
-        BehaviorComponent root =
+        tree =
             new BehaviorSequence("Sequence", new BehaviorComponent[]
             {
                 new BehaviorWhile(
@@ -16,13 +17,13 @@ public class ScriptTreeMake : MonoBehaviour {
                     new BehaviorLeaf("Action: Basic Attack", GetComponent<Entity>().Attack)
                 ),
 
-                new BehaviorLeaf("Action: Basic Attack", GetComponent<Entity>().HeavyAttack)
+                new BehaviorLeaf("Action: Heavy Attack", GetComponent<Entity>().HeavyAttack)
 
             });
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        tree.Behave();
 	}
 }

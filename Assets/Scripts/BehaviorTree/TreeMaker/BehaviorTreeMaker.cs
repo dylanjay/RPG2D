@@ -103,7 +103,7 @@ public class BehaviorTreeMaker : MonoBehaviour {
 
     public void UIButtonClicked(GameObject clickedUIButton)
     {
-        string buttonName = clickedUIButton.name.Substring(clickedUIButton.name.IndexOf(' ') + 1);
+        /*string buttonName = clickedUIButton.name.Substring(clickedUIButton.name.IndexOf(' ') + 1);
 
         //If it is a type
         if(clickedUIButton.name[0] == 'T')
@@ -128,7 +128,7 @@ public class BehaviorTreeMaker : MonoBehaviour {
                 currentPath += string.Format("\\{0}", buttonName);
             }
             ShowSetBehaviorUI(selectedBehaviorGO.GetComponent<BehaviorSlot>());
-        }
+        }*/
     }
 
     private void ClearButtons()
@@ -141,7 +141,7 @@ public class BehaviorTreeMaker : MonoBehaviour {
         }
     }
 
-    private void UpdateCurrentNodeInHeirarchy(Type behaviorType)
+    /*private void UpdateCurrentNodeInHeirarchy(Type behaviorType)
     {
         BehaviorSlot selectedBSlot = selectedBehaviorGO.GetComponent<BehaviorSlot>();
 
@@ -167,7 +167,7 @@ public class BehaviorTreeMaker : MonoBehaviour {
 
         }
         
-    }
+    }*/
 
     private GameObject CreateNewNode(Transform parent)
     {

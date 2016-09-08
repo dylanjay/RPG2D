@@ -52,15 +52,17 @@ public class Entity : MonoBehaviour {
 
     public BehaviorState PercentHealthAboveRatio(float ratio)
     {
-        return (ratio < .5f ? BehaviorState.Success : BehaviorState.Failure);
+        return (1 > ratio ? BehaviorState.Success : BehaviorState.Failure);
     }
 
     public BehaviorState Attack()
     {
+        Debug.Log("Regular Attack");
         return BehaviorState.Running;
     }
     public BehaviorState HeavyAttack()
     {
+        Debug.Log("Heavy Attack");
         return BehaviorState.Running;
     }
 }

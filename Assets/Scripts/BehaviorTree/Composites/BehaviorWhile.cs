@@ -12,7 +12,7 @@ using System;
 public class BehaviorWhile : BehaviorComposite
 {
     private const int CONDTION_BEHAVIOR = 0;
-    private const int ACTION_BEHAVIOR = 0;
+    private const int ACTION_BEHAVIOR = 1;
 
     private BehaviorComponent condition { get { return childBehaviors[CONDTION_BEHAVIOR]; } }
     private BehaviorComponent action { get { return childBehaviors[ACTION_BEHAVIOR]; } }
@@ -43,6 +43,8 @@ public class BehaviorWhile : BehaviorComposite
         if (condition.Behave() == BehaviorState.Failure)
         {
             //We return success because the while loop has completed.
+
+            Debug.Log("Failure => Success");
             return BehaviorState.Success;
         }
         else
