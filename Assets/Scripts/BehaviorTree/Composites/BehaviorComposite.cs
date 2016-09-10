@@ -10,4 +10,14 @@ public abstract class BehaviorComposite : BehaviorComponent {
         this.childBehaviors = childBehaviors;
     }
 
+    public void Shuffle()
+    {
+        for (int i = 0; i < childBehaviors.Length; i++)
+        {
+            BehaviorComponent temp = childBehaviors[i];
+            int rand = UnityEngine.Random.Range(i, childBehaviors.Length);
+            childBehaviors[i] = childBehaviors[rand];
+            childBehaviors[rand] = temp;
+        }
+    }
 }

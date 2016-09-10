@@ -3,22 +3,22 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// A short circuiting sequencer. Behaves like a conditional AND statement:
+/// A short circuiting selector. Behaves like a conditional OR statement:
 /// 
-/// Returns Failure/Error/Running on the first failure/error/running. Will not run any behaviors after that.
-/// Returns Success if and only if each child has returned success.
+/// Iterates through children and returns success on first success
+/// Returns failure if and only if all children have returned failure
 /// </summary>
 
-public class BehaviorSequence : BehaviorComposite
+public class BehaviorRandomSelector : BehaviorComposite
 {
     /// <summary>
     /// This is a summary.
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
+    public BehaviorRandomSelector(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
     {
-
+        Shuffle();
     }
 
     /// <summary>
@@ -27,11 +27,12 @@ public class BehaviorSequence : BehaviorComposite
     private void Reset()
     {
         currentChild = 0;
+        Shuffle();
     }
 
     public override BehaviorState Behave()
     {
-        if(returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
+        if (returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
         {
             Reset();
         }
@@ -51,7 +52,7 @@ public class BehaviorSequence : BehaviorComposite
             BehaviorState childState = childBehaviors[currentChild].Behave();
             Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehaviors[currentChild].name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-            if (childState != BehaviorState.Success)
+            if (childState == BehaviorState.Success)
             {
                 returnState = childState;
                 return childState;
@@ -62,6 +63,7 @@ public class BehaviorSequence : BehaviorComposite
             }
         }
         currentChild = 0;
-        return BehaviorState.Success;
+        Shuffle();
+        return BehaviorState.Failure;
     }
 }

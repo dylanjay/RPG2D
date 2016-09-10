@@ -9,16 +9,16 @@ using System;
 /// Returns Success if and only if each child has returned success.
 /// </summary>
 
-public class BehaviorSequence : BehaviorComposite
+public class BehaviorRandomSequence : BehaviorComposite
 {
     /// <summary>
     /// This is a summary.
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
+    public BehaviorRandomSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
     {
-
+        Shuffle();
     }
 
     /// <summary>
@@ -27,11 +27,12 @@ public class BehaviorSequence : BehaviorComposite
     private void Reset()
     {
         currentChild = 0;
+        Shuffle();
     }
 
     public override BehaviorState Behave()
     {
-        if(returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
+        if (returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
         {
             Reset();
         }
@@ -62,6 +63,7 @@ public class BehaviorSequence : BehaviorComposite
             }
         }
         currentChild = 0;
+        Shuffle();
         return BehaviorState.Success;
     }
 }
