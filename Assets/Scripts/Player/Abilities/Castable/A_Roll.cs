@@ -21,6 +21,7 @@ public class A_Roll : CastableAbility
 
     protected override IEnumerator OnAbilityCast()
     {
+        Player.instance.GetComponent<PlayerControl>().lockMovement = true;
         Debug.Log("Roll started");
         //Beginning
         Player.instance.GetComponent<SpriteRenderer>().color /= 1.5f;
@@ -38,6 +39,7 @@ public class A_Roll : CastableAbility
 
         //End
         Player.instance.GetComponent<SpriteRenderer>().color *= 1.5f;
+        Player.instance.GetComponent<PlayerControl>().lockMovement = false;
         Debug.Log("Roll ended");
     }
 

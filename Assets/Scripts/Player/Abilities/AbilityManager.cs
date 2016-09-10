@@ -113,11 +113,11 @@ public class AbilityManager : MonoBehaviour {
         return equippedAbilities.Find(x => x.GetType() == abilityType);
     }
 
-    void OnDestroy()
+    /*void OnDestroy()
     {
         for(int i = 0; i < equippedAbilities.Count; i++)
         {
             equippedAbilities[i].Disable();
         }
-    }
+    }*/
 }
