@@ -7,8 +7,6 @@ public class A_Roll : CastableAbility
 {
     public bool leaveAfterBurn = true;
 
-    public GameObject burnPrefab;
-
     protected override void OnAbilityEnable()
     {
 
@@ -21,15 +19,12 @@ public class A_Roll : CastableAbility
 
     protected override IEnumerator OnAbilityCast()
     {
-        Player.instance.GetComponent<PlayerControl>().lockMovement = true;
-        Debug.Log("Roll started");
         //Beginning
         Player.instance.GetComponent<SpriteRenderer>().color /= 1.5f;
         Vector2 movementVec = Player.instance.GetComponent<PlayerControl>().lastDirection * 10;
         float beginTime = Time.time;
-        WaitForEndOfFrame waitForEndOfFrame = new WaitForEndOfFrame();
-
-
+        WaitForFixedUpdate waitForEndOfFrame = new WaitForFixedUpdate();
+        
         //Ability loop
         while (Time.time - beginTime < abilityDuration)
         {
@@ -39,8 +34,6 @@ public class A_Roll : CastableAbility
 
         //End
         Player.instance.GetComponent<SpriteRenderer>().color *= 1.5f;
-        Player.instance.GetComponent<PlayerControl>().lockMovement = false;
-        Debug.Log("Roll ended");
     }
 
     //Physics based roll. Huge initial speed and then falls off due to friction.
