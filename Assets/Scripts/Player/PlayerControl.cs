@@ -42,6 +42,13 @@ public class PlayerControl : MonoBehaviour {
 
     public float comboTimer = 3.0f;
 
+    private bool _lockMovement;
+    public bool lockMovement
+    {
+        get { return _lockMovement; }
+        set { _lockMovement = value; }
+    }
+
     void Awake()
     {
 
@@ -109,7 +116,10 @@ public class PlayerControl : MonoBehaviour {
             equipmentPanel.SetActive(false);
         }
 
-        UpdatePlayerMovementInput();
+        if (!_lockMovement)
+        {
+            UpdatePlayerMovementInput();
+        }
     }
 
     void UpdatePlayerMovementInput()

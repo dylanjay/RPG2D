@@ -12,11 +12,14 @@ public class AbilityManager : MonoBehaviour {
     /// </summary>
     public List<Ability> abilities;
 
+    public static Dictionary<Type, Ability> allAbilities = new Dictionary<Type, Ability>();
 
     private List<Ability> equippedAbilities  = new List<Ability>();
 
     private List<string> keybindingKeys = new List<string>();
     private Dictionary<string, CastableAbility> keybindingsToAbilities = new Dictionary<string, CastableAbility>();
+
+    private float lockoutTimer = 0;
 
     void Awake()
     {
@@ -30,6 +33,10 @@ public class AbilityManager : MonoBehaviour {
 
     void Update()
     {
+        lockoutTimer -= Time.deltaTime;
+        if (lockoutTimer > 0) { return; }
+
+
         foreach (string keybinding in keybindingKeys)
         {
             CastableAbility castedAbility;
@@ -37,11 +44,16 @@ public class AbilityManager : MonoBehaviour {
             {
                 if(Input.GetButtonDown(castedAbility.keybinding))
                 {
-                    Debug.Log("Pressed");
-                    IEnumerator iEnumerator = castedAbility.Activate();
-                    if(iEnumerator != null)
+                    List<Ability.AbilityCallback> abilityCallbacks = castedAbility.AbilityPressed();
+                    if(abilityCallbacks != null)
                     {
-                        StartCoroutine(iEnumerator);
+                        foreach (Ability.AbilityCallback abilityCallback in abilityCallbacks)
+                        {
+                            if (abilityCallback != null)
+                            {
+                                StartCoroutine(abilityCallback());
+                            }
+                        }
                     }
                 }
             }
@@ -100,7 +112,6 @@ public class AbilityManager : MonoBehaviour {
         //Add the ability to the list and enable it.
         equippedAbilities.Add(ability);
         ability.Enable();
-        
     }
 
     public Ability GetAbility(string ability)
@@ -113,11 +124,20 @@ public class AbilityManager : MonoBehaviour {
         return equippedAbilities.Find(x => x.GetType() == abilityType);
     }
 
-    void OnDestroy()
+    public void LockoutAbilities(float lockoutTime)
+    {
+        //Make the lockout timer the greater of the two (current lockoutTimer or lockoutTime).
+        if (lockoutTimer < lockoutTime)
+        {
+            lockoutTimer = lockoutTime;
+        }
+    }
+
+    /*void OnDestroy()
     {
         for(int i = 0; i < equippedAbilities.Count; i++)
         {
             equippedAbilities[i].Disable();
         }
-    }
+    }*/
 }

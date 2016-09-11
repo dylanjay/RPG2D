@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using System.Collections.Generic;
 
 public abstract class CastableAbility : Ability
 {
@@ -21,26 +22,26 @@ public abstract class CastableAbility : Ability
     [Tooltip("The amount of the resource used. Can be set to zero.")]
     public float resourceCost = 10f;
 
+    [Tooltip("The amount of time after using this ability that the character cannot use other abilities.")]
+    public float abilityLockoutTime = 0f;
 
-    [HideInInspector]
-    public float beginningCooldownTime = 0;
-    private bool available = true;
+    [Tooltip("Whether or not movement should be locked for the duration of the ability.")]
+    public bool lockMovement = false;
 
     protected override void OnEnable()
     {
         base.OnEnable();
-        beginningCooldownTime = float.MinValue;
-        available = true;
+        _available = true;
     }
 
-    protected sealed override IEnumerator OnAbilityPressed()
+    public sealed override List<AbilityCallback> AbilityPressed()
     {
-        base.OnAbilityPressed();
+        base.AbilityPressed();
 
-        if (available)
+        if (_available)
         {
-            available = false;
-            return AbilityCastSequence();
+            _available = false;
+            return abilityCallbacks;
         }
         else
         {
@@ -48,23 +49,31 @@ public abstract class CastableAbility : Ability
         }
     }
 
-    private IEnumerator AbilityCastSequence()
+    protected sealed override IEnumerator AbilityCastSequence()
     {
+        Player.instance.GetComponent<AbilityManager>().LockoutAbilities(abilityLockoutTime);
+
         //TODO: spend resource here.
         if(castTime > 0)
         {
             yield return new WaitForSeconds(castTime);
         }
-        
+
+        if(lockMovement)
+        {
+            Player.instance.GetComponent<PlayerControl>().lockMovement = true;
+        }
         yield return OnAbilityCast();
+        if (lockMovement)
+        {
+            Player.instance.GetComponent<PlayerControl>().lockMovement = false;
+        }
 
         if (cooldownLength > 0)
         {
-            Debug.Log("Begin Cooldown");
             yield return new WaitForSeconds(cooldownLength);
         }
-        available = true;
-        Debug.Log("Cooldown Finished");
+        _available = true;
         yield return null;
     }
 

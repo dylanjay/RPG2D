@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public abstract class Ability : ScriptableObject{
 
@@ -9,9 +10,24 @@ public abstract class Ability : ScriptableObject{
     [TextArea(3, 10)]
     public string description = "";
 
+    public delegate IEnumerator AbilityCallback();
+
+    [HideInInspector]
+    public List<AbilityCallback> abilityCallbacks;
+
+    protected bool _available = true;
+
+    public bool available
+    {
+        get { return _available; }
+    }
+
     protected virtual void OnEnable()
     {
         enabled = false;
+        abilityCallbacks = new List<AbilityCallback>();
+        abilityCallbacks.Add(AbilityCastSequence);
+        AbilityManager.allAbilities.Add(GetType(), this);
     }
 
     public void Enable()
@@ -28,14 +44,11 @@ public abstract class Ability : ScriptableObject{
         OnAbilityEnable();
     }
 
-    public IEnumerator Activate()
-    {
-        return OnAbilityPressed();
-    }
-    
     protected abstract void OnAbilityEnable();
 
     protected abstract void OnAbilityDisable();
 
-    protected virtual IEnumerator OnAbilityPressed() { return null; }
+    public virtual List<AbilityCallback> AbilityPressed() { return null; }
+
+    protected abstract IEnumerator AbilityCastSequence();
 }
