@@ -100,7 +100,11 @@ public class Player : Entity
 
     protected override void OnCollisionEnter2D(Collision2D other)
     {
-        health -= 5;
+        if (other.gameObject.GetComponent<Hostile>())
+        {
+            health -= 5;
+        }
+
         if (health <= 0)
         {
             OnDeath();

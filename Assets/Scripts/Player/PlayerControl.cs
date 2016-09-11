@@ -32,7 +32,7 @@ public class PlayerControl : MonoBehaviour {
     
     public Player player;
 
-    public bool swing = true;
+    public bool swing = false;
 
     //The last direction the player was facing. Useful for projectiles/abilities.
     public Vector2 lastDirection = Vector2.down;
@@ -76,10 +76,10 @@ public class PlayerControl : MonoBehaviour {
         if(!swing)
         {
             anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], false);
-            swing = true;
+            //swing = true;
         }
 
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && lastDirection == Vector2.right)
         {
             anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], true);
         }

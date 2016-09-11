@@ -53,11 +53,13 @@ public class BehaviorSelector : BehaviorComposite
 
             if (childState == BehaviorState.Success)
             {
+                Debug.Log("Success");
                 returnState = childState;
                 return childState;
             }
             else
             {
+                Debug.Log("Failure");
                 currentChild++;
             }
         }
