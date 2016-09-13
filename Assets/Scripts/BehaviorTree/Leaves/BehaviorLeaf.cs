@@ -24,7 +24,7 @@ public class BehaviorLeaf : BehaviorComponent {
 
     public override BehaviorState Behave()
     {
-        Debug.Log(name);
+        //Debug.Log(name);
         _returnState = func();
         return _returnState;
     }
@@ -51,7 +51,7 @@ public class BehaviorLeaf<T> : BehaviorComponent
 
     public override BehaviorState Behave()
     {
-        Debug.Log(name);
+        //Debug.Log(name);
         _returnState = func(value);
         return _returnState;
     }

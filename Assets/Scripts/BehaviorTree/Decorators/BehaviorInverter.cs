@@ -32,16 +32,16 @@ public class BehaviorInverter : BehaviorDecorator
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-        if (childState == BehaviorState.Success)
+        switch(childState)
         {
-            return BehaviorState.Failure;
-        }
+            case BehaviorState.Success:
+                return BehaviorState.Failure;
 
-        else if (childState == BehaviorState.Failure)
-        {
-            return BehaviorState.Success;
-        }
+            case BehaviorState.Failure:
+                return BehaviorState.Success;
 
-        return BehaviorState.Running;
+            default:
+                return childState;
+        }
     }
 }

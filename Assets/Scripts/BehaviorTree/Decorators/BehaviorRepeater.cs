@@ -30,11 +30,13 @@ public class BehaviorRepeater : BehaviorDecorator
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-        if(childState == BehaviorState.Success || childState == BehaviorState.Failure)
+        switch(childState)
         {
-            return BehaviorState.Running;
-        }
+            case BehaviorState.Error:
+                return childState;
 
-        return BehaviorState.Success;
+            default:
+                return BehaviorState.Running;
+        }
     }
 }

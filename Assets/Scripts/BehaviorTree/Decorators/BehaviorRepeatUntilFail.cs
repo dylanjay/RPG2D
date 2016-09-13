@@ -30,13 +30,13 @@ public class BehaviorRepeatUntilFail : BehaviorDecorator
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-        if (childState == BehaviorState.Success)
+        switch(childState)
         {
-            return BehaviorState.Running;
+            case BehaviorState.Success:
+                return BehaviorState.Running;
+
+            default:
+                return childState;
         }
-
-        return BehaviorState.Failure;
-
-        //return BehaviorState.Success;
     }
 }

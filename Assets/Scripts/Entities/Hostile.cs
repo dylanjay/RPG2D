@@ -8,7 +8,7 @@ public class Hostile : Entity {
     public int expGiven = 1;
     Player player;
 
-    bool knockback = false;
+    public bool knockback = false;
     float knockbackTimer = 2.0f;
 
     void Awake()
@@ -21,29 +21,33 @@ public class Hostile : Entity {
         player = Player.instance;
     }
 
-    void Update()
+    public BehaviorState IsKnockback(bool state)
     {
-        Alert(5);
-
-        if(knockback)
-        {
-            MoveAwayFrom(player.transform);
-            knockbackTimer -= Time.deltaTime;
-
-            if(knockbackTimer <= 0)
-            {
-                knockback = false;
-                knockbackTimer = 2.0f;
-            }
-        }
+        return (state == knockback ? BehaviorState.Success : BehaviorState.Failure);
     }
 
-    void Alert(float distance)
+    public BehaviorState Knockback()
     {
-        if(Vector2.Distance(transform.position, player.transform.position) <= distance && !knockback)
+        MoveAwayFrom(player.transform);
+        knockbackTimer -= Time.deltaTime;
+        Debug.Log(knockbackTimer);
+
+        if (knockbackTimer <= 0)
+        {
+            knockback = false;
+            knockbackTimer = 2.0f;
+        }
+        return BehaviorState.Success;
+    }
+
+    public BehaviorState Alert(float distance)
+    {
+        /*if(Vector2.Distance(transform.position, player.transform.position) <= distance && !knockback)
         {
             MoveTowards(player.transform);  
-        }
+        }*/
+
+        return (Vector2.Distance(transform.position, player.transform.position) <= distance ? BehaviorState.Success : BehaviorState.Failure);
     }
 
     protected override void OnTriggerEnter2D(Collider2D other)

@@ -30,6 +30,11 @@ public class BehaviorSucceeder : BehaviorDecorator
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
+        if(childState == BehaviorState.Error)
+        {
+            return childState;
+        }
+
         return BehaviorState.Success;
     }
 }

@@ -26,14 +26,16 @@ public class Entity : MonoBehaviour {
         
     }
 
-    protected virtual void MoveTowards(Transform obj)
+    public virtual BehaviorState MoveTowards(Transform obj)
     {
         transform.position = Vector2.MoveTowards(transform.position, obj.position, moveSpeed * Time.deltaTime);
+        return BehaviorState.Success;
     }
 
-    protected virtual void MoveAwayFrom(Transform obj)
+    public virtual BehaviorState MoveAwayFrom(Transform obj)
     {
         transform.position = Vector2.MoveTowards(transform.position, obj.position, -moveSpeed * Time.deltaTime);
+        return BehaviorState.Success;
     }
 
     protected virtual void OnTriggerEnter2D(Collider2D other)

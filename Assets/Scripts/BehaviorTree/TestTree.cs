@@ -5,16 +5,26 @@ public class TestTree : MonoBehaviour {
 
     // Use this for initialization
     BehaviorComponent tree;
+    Player player;
     void Start()
     {
+        player = Player.instance;
         //BehaviorComponent[] children = new BehaviorComponent[] { new BehaviorLeaf(), };
         tree =
-            new BehaviorSelector("Selector", new BehaviorComponent[]
+             new BehaviorSelector("Selector", new BehaviorComponent[]
             {
-                new BehaviorRepeater("Inverter",
-                //new BehaviorLeaf("Action: Heavy Attack", GetComponent<Entity>().HeavyAttack),
-                new BehaviorLeaf<float>("Condition: Above 110% HP", GetComponent<Entity>().PercentHealthAboveRatio, 1.1f) )
-                //new BehaviorLeaf("Action: Basic Attack", GetComponent<Entity>().Attack)
+                new BehaviorSequence("Sequence", new BehaviorComponent[]
+                {
+                    new BehaviorLeaf<bool>("Condition: Not in Knockback State", GetComponent<Hostile>().IsKnockback, false),
+                    new BehaviorLeaf<float>("Condition: In Alert Distance", GetComponent<Hostile>().Alert, 5.0f),
+                    new BehaviorLeaf<Transform>("Action: Move Towards Player", GetComponent<Entity>().MoveTowards, player.transform)
+                }),
+
+                new BehaviorSequence("Sequence", new BehaviorComponent[]
+                {
+                    new BehaviorLeaf<bool>("Condition: In Knockback State", GetComponent<Hostile>().IsKnockback, true),
+                    new BehaviorLeaf("Action: Move Away From Player", GetComponent<Hostile>().Knockback)
+                })
             });
     }
 

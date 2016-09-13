@@ -52,14 +52,14 @@ public class BehaviorRandomSelector : BehaviorComposite
             BehaviorState childState = childBehaviors[currentChild].Behave();
             Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehaviors[currentChild].name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-            if (childState == BehaviorState.Success)
+            if (childState == BehaviorState.Failure)
             {
-                returnState = childState;
-                return childState;
+                currentChild++;
             }
             else
             {
-                currentChild++;
+                returnState = childState;
+                return childState;
             }
         }
         currentChild = 0;
