@@ -14,6 +14,7 @@ public abstract class Ability : ScriptableObject{
 
     [HideInInspector]
     public List<AbilityCallback> abilityCallbacks;
+    public List<Ability> extensionList;
 
     protected bool _available = true;
 
@@ -25,8 +26,10 @@ public abstract class Ability : ScriptableObject{
     protected virtual void OnEnable()
     {
         enabled = false;
+
         abilityCallbacks = new List<AbilityCallback>();
         abilityCallbacks.Add(AbilityCastSequence);
+
         AbilityManager.allAbilities.Add(GetType(), this);
     }
 

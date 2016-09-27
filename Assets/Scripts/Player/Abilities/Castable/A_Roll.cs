@@ -5,8 +5,6 @@ using System;
 [CreateAssetMenu(fileName = "New Roll", menuName = "Abilities/Roll", order = 0)]
 public class A_Roll : CastableAbility
 {
-    public bool leaveAfterBurn = true;
-
     protected override void OnAbilityEnable()
     {
 

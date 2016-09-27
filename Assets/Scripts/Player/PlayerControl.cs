@@ -22,7 +22,7 @@ public class PlayerControl : MonoBehaviour {
 
     public float moveSpeed = 0f;
 
-    Animator anim;
+    public Animator anim;
     GameObject inventoryPanel;
     GameObject equipmentPanel;
     Inventory inv;
