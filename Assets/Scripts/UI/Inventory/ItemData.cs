@@ -51,7 +51,6 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
                 {
                     beginInventory = false;
                 }
-
                 else
                 {
                     beginInventory = true;
@@ -68,14 +67,12 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
         GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
-
     public void OnPointerUp(PointerEventData eventData)
     {
         if(!dragged)
         {
             Reset();
         }
-
         else
         {
             dragged = false;
@@ -102,7 +99,6 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
                 transform.position = trans.position;
                 transferSuccess = false;
             }
-
             else
             {
                 transform.SetParent(inv.slots[slot].transform);
@@ -111,7 +107,6 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
             clicked = false;
             GetComponent<CanvasGroup>().blocksRaycasts = true;
         }
-
         else
         {
             if (beginInventory)
@@ -119,13 +114,12 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
                 inv.items[slot] = new Item();
                 inv.slots[slot].name = "Empty Slot";
             }
-
             else
             {
                 inv.equipmentSlots[equipmentSlot] = new Item();
             }
             player.DropItem(eventData.position, eventData.pointerDrag.GetComponent<ItemData>());
-            Destroy(this.gameObject);
+            Destroy(gameObject);
         }
     }
 
