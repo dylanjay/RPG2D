@@ -81,12 +81,6 @@ public class PlayerControl : MonoBehaviour {
             comboTimer -= Time.deltaTime;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            //anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], true);
-            anim.SetTrigger(AnimParamIDs[(int)AnimParams.Swing]);
-        }
-
         if (Input.GetButtonDown("Inventory") && !inventoryCheck)
         {
             inventoryPanel.SetActive(true);
@@ -112,10 +106,16 @@ public class PlayerControl : MonoBehaviour {
             equipmentPanel.SetActive(false);
         }
 
-        if (!_lockMovement)
+        if (_lockMovement)
+        {
+            anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], false);
+            lastInput = Vector2.zero;
+        }
+        else
         {
             UpdatePlayerMovementInput();
         }
+        
     }
 
     void UpdatePlayerMovementInput()
@@ -180,7 +180,7 @@ public class PlayerControl : MonoBehaviour {
 
     void FixedUpdate()
     {
-        if (moving)
+        if (moving && !_lockMovement)
         {
             transform.Translate(lastDirection * (moveSpeed * Time.deltaTime));
         }
