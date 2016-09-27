@@ -47,10 +47,8 @@ public class CameraFollow : MonoBehaviour {
         if (target)
         {
             Vector3 camPos = target.position;
-
             camPos.x = Mathf.Clamp(camPos.x, topLeftAnchor.position.x + horizontalBound, bottomRightAnchor.position.x - horizontalBound);
             camPos.y = Mathf.Clamp(camPos.y, bottomRightAnchor.position.y + verticalBound, topLeftAnchor.position.y - verticalBound);
-            
             transform.position = Vector3.Lerp(transform.position, camPos, lerpAmount) + new Vector3(0, 0, -10);
         }
     }
