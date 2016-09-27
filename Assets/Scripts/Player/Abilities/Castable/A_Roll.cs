@@ -17,7 +17,7 @@ public class A_Roll : CastableAbility
 
     }
 
-    protected override IEnumerator OnAbilityCast()
+    /*protected override IEnumerator OnAbilityCast()
     {
         //Beginning
         Player.instance.GetComponent<SpriteRenderer>().color /= 1.5f;
@@ -34,17 +34,17 @@ public class A_Roll : CastableAbility
 
         //End
         Player.instance.GetComponent<SpriteRenderer>().color *= 1.5f;
-    }
+    }*/
 
     //Physics based roll. Huge initial speed and then falls off due to friction.
-    /*protected override IEnumerator OnAbilityCast()
+    protected override IEnumerator OnAbilityCast()
     {
         Debug.Log("Roll started");
         Player.instance.GetComponent<Rigidbody2D>().velocity = Player.instance.GetComponent<PlayerControl>().lastDirection * 100;
         yield return new WaitForSeconds(abilityDuration);
         Player.instance.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         Debug.Log("Roll ended");
-    }*/
+    }
 
     public static float Angle(Vector2 p_vector2)
     {

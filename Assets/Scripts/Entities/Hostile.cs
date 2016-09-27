@@ -30,7 +30,6 @@ public class Hostile : Entity {
     {
         MoveAwayFrom(player.transform);
         knockbackTimer -= Time.deltaTime;
-        Debug.Log(knockbackTimer);
 
         if (knockbackTimer <= 0)
         {

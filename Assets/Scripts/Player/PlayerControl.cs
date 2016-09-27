@@ -42,6 +42,8 @@ public class PlayerControl : MonoBehaviour {
 
     public float comboTimer = 3.0f;
 
+    Transform weapon;
+
     private bool _lockMovement;
     public bool lockMovement
     {
@@ -65,6 +67,7 @@ public class PlayerControl : MonoBehaviour {
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
         inventoryPanel.SetActive(false);
         equipmentPanel.SetActive(false);
+        weapon = transform.FindChild("Weapon");
     }
 
     void Update()
@@ -86,9 +89,10 @@ public class PlayerControl : MonoBehaviour {
             //swing = true;
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && lastDirection == Vector2.right)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], true);
+            //anim.SetBool(AnimParamIDs[(int)AnimParams.Swing], true);
+            anim.SetTrigger(AnimParamIDs[(int)AnimParams.Swing]);
         }
 
         if (Input.GetButtonDown("Inventory") && !inventoryCheck)
@@ -132,7 +136,6 @@ public class PlayerControl : MonoBehaviour {
         //Store whether or not the input changed between frames, then write to last input.
         bool inputChanged = curDirection != lastInput;
         lastInput = curDirection;
-
         if (inputChanged)
         {
             curDirection.Normalize();
@@ -153,12 +156,30 @@ public class PlayerControl : MonoBehaviour {
             if (moveX != 0)
             {
                 anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)(moveX * -1) + 2);
+                weapon.localPosition = new Vector2(moveX / Mathf.Abs(moveX) / 4, 0);
+                if(moveX < 0)
+                {
+                    weapon.eulerAngles = new Vector3(weapon.localEulerAngles.x, weapon.localEulerAngles.y, 180);
+                }
+                else
+                {
+                    weapon.eulerAngles = new Vector3(weapon.localEulerAngles.x, weapon.localEulerAngles.y, 0);
+                }
             }
             else if (moveY != 0)
             {
                 anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)moveY * -1 + 1);
+                weapon.localPosition = new Vector2(0, moveY / Mathf.Abs(moveY) / 4);
+                if (moveY < 0)
+                {
+                    weapon.eulerAngles = new Vector3(weapon.localEulerAngles.x, weapon.localEulerAngles.y, 270);
+                }
+                else
+                {
+                    weapon.eulerAngles = new Vector3(weapon.localEulerAngles.x, weapon.localEulerAngles.y, 90);
+                }
             }
-
+            
             anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedX], moveSpeed * lastDirection.x);
             anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedY], moveSpeed * lastDirection.y);
         }
