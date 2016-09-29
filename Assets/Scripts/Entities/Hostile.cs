@@ -13,6 +13,10 @@ public class Hostile : Entity {
 
     List<CastableAbility> abilities;
 
+    float healthBarDisplay = 0.0f;
+    float healthBarDisplayMax = 0.0f;
+    GameObject healthBarFill;
+
     void Awake()
     {
         
@@ -21,6 +25,15 @@ public class Hostile : Entity {
     void Start()
     {
         player = Player.instance;
+        healthBarFill = transform.FindChild("Canvas").FindChild("Health Bar").FindChild("Fill").gameObject;
+        healthBarDisplayMax = healthBarFill.GetComponent<RectTransform>().localScale.x;
+    }
+
+    void Update()
+    {
+        healthBarDisplay = health.value / health.max;
+        Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
+        healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
     }
 
     public BehaviorState IsKnockback(bool state)

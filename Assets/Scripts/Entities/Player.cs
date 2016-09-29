@@ -16,6 +16,10 @@ public sealed class Player : Entity
 
     public int combo = 0;
 
+    float healthBarDisplay = 0.0f;
+    float healthBarDisplayMax = 0.0f;
+    public GameObject healthBarFill;
+
     void Awake()
     {
         instance = this;
@@ -24,7 +28,14 @@ public sealed class Player : Entity
 
     void Start()
     {
-        
+        healthBarDisplayMax = healthBarFill.GetComponent<RectTransform>().localScale.x;
+    }
+
+    void Update()
+    {
+        healthBarDisplay = health.value / health.max;
+        Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
+        healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
     }
 
     public void IncrementCombo()
@@ -105,7 +116,9 @@ public sealed class Player : Entity
     {
         if (health.value <= 0)
         {
-            Destroy(gameObject);
+            //Destroy(gameObject);
+            Update();
+            gameObject.SetActive(false);
             Debug.Log("Oh no you died!");
         }
     }
