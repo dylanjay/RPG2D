@@ -28,6 +28,8 @@ public class AbilityManager : MonoBehaviour {
 
     private float lockoutTimer = 0;
 
+    PlayerControl player;
+
     void Awake()
     {
         equippedAbilities = new List<Ability>(abilities);
@@ -39,27 +41,34 @@ public class AbilityManager : MonoBehaviour {
         //Probably want to load in the abilities here.
     }
 
+    void Start()
+    {
+        player = PlayerControl.instance;
+    }
+
     void Update()
     {
         lockoutTimer -= Time.deltaTime;
         if (lockoutTimer > 0) { return; }
 
-
-        foreach (string keybinding in keybindingKeys)
+        if (!player.lockMovement)
         {
-            CastableAbility castedAbility;
-            if(keybindingsToAbilities.TryGetValue(keybinding, out castedAbility))
+            foreach (string keybinding in keybindingKeys)
             {
-                if(Input.GetButtonDown(castedAbility.keybinding))
+                CastableAbility castedAbility;
+                if (keybindingsToAbilities.TryGetValue(keybinding, out castedAbility))
                 {
-                    List<Ability.AbilityCallback> abilityCallbacks = castedAbility.AbilityPressed();
-                    if(abilityCallbacks != null)
+                    if (Input.GetButtonDown(castedAbility.keybinding))
                     {
-                        foreach (Ability.AbilityCallback abilityCallback in abilityCallbacks)
+                        List<Ability.AbilityCallback> abilityCallbacks = castedAbility.AbilityPressed();
+                        if (abilityCallbacks != null)
                         {
-                            if (abilityCallback != null)
+                            foreach (Ability.AbilityCallback abilityCallback in abilityCallbacks)
                             {
-                                StartCoroutine(abilityCallback());
+                                if (abilityCallback != null)
+                                {
+                                    StartCoroutine(abilityCallback());
+                                }
                             }
                         }
                     }

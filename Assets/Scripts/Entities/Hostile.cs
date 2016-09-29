@@ -11,6 +11,8 @@ public class Hostile : Entity {
     public bool knockback = false;
     float knockbackTimer = 2.0f;
 
+    List<CastableAbility> abilities;
+
     void Awake()
     {
         

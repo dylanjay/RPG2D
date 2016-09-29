@@ -26,7 +26,7 @@ public abstract class CastableAbility : Ability
     public float abilityLockoutTime = 0f;
 
     [Tooltip("Whether or not movement should be locked for the duration of the ability.")]
-    public bool lockMovement = false;
+    public bool lockMovement = true;
 
     public delegate void OnCast();
     [NonSerialized]

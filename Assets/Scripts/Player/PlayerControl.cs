@@ -51,12 +51,11 @@ public class PlayerControl : MonoBehaviour {
 
     void Awake()
     {
-
+        _instance = this;
     }
 
     void Start()
-    {
-        _instance = this;
+    {   
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
         inventoryPanel = GameObject.Find("Inventory Panel");
@@ -110,6 +109,7 @@ public class PlayerControl : MonoBehaviour {
         {
             anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], false);
             lastInput = Vector2.zero;
+            lastDirection = Vector2.zero;
         }
         else
         {
