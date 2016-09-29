@@ -28,6 +28,11 @@ public abstract class CastableAbility : Ability
     [Tooltip("Whether or not movement should be locked for the duration of the ability.")]
     public bool lockMovement = false;
 
+    public delegate void OnCast();
+    [NonSerialized]
+    public OnCast onCast;
+
+
     protected override void OnEnable()
     {
         base.OnEnable();
@@ -41,6 +46,7 @@ public abstract class CastableAbility : Ability
         if (_available)
         {
             _available = false;
+            onCast();
             return abilityCallbacks;
         }
         else

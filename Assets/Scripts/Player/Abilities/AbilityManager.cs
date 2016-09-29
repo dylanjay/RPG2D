@@ -10,7 +10,14 @@ public class AbilityManager : MonoBehaviour {
     /// 
     /// Acts as a list of abilities that are being asked to be equipped.
     /// </summary>
-    public List<Ability> abilities;
+    [SerializeField]
+    private List<Ability> abilities;
+
+    [SerializeField]
+    private Transform abilityDisplayBar;
+
+    [SerializeField]
+    private GameObject abilityDisplayPrefab;
 
     public static Dictionary<Type, Ability> allAbilities = new Dictionary<Type, Ability>();
 
@@ -79,6 +86,17 @@ public class AbilityManager : MonoBehaviour {
             keybindingKeys.Remove(ability.keybinding);
             ability.keybinding = "";
         }
+
+        //Remove from to Ability Bar
+        foreach (AbilityBarIcon child in abilityDisplayBar.GetComponentsInChildren<AbilityBarIcon>())
+        {
+            if(child.ability == ability)
+            {
+                //TODO: Remove ability's callbacks to destroyed object.
+                //TODO: Possibly remove destroy by pooling objects.
+                Destroy(child.gameObject);
+            }
+        }
     }
 
     public void AddKeybinding(CastableAbility ability, string keybinding)
@@ -90,6 +108,11 @@ public class AbilityManager : MonoBehaviour {
         ability.keybinding = keybinding;
         keybindingsToAbilities.Add(keybinding, ability);
         keybindingKeys.Add(keybinding);
+
+        //Add to Ability Bar
+        GameObject abilityDisplay = Instantiate(abilityDisplayPrefab);
+        abilityDisplay.GetComponent<AbilityBarIcon>().SetAbility(ability);
+        abilityDisplay.transform.SetParent(abilityDisplayBar);
     }
 
     public void EnableAbility(Ability ability)
