@@ -27,6 +27,7 @@ public class AbilityManager : MonoBehaviour {
         foreach(Ability ability in abilities)
         {
             EnableAbility(ability);
+            ability.gameObject = gameObject;
         }
         //Probably want to load in the abilities here.
     }

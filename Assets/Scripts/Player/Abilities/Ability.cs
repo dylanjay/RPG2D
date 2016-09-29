@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public abstract class Ability : ScriptableObject{
 
+    [System.NonSerialized]
+    public GameObject gameObject;
+
     [HideInInspector]
     private bool enabled = false;
 

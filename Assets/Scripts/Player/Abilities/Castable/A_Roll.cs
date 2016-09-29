@@ -37,7 +37,6 @@ public class A_Roll : CastableAbility
     //Physics based roll. Huge initial speed and then falls off due to friction.
     protected override IEnumerator OnAbilityCast()
     {
-        Debug.Log("Roll started");
         Player.instance.GetComponent<SpriteRenderer>().color /= 1.5f;
 
         Player.instance.GetComponent<Rigidbody2D>().velocity = Player.instance.GetComponent<PlayerControl>().lastDirection * 100;
@@ -45,7 +44,6 @@ public class A_Roll : CastableAbility
         Player.instance.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
 
         Player.instance.GetComponent<SpriteRenderer>().color *= 1.5f;
-        Debug.Log("Roll ended");
     }
 
     public static float Angle(Vector2 p_vector2)
