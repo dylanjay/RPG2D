@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Player : Entity
+public sealed class Player : Entity
 {
     public static Player instance;
 
@@ -19,7 +19,7 @@ public class Player : Entity
     void Awake()
     {
         instance = this;
-        this.health = 50;
+        health.value = 50;
     }
 
     void Start()
@@ -30,13 +30,13 @@ public class Player : Entity
     public void IncrementCombo()
     {
         combo++;
-        this.attack++;
+        attack.value++;
         Debug.Log("Current combo multiplier: " + combo);
     }
 
     public void ResetCombo()
     {
-        this.attack -= combo;
+        attack.value -= combo;
         combo = 0;
         Debug.Log("Combo Reset");
     }
@@ -74,13 +74,13 @@ public class Player : Entity
                     switch (stat.name)
                     {
                         case "Power":
-                            this.attack += stat.value; //Change names accordingly
+                            attack.value += stat.value; //Change names accordingly
                             break;
                         case "Defence":
-                            this.defence += stat.value;
+                            defence.value += stat.value;
                             break;
                         case "Vitality":
-                            this.health += stat.value;
+                            health.value += stat.value;
                             break;
                     }
                 }
@@ -88,39 +88,24 @@ public class Player : Entity
         }
     }
 
-    protected override void OnTriggerEnter2D(Collider2D other)
-    {
-
-    }
-
-    protected override void OnTriggerExit2D(Collider2D other)
-    {
-
-    }
-
-    protected override void OnCollisionEnter2D(Collision2D other)
+    private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.GetComponent<Hostile>())
         {
-            health -= 5;
+            health.value -= 5;
         }
 
-        if (health <= 0)
+        if (health.value <= 0)
         {
             OnDeath();
         }
     }
-
-    protected override void OnCollisionExit2D(Collision2D other)
-    {
-
-    }
-
+    
     protected override void OnDeath()
     {
-        if (health <= 0)
+        if (health.value <= 0)
         {
-            Destroy(this.gameObject);
+            Destroy(gameObject);
             Debug.Log("Oh no you died!");
         }
     }

@@ -51,38 +51,23 @@ public class Hostile : Entity {
         return (Vector2.Distance(transform.position, player.transform.position) <= distance ? BehaviorState.Success : BehaviorState.Failure);
     }
 
-    protected override void OnTriggerEnter2D(Collider2D other)
-    {
-
-    }
-
-    protected override void OnTriggerExit2D(Collider2D other)
-    {
-
-    }
-
-    protected override void OnCollisionEnter2D(Collision2D other)
+    protected void OnCollisionEnter2D(Collision2D other)
     {
         if(other.gameObject.name == "Sword")
-            health -= 5;
+            health.value -= 5;
 
         if (other.gameObject.name == "Player")
             knockback = true;
 
-        if (health <= 0)
+        if (health.value <= 0)
         {
             OnDeath();
         }
     }
 
-    protected override void OnCollisionExit2D(Collision2D other)
-    {
-
-    }
-
     protected override void OnDeath()
     {
-        if (health <= 0)
+        if (health.value <= 0)
         {
             Destroy(this.gameObject);
 

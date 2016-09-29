@@ -32,7 +32,7 @@ public class AbilityBarIcon : MonoBehaviour {
         }
         ability = newAbility;
         ability.onCast += AbilityPressed;
-        animator.SetFloat("inverseSpeed", 1.0f / (ability.cooldownLength + ability.castTime));
+        animator.SetFloat("inverseSpeed", 1.0f / (ability.cooldownLength + ability.castTime + ability.abilityDuration));
     }
 
     public void RemoveAbility(CastableAbility remAbility)
