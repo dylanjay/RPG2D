@@ -17,6 +17,10 @@ public class Hostile : Entity {
     float healthBarDisplayMax = 0.0f;
     GameObject healthBarFill;
 
+    GameObject healthBar;
+
+    HealthBarManager healthBarManager;
+
     void Awake()
     {
         
@@ -25,12 +29,16 @@ public class Hostile : Entity {
     void Start()
     {
         player = Player.instance;
-        healthBarFill = transform.FindChild("Canvas").FindChild("Health Bar").FindChild("Fill").gameObject;
+        healthBarManager = HealthBarManager.instance;
+        healthBar = healthBarManager.Create();
+        healthBarFill = healthBar.transform.FindChild("Fill").gameObject;
         healthBarDisplayMax = healthBarFill.GetComponent<RectTransform>().localScale.x;
     }
 
     void Update()
     {
+        Vector3 pos = transform.position;
+        healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<MeshRenderer>().bounds.extents.y + 0.2f, pos.z - 1);
         healthBarDisplay = health.value / health.max;
         Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
         healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
