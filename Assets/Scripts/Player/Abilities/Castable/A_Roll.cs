@@ -38,7 +38,6 @@ public class A_Roll : CastableAbility
     protected override IEnumerator OnAbilityCast()
     {
         Player.instance.GetComponent<SpriteRenderer>().color /= 1.5f;
-
         Player.instance.GetComponent<Rigidbody2D>().velocity = Player.instance.GetComponent<PlayerControl>().lastDirection * 100;
         yield return new WaitForSeconds(abilityDuration);
         Player.instance.GetComponent<Rigidbody2D>().velocity = Vector2.zero;

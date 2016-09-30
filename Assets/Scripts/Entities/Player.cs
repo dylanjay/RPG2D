@@ -33,6 +33,11 @@ public sealed class Player : Entity
 
     void Update()
     {
+        UpdateHealthBar();
+    }
+
+    void UpdateHealthBar()
+    {
         healthBarDisplay = health.value / health.max;
         Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
         healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
@@ -117,7 +122,7 @@ public sealed class Player : Entity
         if (health.value <= 0)
         {
             //Destroy(gameObject);
-            Update();
+            UpdateHealthBar();
             gameObject.SetActive(false);
             Debug.Log("Oh no you died!");
         }

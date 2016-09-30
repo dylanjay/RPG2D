@@ -35,10 +35,10 @@ public class Hostile : Entity {
         healthBarDisplayMax = healthBarFill.GetComponent<RectTransform>().localScale.x;
     }
 
-    void Update()
+    void LateUpdate()
     {
         Vector3 pos = transform.position;
-        healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<MeshRenderer>().bounds.extents.y + 0.2f, pos.z - 1);
+        healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<Renderer>().bounds.extents.y + 0.2f, pos.z - 1);
         healthBarDisplay = health.value / health.max;
         Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
         healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
