@@ -90,6 +90,7 @@ public class Hostile : Entity {
     {
         if (health.value <= 0)
         {
+            Destroy(healthBar);
             Destroy(this.gameObject);
 
             Player.instance.SetExp(this.expGiven);
