@@ -3,22 +3,26 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// A short circuiting selector. Behaves like a conditional OR statement:
+/// A short circuiting sequencer. Behaves like a conditional AND statement:
 /// 
-/// Iterates through children and returns success on first success
-/// Returns failure if and only if all children have returned failure
+/// MemSequence is similar to Sequence node, but when a child returns a RUNNING state
+/// its index is recorded and in the next tick the MemPriority call the child recorded directly
+/// without calling previous children again.
+/// 
+/// Returns Failure/Error on the first failure/error. Will not run any behaviors after that.
+/// Returns Success if and only if each child has returned success.
 /// </summary>
 
-public class BehaviorRandomSelector : BehaviorComposite
+public class BehaviorMemSequence : BehaviorComposite
 {
     /// <summary>
     /// This is a summary.
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorRandomSelector(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
+    public BehaviorMemSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
     {
-        Shuffle();
+
     }
 
     /// <summary>
@@ -27,12 +31,11 @@ public class BehaviorRandomSelector : BehaviorComposite
     private void Reset()
     {
         currentChild = 0;
-        Shuffle();
     }
 
     public override BehaviorState Behave()
     {
-        if (returnState != BehaviorState.Success)
+        if (returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
         {
             Reset();
         }
@@ -52,18 +55,17 @@ public class BehaviorRandomSelector : BehaviorComposite
             BehaviorState childState = childBehaviors[currentChild].Behave();
             Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehaviors[currentChild].name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-            if (childState == BehaviorState.Failure)
-            {
-                currentChild++;
-            }
-            else
+            if (childState != BehaviorState.Success)
             {
                 returnState = childState;
                 return childState;
             }
+            else
+            {
+                currentChild++;
+            }
         }
         currentChild = 0;
-        Shuffle();
-        return BehaviorState.Failure;
+        return BehaviorState.Success;
     }
 }

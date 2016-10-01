@@ -11,20 +11,21 @@ public class TestTree : MonoBehaviour {
         player = Player.instance;
         //BehaviorComponent[] children = new BehaviorComponent[] { new BehaviorLeaf(), };
         tree =
-             new BehaviorSelector("Selector", new BehaviorComponent[]
+            new BehaviorSelector("Selector", new BehaviorComponent[]
             {
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
-                    new BehaviorLeaf<bool>("Condition: Not in Knockback State", GetComponent<Hostile>().IsKnockback, false),
-                    new BehaviorLeaf<float>("Condition: In Alert Distance", GetComponent<Hostile>().Alert, 5.0f),
-                    new BehaviorLeaf<Transform>("Action: Move Towards Player", GetComponent<Entity>().MoveTowards, player.transform)
+                    new BehaviorLeaf<float>("Condition: In Attack Range", GetComponent<Hostile>().InAttackRange, 2.0f),
+                    new ActionWait("Wait to aggress to player", 2.0f, new ActionPounce("Hostile switfly dashes to player", player, GetComponent<Hostile>()))
                 }),
 
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
-                    new BehaviorLeaf<bool>("Condition: In Knockback State", GetComponent<Hostile>().IsKnockback, true),
-                    new BehaviorLeaf("Action: Move Away From Player", GetComponent<Hostile>().Knockback)
-                })
+                    new BehaviorLeaf<float>("Condition: In Alert Distance", GetComponent<Hostile>().IsAlert, 8.0f),
+                    new ActionMoveTowardsPlayer("Hostile aggresses to player", player, GetComponent<Hostile>())
+                }),
+
+                new ActionPatrol("Initial Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
             });
     }
 

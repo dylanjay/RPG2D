@@ -5,20 +5,24 @@ using System;
 /// <summary>
 /// A short circuiting selector. Behaves like a conditional OR statement:
 /// 
+/// MemPriority is similar to Priority node, but when a child returns a  RUNNING state
+/// its index is recorded and in the next tick the, MemPriority  calls the child recorded directly
+/// without calling previous children again.
+/// 
 /// Iterates through children and returns success on first success
 /// Returns failure if and only if all children have returned failure
 /// </summary>
 
-public class BehaviorRandomSelector : BehaviorComposite
+public class BehaviorMemSelector : BehaviorComposite
 {
     /// <summary>
     /// This is a summary.
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorRandomSelector(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
+    public BehaviorMemSelector(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
     {
-        Shuffle();
+
     }
 
     /// <summary>
@@ -27,12 +31,11 @@ public class BehaviorRandomSelector : BehaviorComposite
     private void Reset()
     {
         currentChild = 0;
-        Shuffle();
     }
 
     public override BehaviorState Behave()
     {
-        if (returnState != BehaviorState.Success)
+        if (returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
         {
             Reset();
         }
@@ -63,7 +66,6 @@ public class BehaviorRandomSelector : BehaviorComposite
             }
         }
         currentChild = 0;
-        Shuffle();
         return BehaviorState.Failure;
     }
 }

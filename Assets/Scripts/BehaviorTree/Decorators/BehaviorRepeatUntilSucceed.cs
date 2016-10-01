@@ -3,18 +3,18 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// A short circuiting repeater. Behaves like a for statement:
+/// A short circuiting repeater. Behaves like a conditional while statement:
 /// 
-/// Reprocesses child behavior n times, or it returns error, and subsequently always returns success
+/// Reprocesses child behavior until the child returns success and subsequently return success
 /// </summary>
 
-public class BehaviorRepeater : BehaviorDecorator
+public class BehaviorRepeatUntilSucceed : BehaviorDecorator
 {
-    int maxRepetitions;
-    int repetition = 0;
-    public BehaviorRepeater(string name, BehaviorComponent childBehavior, int maxRepetitions) : base(name, childBehavior)
+    bool succeed = false;
+
+    public BehaviorRepeatUntilSucceed(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
     {
-        this.maxRepetitions = maxRepetitions;
+
     }
 
     public override BehaviorState Behave()
@@ -29,7 +29,7 @@ public class BehaviorRepeater : BehaviorDecorator
     /// <returns></returns>
     private BehaviorState _Behave()
     {
-        if(repetition >= maxRepetitions)
+        if (succeed)
         {
             return BehaviorState.Success;
         }
@@ -39,15 +39,15 @@ public class BehaviorRepeater : BehaviorDecorator
 
         switch (childState)
         {
-            case BehaviorState.Error:
-                return childState;
+            case BehaviorState.Success:
+                succeed = true;
+                return BehaviorState.Success;
 
-            case BehaviorState.Running:
-                return childState;
-            
-            default:
-                repetition++;
+            case BehaviorState.Failure:
                 return BehaviorState.Running;
+
+            default:
+                return childState;
         }
     }
 }

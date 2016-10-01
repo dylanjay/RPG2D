@@ -3,16 +3,20 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// A short circuiting succeeder. Behaves like a conditional TRUE statement:
+/// This decorator imposes a maximum number of calls its child can have within the whole execution of the Behavior Tree
 /// 
-/// Always returns Success regardless of child's return value
+/// Executes child on n ticks of Update
+/// Subsequently returns Failure
 /// </summary>
 
-public class BehaviorSucceeder : BehaviorDecorator
+public class BehaviorLimiter : BehaviorDecorator
 {
-    public BehaviorSucceeder(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
-    {
+    int iteration = 0;
+    int maxIterations;
 
+    public BehaviorLimiter(string name, BehaviorComponent childBehavior, int maxIterations) : base(name, childBehavior)
+    {
+        this.maxIterations = maxIterations;
     }
 
     public override BehaviorState Behave()
@@ -27,9 +31,14 @@ public class BehaviorSucceeder : BehaviorDecorator
     /// <returns></returns>
     private BehaviorState _Behave()
     {
+        if(iteration >= maxIterations)
+        {
+            return BehaviorState.Failure;
+        }
+
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-        return BehaviorState.Success;
+        return childState;
     }
 }

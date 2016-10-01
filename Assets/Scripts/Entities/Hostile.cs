@@ -8,9 +8,6 @@ public class Hostile : Entity {
     public int expGiven = 1;
     Player player;
 
-    public bool knockback = false;
-    float knockbackTimer = 2.0f;
-
     List<CastableAbility> abilities;
 
     float healthBarDisplay = 0.0f;
@@ -20,6 +17,10 @@ public class Hostile : Entity {
     GameObject healthBar;
 
     HealthBarManager healthBarManager;
+
+    public bool hitPlayer = false;
+    public bool inAttackRange = false;
+    public bool alerted = false;
 
     void Awake()
     {
@@ -31,54 +32,64 @@ public class Hostile : Entity {
         player = Player.instance;
         healthBarManager = HealthBarManager.instance;
         healthBar = healthBarManager.Create();
-        healthBarFill = healthBar.transform.FindChild("Fill").gameObject;
-        healthBarDisplayMax = healthBarFill.GetComponent<RectTransform>().localScale.x;
+        health = new MaxableStat(10, 0.1f);
     }
 
     void LateUpdate()
     {
         Vector3 pos = transform.position;
         healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<Renderer>().bounds.extents.y + 0.2f, pos.z - 1);
-        healthBarDisplay = health.value / health.max;
-        Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
-        healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
     }
 
-    public BehaviorState IsKnockback(bool state)
+    public BehaviorState IsAlert(float distance)
     {
-        return (state == knockback ? BehaviorState.Success : BehaviorState.Failure);
-    }
-
-    public BehaviorState Knockback()
-    {
-        MoveAwayFrom(player.transform);
-        knockbackTimer -= Time.deltaTime;
-
-        if (knockbackTimer <= 0)
+        if (Vector2.Distance(transform.position, player.transform.position) <= distance)
         {
-            knockback = false;
-            knockbackTimer = 2.0f;
+            alerted = true;
+            return BehaviorState.Success;
         }
-        return BehaviorState.Success;
+
+        else
+        {
+            alerted = false;
+            return BehaviorState.Failure;
+        }
     }
 
-    public BehaviorState Alert(float distance)
+    public BehaviorState InAttackRange(float distance)
     {
-        /*if(Vector2.Distance(transform.position, player.transform.position) <= distance && !knockback)
+        if (Vector2.Distance(transform.position, player.transform.position) <= distance)
         {
-            MoveTowards(player.transform);  
-        }*/
+            inAttackRange = true;
+            return BehaviorState.Success;
+        }
 
-        return (Vector2.Distance(transform.position, player.transform.position) <= distance ? BehaviorState.Success : BehaviorState.Failure);
+        else
+        {
+            inAttackRange = false;
+            return BehaviorState.Failure;
+        }
+    }
+
+    //TEMPORARY REMOVE LATER
+    public void takeDamage(int damage)
+    {
+        health.value -= 5;
+        healthBarManager.UpdateHealthBar(healthBar, health);
     }
 
     protected void OnCollisionEnter2D(Collision2D other)
     {
-        if(other.gameObject.name == "Sword")
+        if (other.gameObject.name == "Sword")
+        {
             health.value -= 5;
+            healthBarManager.UpdateHealthBar(healthBar, health);
+        }
 
         if (other.gameObject.name == "Player")
-            knockback = true;
+        {
+            hitPlayer = true;
+        }
 
         if (health.value <= 0)
         {

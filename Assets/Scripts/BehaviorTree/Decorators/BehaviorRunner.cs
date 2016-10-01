@@ -3,14 +3,14 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// A short circuiting succeeder. Behaves like a conditional TRUE statement:
+/// A short circuiting runner. Behaves like a conditional running statement:
 /// 
-/// Always returns Success regardless of child's return value
+/// Always returns Running regardless of child's return value
 /// </summary>
 
-public class BehaviorSucceeder : BehaviorDecorator
+public class BehaviorRunner : BehaviorDecorator
 {
-    public BehaviorSucceeder(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
+    public BehaviorRunner(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
     {
 
     }
@@ -30,6 +30,6 @@ public class BehaviorSucceeder : BehaviorDecorator
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-        return BehaviorState.Success;
+        return BehaviorState.Running;
     }
 }

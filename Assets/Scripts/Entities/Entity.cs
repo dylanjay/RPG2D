@@ -9,7 +9,7 @@ public class Entity : MonoBehaviour {
     public string entityName = "Mark";
     public string type = "Hostile";//Rude.
 
-    public MaxableStat health = new MaxableStat(10, 0.1f);
+    public MaxableStat health = new MaxableStat(30, 0.1f);
     public MaxableStat defence = new MaxableStat(5, 0.05f);
     public MaxableStat attack = new MaxableStat(5);
     public MaxableStat magic = new MaxableStat(5);

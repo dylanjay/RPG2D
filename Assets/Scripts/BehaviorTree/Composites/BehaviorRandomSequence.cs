@@ -32,7 +32,7 @@ public class BehaviorRandomSequence : BehaviorComposite
 
     public override BehaviorState Behave()
     {
-        if (returnState == BehaviorState.Failure || returnState == BehaviorState.Error)
+        if (returnState != BehaviorState.Success)
         {
             Reset();
         }

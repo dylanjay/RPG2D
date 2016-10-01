@@ -3,16 +3,18 @@ using System.Collections;
 using System;
 
 /// <summary>
-/// A short circuiting succeeder. Behaves like a conditional TRUE statement:
-/// 
-/// Always returns Success regardless of child's return value
+/// Max Time limits the maximum time its child can be running
+/// If the child does not complete its execution before the maximum time, the child task is terminated and a failure is returned
 /// </summary>
 
-public class BehaviorSucceeder : BehaviorDecorator
+public class BehaviorMaxTime : BehaviorDecorator
 {
-    public BehaviorSucceeder(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
-    {
+    float time = 0.0f;
+    float maxTime;
 
+    public BehaviorMaxTime(string name, BehaviorComponent childBehavior, float maxTime) : base(name, childBehavior)
+    {
+        this.maxTime = maxTime;
     }
 
     public override BehaviorState Behave()
@@ -27,9 +29,15 @@ public class BehaviorSucceeder : BehaviorDecorator
     /// <returns></returns>
     private BehaviorState _Behave()
     {
+        if(time >= maxTime)
+        {
+            return BehaviorState.Failure;
+        }
+
         BehaviorState childState = childBehavior.Behave();
         Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-        return BehaviorState.Success;
+        time += Time.deltaTime;
+        return childState;
     }
 }

@@ -16,9 +16,8 @@ public sealed class Player : Entity
 
     public int combo = 0;
 
-    float healthBarDisplay = 0.0f;
-    float healthBarDisplayMax = 0.0f;
-    public GameObject healthBarFill;
+    HealthBarManager healthBarManager;
+    GameObject healthBar;
 
     void Awake()
     {
@@ -28,20 +27,14 @@ public sealed class Player : Entity
 
     void Start()
     {
-        healthBarDisplayMax = healthBarFill.GetComponent<RectTransform>().localScale.x;
+        healthBarManager = HealthBarManager.instance;
+        healthBar = GameObject.FindGameObjectWithTag("Screen Canvas").transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
     }
 
     void Update()
     {
-        UpdateHealthBar();
     }
 
-    void UpdateHealthBar()
-    {
-        healthBarDisplay = health.value / health.max;
-        Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
-        healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplayMax * healthBarDisplay, barScale.y, barScale.z);
-    }
 
     public void IncrementCombo()
     {
@@ -109,6 +102,7 @@ public sealed class Player : Entity
         if (other.gameObject.GetComponent<Hostile>())
         {
             health.value -= 5;
+            healthBarManager.UpdateHealthBar(healthBar, health);
         }
 
         if (health.value <= 0)
@@ -122,7 +116,7 @@ public sealed class Player : Entity
         if (health.value <= 0)
         {
             //Destroy(gameObject);
-            UpdateHealthBar();
+            healthBarManager.UpdateHealthBar(healthBar, health);
             gameObject.SetActive(false);
             Debug.Log("Oh no you died!");
         }
