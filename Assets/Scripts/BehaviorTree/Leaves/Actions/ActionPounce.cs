@@ -16,19 +16,12 @@ public class ActionPounce : Action
         this.hostile = hostile;
     }
 
-    void SetAnimation()
+    public override void Start()
     {
         hostile.anim.SetTrigger(Hostile.AnimParams.Pounce);
     }
 
-    public override BehaviorState Behave()
-    {
-        SetAnimation();
-        returnState = _Behave();
-        return returnState;
-    }
-
-    private BehaviorState _Behave()
+    public override BehaviorState Update()
     {
         Vector2 curPos = hostile.transform.position;
         if (resetPos)

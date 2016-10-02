@@ -22,24 +22,24 @@ public class TestTree : MonoBehaviour {
             {
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
-                    new BehaviorLeaf<float>("Condition: In Attack Range", GetComponent<Hostile>().InAttackRange, 2.0f),
+                    new ActionFunc<float>("Condition: In Attack Range", GetComponent<Hostile>().InAttackRange, 2.0f),
                     new BehaviorWait("Wait to aggress to player", new ActionPounce("Pounce", player, GetComponent<Hostile>()), 2.0f)
                 }),
 
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
-                    new BehaviorLeaf<float>("Condition: In Alert Distance", GetComponent<Hostile>().IsAlert, 8.0f),
+                    new ActionFunc<float>("Condition: In Alert Distance", GetComponent<Hostile>().IsAlert, 8.0f),
 
                     new BehaviorMemSequence("StartAndUpdate of Alert", new BehaviorComponent[]
                     {
-                        new BehaviorLeaf<int>("Start Alert Anim", GetComponent<Hostile>().SetTrigger, Hostile.AnimParams.Alert),
+                        new ActionFunc<int>("Start Alert Anim", GetComponent<Hostile>().SetTrigger, Hostile.AnimParams.Alert),
                         new ActionMoveTowardsPlayer("Alert", player, GetComponent<Hostile>())
                     })
                 }),
 
                 new BehaviorMemSequence("StartAndUpdate of Patrol", new BehaviorComponent[]
                 {
-                    new BehaviorLeaf<int>("Start Patrol Anim", GetComponent<Hostile>().SetTrigger, Hostile.AnimParams.Patrol),
+                    new ActionFunc<int>("Start Patrol Anim", GetComponent<Hostile>().SetTrigger, Hostile.AnimParams.Patrol),
                     new ActionPatrol("Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
                 })
             });

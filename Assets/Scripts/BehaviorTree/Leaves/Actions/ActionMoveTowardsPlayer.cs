@@ -12,14 +12,13 @@ public class ActionMoveTowardsPlayer : Action
         this.player = player;
         this.hostile = hostile;
     }
-
-    public override BehaviorState Behave()
+    
+    public override void Start()
     {
-        returnState = _Behave();
-        return returnState;
+        hostile.anim.SetTrigger(Hostile.AnimParams.Alert);
     }
 
-    private BehaviorState _Behave()
+    public override BehaviorState Update()
     {
         hostile.transform.position = Vector2.MoveTowards(hostile.transform.position, player.transform.position, hostile.moveSpeed.value * Time.deltaTime);
 

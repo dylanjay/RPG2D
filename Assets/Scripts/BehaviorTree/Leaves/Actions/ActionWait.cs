@@ -21,18 +21,12 @@ public class ActionWait : Action
         time = 0.0f;
     }
 
-    void SetAnimation()
+    public override void Start()
     {
         hostile.anim.SetTrigger(Hostile.AnimParams.Idle);
     }
 
-    public override BehaviorState Behave()
-    {
-        returnState = _Behave();
-        return returnState;
-    }
-
-    private BehaviorState _Behave()
+    public override BehaviorState Update()
     {
         if(time >= maxTime)
         {
@@ -47,7 +41,6 @@ public class ActionWait : Action
         }
 
         time += Time.deltaTime;
-        SetAnimation();
 
         return BehaviorState.Running;
     }

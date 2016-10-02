@@ -16,13 +16,12 @@ public class ActionPatrol : Action
         this.hostile =  hostile;
     }
 
-    public override BehaviorState Behave()
+    public override void Start()
     {
-        returnState = _Behave();
-        return returnState;
+        hostile.anim.SetTrigger(Hostile.AnimParams.Patrol);
     }
 
-    private BehaviorState _Behave()
+    public override BehaviorState Update()
     {
         Vector2 curPos = hostile.transform.position;
         if (towards1)
