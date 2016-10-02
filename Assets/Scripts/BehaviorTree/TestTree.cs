@@ -6,6 +6,13 @@ public class TestTree : MonoBehaviour {
     // Use this for initialization
     BehaviorComponent tree;
     Player player;
+
+    private BehaviorState TreeDebug(BehaviorState returnType)
+    {
+        Debug.Log(returnType);
+        return returnType;
+    }
+
     void Start()
     {
         player = Player.instance;
@@ -22,10 +29,19 @@ public class TestTree : MonoBehaviour {
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
                     new BehaviorLeaf<float>("Condition: In Alert Distance", GetComponent<Hostile>().IsAlert, 8.0f),
-                    new ActionMoveTowardsPlayer("Alert", player, GetComponent<Hostile>())
+
+                    new BehaviorMemSequence("StartAndUpdate of Alert", new BehaviorComponent[]
+                    {
+                        new BehaviorLeaf<int>("Start Alert Anim", GetComponent<Hostile>().SetTrigger, Hostile.AnimParams.Alert),
+                        new ActionMoveTowardsPlayer("Alert", player, GetComponent<Hostile>())
+                    })
                 }),
 
-                new ActionPatrol("Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
+                new BehaviorMemSequence("StartAndUpdate of Patrol", new BehaviorComponent[]
+                {
+                    new BehaviorLeaf<int>("Start Patrol Anim", GetComponent<Hostile>().SetTrigger, Hostile.AnimParams.Patrol),
+                    new ActionPatrol("Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
+                })
             });
     }
 

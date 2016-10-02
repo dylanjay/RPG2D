@@ -14,12 +14,11 @@ public class ActionPounce : Action
     {
         this.player = player;
         this.hostile = hostile;
-        hostile.AnimParamIDs.Add(name, Animator.StringToHash(name));
     }
 
     void SetAnimation()
     {
-        hostile.anim.SetTrigger(hostile.AnimParamIDs[name]);
+        hostile.anim.SetTrigger(Hostile.AnimParams.Pounce);
     }
 
     public override BehaviorState Behave()

@@ -22,7 +22,7 @@ public class BehaviorMemSequence : BehaviorComposite
 
     public BehaviorMemSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
     {
-
+        Debug.Assert(childBehaviors.Length > 0, "Error: Behavior \"" + name + "\" has no children.");
     }
 
     /// <summary>
@@ -49,7 +49,6 @@ public class BehaviorMemSequence : BehaviorComposite
     /// <returns></returns>
     private BehaviorState _Behave()
     {
-        Debug.Assert(childBehaviors.Length > 0, "Error: Behavior \"" + name + "\" has no children.");
         while (currentChild < childBehaviors.Length)
         {
             BehaviorState childState = childBehaviors[currentChild].Behave();

@@ -23,8 +23,25 @@ public class Hostile : Entity {
     public bool hitPlayer = false;
     public bool inAttackRange = false;
     public bool alerted = false;
+    
+    public class AnimParams
+    {
+        public static readonly int Direction = Animator.StringToHash("Direction");
+        public static readonly int Moving = Animator.StringToHash("Moving");
+        public static readonly int SpeedX = Animator.StringToHash("SpeedX");
+        public static readonly int SpeedY = Animator.StringToHash("SpeedY");
+        public static readonly int Swing = Animator.StringToHash("Swing");
+        public static readonly int Alert = Animator.StringToHash("Alert");
+        public static readonly int Patrol = Animator.StringToHash("Patrol");
+        public static readonly int Pounce = Animator.StringToHash("Pounce");
+        public static readonly int Idle = Animator.StringToHash("Idle");
+    }
 
-    public Dictionary<string, int> AnimParamIDs = new Dictionary<string, int>();
+    public BehaviorState SetTrigger(int animParam)
+    {
+        anim.SetTrigger(animParam);
+        return BehaviorState.Success;
+    }
 
     void Awake()
     {

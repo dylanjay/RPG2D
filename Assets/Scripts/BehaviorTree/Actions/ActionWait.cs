@@ -14,7 +14,6 @@ public class ActionWait : Action
         this.maxTime = maxTime;
         this.action = action;
         this.hostile = hostile;
-        hostile.AnimParamIDs.Add(name, Animator.StringToHash(name));
     }
 
     void Reset()
@@ -24,7 +23,7 @@ public class ActionWait : Action
 
     void SetAnimation()
     {
-        hostile.anim.SetTrigger(hostile.AnimParamIDs[name]);
+        hostile.anim.SetTrigger(Hostile.AnimParams.Idle);
     }
 
     public override BehaviorState Behave()

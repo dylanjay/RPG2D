@@ -14,18 +14,10 @@ public class ActionPatrol : Action
         this.waypoint1 = waypoint1;
         this.waypoint2 = waypoint2;
         this.hostile =  hostile;
-        hostile.AnimParamIDs.Add(name, Animator.StringToHash(name));
-    }
-
-    void SetAnimation()
-    {
-        hostile.anim.SetTrigger(hostile.AnimParamIDs[name]);
     }
 
     public override BehaviorState Behave()
     {
-        SetAnimation();
-
         returnState = _Behave();
         return returnState;
     }
