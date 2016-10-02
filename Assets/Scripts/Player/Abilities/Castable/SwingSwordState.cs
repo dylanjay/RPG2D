@@ -6,7 +6,7 @@ public class SwingSwordState : StateMachineBehaviour {
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        animator.SetBool(PlayerControl.AnimParamIDs[(int)PlayerControl.AnimParams.Swing], false);
+        animator.SetBool(PlayerControl.AnimParams.Swing, false);
 	}
 
 	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks

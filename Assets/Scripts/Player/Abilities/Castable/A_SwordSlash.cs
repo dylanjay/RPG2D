@@ -20,7 +20,7 @@ public class A_SwordSlash : CastableAbility
         //Beginning
         Player.instance.GetComponent<SpriteRenderer>().color /= 1.5f;
 
-        PlayerControl.instance.anim.SetTrigger(PlayerControl.AnimParamIDs[(int)PlayerControl.AnimParams.Swing]);
+        PlayerControl.instance.anim.SetTrigger(PlayerControl.AnimParams.Swing);
         
         yield return new WaitForSeconds(abilityDuration);
 

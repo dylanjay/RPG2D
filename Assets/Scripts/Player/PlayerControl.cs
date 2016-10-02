@@ -8,17 +8,17 @@ public class PlayerControl : MonoBehaviour {
     public static PlayerControl instance { get { return _instance; } }
     private static PlayerControl _instance;
 
-    //These two variables are dependent on one another to work. Please keep them in order.
-    //Usage: anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], true);
-    public enum AnimParams{ Direction, Moving, SpeedX, SpeedY, Swing }
-    public static int[] AnimParamIDs = new int[]
+    //Basically an enum, but C# enums do not support values from functions, even if they are static.
+    //When Unity 5.5 drops with .NET 4.6 support, we might want to look into this:
+    //http://unity3de.blogspot.com/2013/12/create-enum-template-for-your.html
+    public static class AnimParams
     {
-        Animator.StringToHash("Direction"),
-        Animator.StringToHash("Moving"),
-        Animator.StringToHash("SpeedX"),
-        Animator.StringToHash("SpeedY"),
-        Animator.StringToHash("Swing")
-    };
+        public static readonly int Direction = Animator.StringToHash("Direction");
+        public static readonly int Moving = Animator.StringToHash("Moving");
+        public static readonly int SpeedX = Animator.StringToHash("SpeedX");
+        public static readonly int SpeedY = Animator.StringToHash("SpeedY");
+        public static readonly int Swing = Animator.StringToHash("Swing");
+    }
 
     public float moveSpeed = 0f;
 
@@ -107,7 +107,7 @@ public class PlayerControl : MonoBehaviour {
 
         if (_lockMovement)
         {
-            anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], false);
+            anim.SetBool(AnimParams.Moving, false);
             lastInput = Vector2.zero;
             lastDirection = Vector2.zero;
         }
@@ -134,20 +134,20 @@ public class PlayerControl : MonoBehaviour {
 
             if (moveX != 0 || moveY != 0)
             {
-                anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], true);
+                anim.SetBool(AnimParams.Moving, true);
                 moving = true;
                 lastDirection.Set(moveX, moveY);
                 lastDirection.Normalize();
             }
             else
             {
-                anim.SetBool(AnimParamIDs[(int)AnimParams.Moving], false);
+                anim.SetBool(AnimParams.Moving, false);
                 moving = false;
             }
 
             if (moveX != 0)
             {
-                anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)(moveX * -1) + 2);
+                anim.SetInteger(AnimParams.Direction, (int)(moveX * -1) + 2);
                 weapon.localPosition = new Vector2(moveX / Mathf.Abs(moveX) / 4, 0);
                 if(moveX < 0)
                 {
@@ -160,7 +160,7 @@ public class PlayerControl : MonoBehaviour {
             }
             else if (moveY != 0)
             {
-                anim.SetInteger(AnimParamIDs[(int)AnimParams.Direction], (int)moveY * -1 + 1);
+                anim.SetInteger(AnimParams.Direction, (int)moveY * -1 + 1);
                 weapon.localPosition = new Vector2(0, moveY / Mathf.Abs(moveY) / 4);
                 if (moveY < 0)
                 {
@@ -172,8 +172,8 @@ public class PlayerControl : MonoBehaviour {
                 }
             }
             
-            anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedX], moveSpeed * lastDirection.x);
-            anim.SetFloat(AnimParamIDs[(int)AnimParams.SpeedY], moveSpeed * lastDirection.y);
+            anim.SetFloat(AnimParams.SpeedX, moveSpeed * lastDirection.x);
+            anim.SetFloat(AnimParams.SpeedY, moveSpeed * lastDirection.y);
         }
 
     }
