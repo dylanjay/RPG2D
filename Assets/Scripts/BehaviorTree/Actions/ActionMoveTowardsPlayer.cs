@@ -11,10 +11,17 @@ public class ActionMoveTowardsPlayer : Action
     {
         this.player = player;
         this.hostile = hostile;
+        hostile.AnimParamIDs.Add(name, Animator.StringToHash(name));
+    }
+
+    void SetAnimation()
+    {
+        hostile.anim.SetTrigger(hostile.AnimParamIDs[name]);
     }
 
     public override BehaviorState Behave()
     {
+        SetAnimation();
         returnState = _Behave();
         return returnState;
     }

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Hostile : Entity {
 
+    public Animator anim;
+
     public int lvl = 1;
     public int expGiven = 1;
     Player player;
@@ -22,6 +24,8 @@ public class Hostile : Entity {
     public bool inAttackRange = false;
     public bool alerted = false;
 
+    public Dictionary<string, int> AnimParamIDs = new Dictionary<string, int>();
+
     void Awake()
     {
         
@@ -29,6 +33,7 @@ public class Hostile : Entity {
 
     void Start()
     {
+        anim = GetComponent<Animator>();
         player = Player.instance;
         healthBarManager = HealthBarManager.instance;
         healthBar = healthBarManager.Create();
@@ -40,6 +45,7 @@ public class Hostile : Entity {
         Vector3 pos = transform.position;
         healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<Renderer>().bounds.extents.y + 0.2f, pos.z - 1);
     }
+
 
     public BehaviorState IsAlert(float distance)
     {
@@ -76,6 +82,11 @@ public class Hostile : Entity {
     {
         health.value -= 5;
         healthBarManager.UpdateHealthBar(healthBar, health);
+
+        if (health.value <= 0)
+        {
+            OnDeath();
+        }
     }
 
     protected void OnCollisionEnter2D(Collision2D other)

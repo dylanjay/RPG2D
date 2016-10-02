@@ -1,17 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
 
-public class ActionWait : Action
+public class BehaviorWait : BehaviorDecorator
 {
     float time = 0.0f;
     float maxTime;
-    Action action;
 
-    public ActionWait(string name, float maxTime, Action action) : base(name)
+    public BehaviorWait(string name, BehaviorComponent childBehavior, float maxTime) : base(name, childBehavior)
     {
         this.maxTime = maxTime;
-        this.action = action;
     }
 
     void Reset()
@@ -27,15 +24,15 @@ public class ActionWait : Action
 
     private BehaviorState _Behave()
     {
-        if(time >= maxTime)
+        if (time >= maxTime)
         {
-            BehaviorState actionState = action.Behave();
-            Debug.Assert(actionState != BehaviorState.None, "Error: Child behavior \"" + action.name + "\" of behavior \"" + name + "\" has no defined behavior.");
-            if (actionState == BehaviorState.Success)
+            BehaviorState childState = childBehavior.Behave();
+            Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
+            if (childState == BehaviorState.Success)
             {
                 Reset();
             }
-            return actionState;
+            return childState;
             //return BehaviorState.Success?
         }
 
