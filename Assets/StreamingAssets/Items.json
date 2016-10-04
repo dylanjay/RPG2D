@@ -1,4 +1,4 @@
-[
+  [
   {
     "id": 0,
     "title": "Steel Gloves",
@@ -24,7 +24,7 @@
     ],
     "description": "Hand wrappies to keep the finger sausages warm at night ",
     "stackable": false,
-    "rarity": 2,
+    "tier": 2,  
     "slug":  "steel_gloves"
   },
   {
@@ -52,7 +52,7 @@
     ],
     "description": "Pointy Stabby Shiny Swordy",
     "stackable": true,
-    "rarity": 6,
+    "tier": 6,
     "slug": "steel_sword"
   },
   {
@@ -79,7 +79,7 @@
     ],
     "description": "Red Jelly that you smother on you're severed leg and a new one pops out",
     "stackable": true,
-    "rarity": 1,
+    "tier": 1,
     "slug":  "health_potion"
   }
 ]

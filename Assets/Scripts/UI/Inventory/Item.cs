@@ -11,7 +11,7 @@ public class Item {
     public int value { get; set; }
     public string description { get; set; }
     public bool stackable { get; set; }
-    public int rarity { get; set; }
+    public int tier { get; set; }
     public string slug { get; set; }
 
     public List<Stat> stats { get; set; }
@@ -23,16 +23,16 @@ public class Item {
         id = -1;
     }
 
-    public Item(int ID, string Title, int Value, string Desc, bool Stack, int Rarity, string Slug, List<Stat> Stats)
+    public Item(int id, string title, int value, string desc, bool stack, int tier, string slug, List<Stat> stats)
     {
-        id = ID;
-        title = Title;
-        value = Value;
-        description = Desc;
-        stackable = Stack;
-        rarity = Rarity;
-        slug = Slug;
-        stats = Stats;
+        this.id = id;
+        this.title = title;
+        this.value = value;
+        description = desc;
+        stackable = stack;
+        this.tier = tier;
+        this.slug = slug;
+        this.stats = stats;
         sprite = Resources.Load<Sprite>("Items/" + slug);
     }
 }

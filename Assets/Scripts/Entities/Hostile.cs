@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class Hostile : Entity {
 
+    public bool isBoss;
+
     public Animator anim;
 
     public int lvl = 1;
@@ -20,10 +22,10 @@ public class Hostile : Entity {
 
     HealthBarManager healthBarManager;
 
+    ItemDatabase itemDatabase;
+
     public bool hitPlayer = false;
-    public bool inAttackRange = false;
-    public bool alerted = false;
-    
+
     public class AnimParams
     {
         public static readonly int Direction = Animator.StringToHash("Direction");
@@ -52,45 +54,25 @@ public class Hostile : Entity {
     {
         anim = GetComponent<Animator>();
         player = Player.instance;
+        itemDatabase = ItemDatabase.instance;
         healthBarManager = HealthBarManager.instance;
-        healthBar = healthBarManager.Create();
+        if (!isBoss)
+        {
+            healthBar = healthBarManager.Create(isBoss);
+        }
+        else
+        {
+            healthBar = GameObject.Find("Boss Health Bar");
+        }
         health = new MaxableStat(10, 0.1f);
     }
 
     void LateUpdate()
     {
-        Vector3 pos = transform.position;
-        healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<Renderer>().bounds.extents.y + 0.2f, pos.z - 1);
-    }
-
-
-    public BehaviorState IsAlert(float distance)
-    {
-        if (Vector2.Distance(transform.position, player.transform.position) <= distance)
+        if (!isBoss)
         {
-            alerted = true;
-            return BehaviorState.Success;
-        }
-
-        else
-        {
-            alerted = false;
-            return BehaviorState.Failure;
-        }
-    }
-
-    public BehaviorState InAttackRange(float distance)
-    {
-        if (Vector2.Distance(transform.position, player.transform.position) <= distance)
-        {
-            inAttackRange = true;
-            return BehaviorState.Success;
-        }
-
-        else
-        {
-            inAttackRange = false;
-            return BehaviorState.Failure;
+            Vector3 pos = transform.position;
+            healthBar.GetComponent<RectTransform>().position = new Vector3(pos.x, pos.y + GetComponent<Renderer>().bounds.extents.y + 0.2f, pos.z - 1);
         }
     }
 
@@ -125,10 +107,19 @@ public class Hostile : Entity {
         }
     }
 
+    void DropItem(Item item)
+    {
+        GameObject itemInstance = Instantiate(Resources.Load("Prefabs/Item", typeof(GameObject)), transform.position, transform.rotation) as GameObject;
+        itemInstance.GetComponent<ItemComponent>().reset(item.id);
+        itemInstance.GetComponent<ItemComponent>().setStack(1);
+    }
+
     protected override void OnDeath()
     {
         if (health.value <= 0)
         {
+            DropItem(itemDatabase.GetRandomItem(tier));
+
             Destroy(healthBar);
             Destroy(this.gameObject);
 

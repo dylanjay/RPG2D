@@ -6,13 +6,11 @@ public class ActionWait : Action
 {
     float time = 0.0f;
     float maxTime;
-    Action action;
     Hostile hostile;
 
-    public ActionWait(string name, float maxTime, Hostile hostile, Action action) : base(name)
+    public ActionWait(string name, float maxTime, Hostile hostile) : base(name)
     {
         this.maxTime = maxTime;
-        this.action = action;
         this.hostile = hostile;
     }
 
@@ -30,14 +28,8 @@ public class ActionWait : Action
     {
         if(time >= maxTime)
         {
-            BehaviorState actionState = action.Behave();
-            Debug.Assert(actionState != BehaviorState.None, "Error: Child behavior \"" + action.name + "\" of behavior \"" + name + "\" has no defined behavior.");
-            if (actionState == BehaviorState.Success)
-            {
-                Reset();
-            }
-            return actionState;
-            //return BehaviorState.Success?
+            Reset();
+            return BehaviorState.Success;
         }
 
         time += Time.deltaTime;

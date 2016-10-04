@@ -8,12 +8,12 @@ public class HealthBarManager : MonoBehaviour {
     public static HealthBarManager instance { get { return _instance; } }
     private static HealthBarManager _instance;
 
-    GameObject prefab;
+    GameObject hostileBar;
 
     void Awake()
     {
         _instance = this;
-        prefab = Resources.Load("Prefabs/UI/HealthBar") as GameObject;
+        hostileBar = Resources.Load("Prefabs/UI/HealthBar") as GameObject;
     }
 
 	void Start ()
@@ -33,10 +33,10 @@ public class HealthBarManager : MonoBehaviour {
         healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplay, barScale.y, barScale.z);
     }
 
-    public GameObject Create()
+    public GameObject Create(bool isBoss)
     {
-        GameObject bar = Instantiate(prefab, transform) as GameObject;
-        bar.GetComponent<RectTransform>().localScale = prefab.GetComponent<RectTransform>().localScale;
+        GameObject bar = Instantiate(hostileBar, transform) as GameObject; ;
+        bar.GetComponent<RectTransform>().localScale = hostileBar.GetComponent<RectTransform>().localScale;
         return bar;
     }
 }

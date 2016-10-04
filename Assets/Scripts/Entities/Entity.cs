@@ -15,6 +15,7 @@ public class Entity : MonoBehaviour {
     public MaxableStat magic = new MaxableStat(5);
     public MaxableStat mana = new MaxableStat(5);
     public MaxableStat moveSpeed = new MaxableStat(5, 1.0f);
+    public int tier = 0;
 
     void Start()
     {

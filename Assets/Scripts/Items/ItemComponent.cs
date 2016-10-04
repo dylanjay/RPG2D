@@ -26,6 +26,7 @@ public class ItemComponent : MonoBehaviour {
     public void reset(int id)
     {
         item = ItemDatabase.instance.GetItemByID(id);
+        
         itemID = item.id;
         GetComponent<SpriteRenderer>().sprite = item.sprite;
     }
