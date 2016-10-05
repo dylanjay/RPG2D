@@ -56,14 +56,9 @@ public class Hostile : Entity {
         player = Player.instance;
         itemDatabase = ItemDatabase.instance;
         healthBarManager = HealthBarManager.instance;
-        if (!isBoss)
-        {
-            healthBar = healthBarManager.Create(isBoss);
-        }
-        else
-        {
-            healthBar = GameObject.Find("Boss Health Bar");
-        }
+
+        healthBar = healthBarManager.RequestHealthBar(isBoss);
+
         health = new MaxableStat(10, 0.1f);
     }
 

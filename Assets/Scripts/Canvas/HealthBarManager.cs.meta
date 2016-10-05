@@ -1,10 +1,13 @@
 fileFormatVersion: 2
 guid: 966ae45f3a947d641b25d325f62db497
-timeCreated: 1475213610
+timeCreated: 1475637820
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - hostileHealthBarPrefab: {fileID: 1000012383125106, guid: 27a433ef94338ba4b8d75e246ae20f58,
+      type: 2}
+  - bossHealthBarReference: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
