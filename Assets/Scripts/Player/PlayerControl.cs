@@ -4,6 +4,7 @@ using System.Collections;
 public class PlayerControl : MonoBehaviour {
 
     public enum Direction { Up = 0, Right = 1, Down = 2, Left = 3 }
+    public enum Menu { Empty = 0, Main = 1, Inventory = 2, Skills = 3 }
 
     public static PlayerControl instance { get { return _instance; } }
     private static PlayerControl _instance;
@@ -25,10 +26,10 @@ public class PlayerControl : MonoBehaviour {
     public Animator anim;
     GameObject inventoryPanel;
     GameObject equipmentPanel;
+    GameObject skillsPanel;
     Inventory inv;
     Transform slotPanel;
     Tooltip tooltip;
-    public bool inventoryCheck = false;
     
     public Player player;
 
@@ -36,6 +37,9 @@ public class PlayerControl : MonoBehaviour {
     public Vector2 lastDirection = Vector2.down;
     //Same as lastDirection, but lastInput also allows itself to be 0,0.
     private Vector2 lastInput = Vector2.zero;
+
+    Menu activeMenu = Menu.Empty;
+
     bool moving = false;
 
     public float comboTimer = 3.0f;
@@ -60,50 +64,20 @@ public class PlayerControl : MonoBehaviour {
         anim = GetComponent<Animator>();
         inventoryPanel = GameObject.Find("Inventory Panel");
         equipmentPanel = GameObject.Find("Equipment Panel");
+        skillsPanel = GameObject.Find("Skill Tree Panel");
         slotPanel = GameObject.Find("Slot Panel").transform;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
         inventoryPanel.SetActive(false);
         equipmentPanel.SetActive(false);
+        skillsPanel.SetActive(false);
         weapon = transform.FindChild("Weapon");
     }
 
     void Update()
     {
-        if(comboTimer <= 0)
-        {
-            Player.instance.ResetCombo();
-            comboTimer = 3.0f;
-        }
+        MenuManager();
 
-        if(Player.instance.combo > 0)
-        {
-            comboTimer -= Time.deltaTime;
-        }
-
-        if (Input.GetButtonDown("Inventory") && !inventoryCheck)
-        {
-            inventoryPanel.SetActive(true);
-            equipmentPanel.SetActive(true);
-            inventoryCheck = true;
-        }
-
-        else if(Input.GetButtonDown("Inventory") && inventoryCheck)
-        {
-            inventoryCheck = false;
-
-            if (tooltip.tooltip.activeSelf)
-            {
-                tooltip.Deactivate();
-            }
-
-            if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
-            {
-                slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>().Reset();
-            }
-
-            inventoryPanel.SetActive(false);
-            equipmentPanel.SetActive(false);
-        }
+        ComboManager();
 
         if (_lockMovement)
         {
@@ -116,6 +90,107 @@ public class PlayerControl : MonoBehaviour {
             UpdatePlayerMovementInput();
         }
         
+    }
+
+    void MenuCloser()
+    {
+        switch (activeMenu)
+        {
+            case Menu.Main:
+                //TODO
+                break;
+
+            case Menu.Inventory:
+                if (tooltip.tooltip.activeSelf)
+                {
+                    tooltip.Deactivate();
+                }
+
+                if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
+                {
+                    slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>().Reset();
+                }
+
+                inventoryPanel.SetActive(false);
+                equipmentPanel.SetActive(false);
+                break;
+
+            case Menu.Skills:
+                skillsPanel.SetActive(false);
+                break;
+        }
+        activeMenu = Menu.Empty;
+    }
+
+    void MenuOpener(Menu menuQueued)
+    {
+        activeMenu = menuQueued;
+
+        switch (activeMenu)
+        {
+            case Menu.Main:
+                //TODO
+                break;
+
+            case Menu.Inventory:
+                inventoryPanel.SetActive(true);
+                equipmentPanel.SetActive(true);
+                break;
+
+            case Menu.Skills:
+                skillsPanel.SetActive(true);
+                break;
+        }
+    }
+
+    void MenuManager()
+    {
+        Menu menuQueued = Menu.Empty;
+        
+        if(Input.GetButtonDown("Main Menu"))
+        {
+            menuQueued = Menu.Main;
+        }
+
+        else if(Input.GetButtonDown("Inventory"))
+        {
+            menuQueued = Menu.Inventory;
+        }
+
+        else if (Input.GetButtonDown("Skills"))
+        {
+            menuQueued = Menu.Skills;
+        }
+
+        if (activeMenu == Menu.Empty)
+        {
+            MenuOpener(menuQueued);
+        }
+
+        else if(activeMenu != Menu.Empty && menuQueued == activeMenu)
+        {
+            MenuCloser();
+        }
+
+        else if(activeMenu != Menu.Empty && menuQueued != Menu.Empty)
+        {
+            MenuCloser();
+            MenuOpener(menuQueued);
+        }
+    }
+
+    void ComboManager()
+    {
+        if (comboTimer <= 0)
+        {
+            Player.instance.ResetCombo();
+            comboTimer = 3.0f;
+        }
+
+        if (Player.instance.combo > 0)
+        {
+            comboTimer -= Time.deltaTime;
+        }
     }
 
     void UpdatePlayerMovementInput()

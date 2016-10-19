@@ -10,6 +10,8 @@ public class AbilityManager : MonoBehaviour {
     /// 
     /// Acts as a list of abilities that are being asked to be equipped.
     /// </summary>
+    /// 
+
     [SerializeField]
     private List<Ability> abilities;
 
@@ -20,23 +22,28 @@ public class AbilityManager : MonoBehaviour {
     private GameObject abilityDisplayPrefab;
 
     public static Dictionary<Type, Ability> allAbilities = new Dictionary<Type, Ability>();
+    public Dictionary<string, Ability> abilityDict = new Dictionary<string, Ability>();
 
-    private List<Ability> equippedAbilities  = new List<Ability>();
+    [HideInInspector]
+    public List<Ability> equippedAbilities  = new List<Ability>();
 
     private List<string> keybindingKeys = new List<string>();
     private Dictionary<string, CastableAbility> keybindingsToAbilities = new Dictionary<string, CastableAbility>();
 
     private float lockoutTimer = 0;
 
+    public int maxEquippedAbilities;
+
     PlayerControl player;
 
     void Awake()
     {
-        equippedAbilities = new List<Ability>(abilities);
+        //equippedAbilities = new List<Ability>(abilities);
         foreach(Ability ability in abilities)
         {
-            EnableAbility(ability);
-            ability.gameObject = gameObject;
+            //EnableAbility(ability);
+            //ability.gameObject = gameObject;
+            abilityDict.Add(ability.name, ability);
         }
         //Probably want to load in the abilities here.
     }
@@ -79,12 +86,15 @@ public class AbilityManager : MonoBehaviour {
 
     public void DisableAbility(Ability ability)
     {
-        if(ability is CastableAbility)
+        if (equippedAbilities.Count > 0)
         {
-            RemoveKeybinding((CastableAbility)ability);
+            if (ability is CastableAbility)
+            {
+                RemoveKeybinding((CastableAbility)ability);
+            }
+            equippedAbilities.Remove(ability);
+            ability.Disable();
         }
-        equippedAbilities.Remove(ability);
-        ability.Disable();
     }
 
     public void RemoveKeybinding(CastableAbility ability)
@@ -124,27 +134,31 @@ public class AbilityManager : MonoBehaviour {
         abilityDisplay.transform.SetParent(abilityDisplayBar);
     }
 
-    public void EnableAbility(Ability ability)
+    public void EnableAbility(Ability ability, GameObject target)
     {
         //Set the ability to the same keybind as last time if set previously.
         //If something is already in that slot, remove the keybinding.
-        if(ability is CastableAbility)
+        ability.gameObject = target;
+        if (equippedAbilities.Count < maxEquippedAbilities)
         {
-            CastableAbility castableAbility = (CastableAbility)ability;
-            if (keybindingsToAbilities.ContainsKey(castableAbility.keybinding))
+            if (ability is CastableAbility)
             {
-                castableAbility.keybinding = "";
+                CastableAbility castableAbility = (CastableAbility)ability;
+                if (keybindingsToAbilities.ContainsKey(castableAbility.keybinding))
+                {
+                    castableAbility.keybinding = "";
+                }
+                else if (castableAbility.keybinding != "")
+                {
+                    AddKeybinding(castableAbility, castableAbility.keybinding);
+                }
             }
-            else if (castableAbility.keybinding != "")
-            {
-                AddKeybinding(castableAbility, castableAbility.keybinding);
-            }
-        }
-        
 
-        //Add the ability to the list and enable it.
-        equippedAbilities.Add(ability);
-        ability.Enable();
+
+            //Add the ability to the list and enable it.
+            equippedAbilities.Add(ability);
+            ability.Enable();
+        }
     }
 
     public Ability GetAbility(string ability)
