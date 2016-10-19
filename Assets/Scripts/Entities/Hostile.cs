@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public class Hostile : Entity {
 
     public bool isBoss;
+    public float dropRate = 0.0f;
 
+    [HideInInspector]
     public Animator anim;
 
     public int lvl = 1;
@@ -24,6 +26,7 @@ public class Hostile : Entity {
 
     ItemDatabase itemDatabase;
 
+    [HideInInspector]
     public bool hitPlayer = false;
 
     public class AnimParams
@@ -113,7 +116,10 @@ public class Hostile : Entity {
     {
         if (health.value <= 0)
         {
-            DropItem(itemDatabase.GetRandomItem(tier));
+            if (Random.value <= dropRate)
+            {
+                DropItem(itemDatabase.GetRandomItem(tier));
+            }
 
             Destroy(healthBar);
             Destroy(this.gameObject);

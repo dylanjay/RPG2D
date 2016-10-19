@@ -6,8 +6,8 @@ using System.Collections;
 public class Entity : MonoBehaviour {
 
     //Stats
-    public string entityName = "Mark";
-    public string type = "Hostile";//Rude.
+    string entityName = "Mark";
+    string type = "Hostile";//Rude.
 
     public MaxableStat health = new MaxableStat(30, 0.1f);
     public MaxableStat defence = new MaxableStat(5, 0.05f);

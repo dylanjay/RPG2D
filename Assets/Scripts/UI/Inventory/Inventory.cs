@@ -15,7 +15,7 @@ public class Inventory : MonoBehaviour {
     public GameObject inventorySlot;
     public GameObject inventoryItem;
 
-    int slotSize;
+    int slotSize = 16;
     public List<Item> items = new List<Item>();
     public List<GameObject> slots = new List<GameObject>();
 
@@ -27,7 +27,6 @@ public class Inventory : MonoBehaviour {
     {
         _instance = this;
 
-        slotSize = 16;
         inventoryPanel = GameObject.Find("Inventory Panel");
         slotPanel = inventoryPanel.transform.FindChild("Slot Panel").gameObject;
         equipmentPanel = GameObject.Find("Equipment Slot Panel");
