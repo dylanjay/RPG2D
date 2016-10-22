@@ -12,6 +12,9 @@ public class AbilityManager : MonoBehaviour {
     /// </summary>
     /// 
 
+    public static AbilityManager instance { get { return _instance; } }
+    public static AbilityManager _instance;
+
     [SerializeField]
     private List<Ability> abilities;
 
@@ -38,6 +41,8 @@ public class AbilityManager : MonoBehaviour {
 
     void Awake()
     {
+        _instance = this;
+
         //equippedAbilities = new List<Ability>(abilities);
         foreach(Ability ability in abilities)
         {
@@ -81,6 +86,15 @@ public class AbilityManager : MonoBehaviour {
                     }
                 }
             }
+        }
+    }
+
+    public void equipAbilities(List<string> list, GameObject target)
+    {
+        equippedAbilities.Clear();
+        foreach(string name in list)
+        {
+            EnableAbility(abilityDict[name], target);
         }
     }
 
