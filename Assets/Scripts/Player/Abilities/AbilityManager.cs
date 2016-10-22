@@ -41,7 +41,7 @@ public class AbilityManager : MonoBehaviour {
         //equippedAbilities = new List<Ability>(abilities);
         foreach(Ability ability in abilities)
         {
-            //EnableAbility(ability);
+            //EnableAbility(ability, gameObject);
             //ability.gameObject = gameObject;
             abilityDict.Add(ability.name, ability);
         }
@@ -169,6 +169,11 @@ public class AbilityManager : MonoBehaviour {
     public Ability GetAbility(Type abilityType)
     {
         return equippedAbilities.Find(x => x.GetType() == abilityType);
+    }
+
+    public bool isEquipped(string name)
+    {
+        return equippedAbilities.Contains(GetAbility(name));
     }
 
     public void LockoutAbilities(float lockoutTime)
