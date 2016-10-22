@@ -35,8 +35,8 @@ public class Inventory : MonoBehaviour {
 
 
         Player.instance.UpdateStats(equipmentSlots);
-        
-        for(int i = 0; i < slotSize; i++)
+
+        for (int i = 0; i < slotSize; i++)
         {
             items.Add(new Item());
             slots.Add(Instantiate(inventorySlot));
@@ -45,7 +45,7 @@ public class Inventory : MonoBehaviour {
             slots[i].name = "Empty Slot";
         }
 
-        for(int i = 0; i < equipmentPanel.transform.childCount; i++)
+        for (int i = 0; i < equipmentPanel.transform.childCount; i++)
         {
             equipmentSlots.Add(equipmentPanel.transform.GetChild(i).name, new Item());
         }
@@ -68,6 +68,45 @@ public class Inventory : MonoBehaviour {
             equippedItem = false;
         }
 
+    }
+
+    public void LoadInventory(List<SerializableItem> itemList)
+    {
+        items.Clear();
+
+        for (int i = 0; i < slotSize; i++)
+        {
+            items.Add(new Item());
+            slots[i].name = "Empty Slot";
+            if(slots[i].transform.childCount > 0)
+            {
+                Destroy(slots[i].transform.GetChild(0).gameObject);
+            }
+        }
+
+        foreach (SerializableItem item in itemList)
+        {
+            SetItem(item.id, item.stackAmount, item.slot);
+        }
+    }
+
+    public void SetItem(int id, int stackAmount, int slot)
+    {
+        Item itemToAdd = database.GetItemByID(id);
+        items[slot] = itemToAdd;
+        GameObject itemObj = Instantiate(inventoryItem);
+        itemObj.GetComponent<ItemData>().item = itemToAdd;
+        itemObj.GetComponent<ItemData>().stackAmount = stackAmount;
+        itemObj.GetComponent<ItemData>().slot = slot;
+        if (stackAmount > 1)
+        {
+            itemObj.transform.FindChild("Stack Amount").GetComponent<Text>().text = stackAmount.ToString();
+        }
+        itemObj.transform.SetParent(slots[slot].transform);
+        itemObj.transform.localPosition = Vector2.zero;
+        itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
+        itemObj.name = itemToAdd.title;
+        slots[slot].name = itemToAdd.title + " Slot";
     }
 
     public void AddItem(int id)

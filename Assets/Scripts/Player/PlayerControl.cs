@@ -27,6 +27,7 @@ public class PlayerControl : MonoBehaviour {
     GameObject inventoryPanel;
     GameObject equipmentPanel;
     GameObject skillsPanel;
+    GameObject mainMenuPanel;
     Inventory inv;
     Transform slotPanel;
     Tooltip tooltip;
@@ -65,11 +66,13 @@ public class PlayerControl : MonoBehaviour {
         inventoryPanel = GameObject.Find("Inventory Panel");
         equipmentPanel = GameObject.Find("Equipment Panel");
         skillsPanel = GameObject.Find("Skill Tree Panel");
+        mainMenuPanel = GameObject.Find("Main Menu Panel");
         slotPanel = GameObject.Find("Slot Panel").transform;
         tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
         inventoryPanel.SetActive(false);
         equipmentPanel.SetActive(false);
         skillsPanel.SetActive(false);
+        mainMenuPanel.SetActive(false);
         weapon = transform.FindChild("Weapon");
     }
 
@@ -97,7 +100,7 @@ public class PlayerControl : MonoBehaviour {
         switch (activeMenu)
         {
             case Menu.Main:
-                //TODO
+                mainMenuPanel.SetActive(false);
                 break;
 
             case Menu.Inventory:
@@ -129,7 +132,7 @@ public class PlayerControl : MonoBehaviour {
         switch (activeMenu)
         {
             case Menu.Main:
-                //TODO
+                mainMenuPanel.SetActive(true);
                 break;
 
             case Menu.Inventory:

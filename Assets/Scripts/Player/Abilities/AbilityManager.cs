@@ -12,6 +12,9 @@ public class AbilityManager : MonoBehaviour {
     /// </summary>
     /// 
 
+    public static AbilityManager instance { get { return _instance; } }
+    public static AbilityManager _instance;
+
     [SerializeField]
     private List<Ability> abilities;
 
@@ -38,10 +41,12 @@ public class AbilityManager : MonoBehaviour {
 
     void Awake()
     {
+        _instance = this;
+
         //equippedAbilities = new List<Ability>(abilities);
         foreach(Ability ability in abilities)
         {
-            //EnableAbility(ability);
+            //EnableAbility(ability, gameObject);
             //ability.gameObject = gameObject;
             abilityDict.Add(ability.name, ability);
         }
@@ -81,6 +86,15 @@ public class AbilityManager : MonoBehaviour {
                     }
                 }
             }
+        }
+    }
+
+    public void equipAbilities(List<string> list, GameObject target)
+    {
+        equippedAbilities.Clear();
+        foreach(string name in list)
+        {
+            EnableAbility(abilityDict[name], target);
         }
     }
 
@@ -169,6 +183,11 @@ public class AbilityManager : MonoBehaviour {
     public Ability GetAbility(Type abilityType)
     {
         return equippedAbilities.Find(x => x.GetType() == abilityType);
+    }
+
+    public bool isEquipped(string name)
+    {
+        return equippedAbilities.Contains(GetAbility(name));
     }
 
     public void LockoutAbilities(float lockoutTime)
