@@ -89,9 +89,14 @@ public class AbilityManager : MonoBehaviour {
         }
     }
 
-    public void equipAbilities(List<string> list, GameObject target)
+    public void EquipAbilities(List<string> list, GameObject target)
     {
-        equippedAbilities.Clear();
+        while(equippedAbilities.Count != 0)
+        {
+            DisableAbility(equippedAbilities[0]);
+        }
+        //CastableAbility ca = abilityDict[name] as CastableAbility;
+        //keybindingsToAbilities.ContainsKey(ca.keybinding);
         foreach(string name in list)
         {
             EnableAbility(abilityDict[name], target);
@@ -117,7 +122,7 @@ public class AbilityManager : MonoBehaviour {
         {
             keybindingsToAbilities.Remove(ability.keybinding);
             keybindingKeys.Remove(ability.keybinding);
-            ability.keybinding = "";
+            //ability.keybinding = "";
         }
 
         //Remove from to Ability Bar
