@@ -165,6 +165,11 @@ public class PlayerControl : MonoBehaviour {
             menuQueued = Menu.Skills;
         }
 
+        else if(Input.GetButtonDown("Escape"))
+        {
+            MenuCloser();
+        }
+
         if (activeMenu == Menu.Empty)
         {
             MenuOpener(menuQueued);
@@ -194,6 +199,12 @@ public class PlayerControl : MonoBehaviour {
         {
             comboTimer -= Time.deltaTime;
         }
+    }
+
+    public void SetDirection(Vector2 dir)
+    {
+        anim.SetFloat(AnimParams.SpeedX, moveSpeed * dir.x);
+        anim.SetFloat(AnimParams.SpeedY, moveSpeed * dir.y);
     }
 
     void UpdatePlayerMovementInput()

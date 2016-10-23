@@ -11,6 +11,21 @@ using System.IO;
 }*/
 
 [System.Serializable]
+public class SerializableVector2
+{
+    public float x;
+    public float y;
+
+    public void Fill(Vector2 v2)
+    {
+        x = v2.x;
+        y = v2.y;
+    }
+
+    public Vector2 vector2 { get { return new Vector2(x, y); } }
+}
+
+[System.Serializable]
 public class SerializableVector3
 {
     public float x;
@@ -28,6 +43,8 @@ public class SerializableVector3
     {
         target.transform.position = new Vector3(x, y, z);
     }
+
+    public Vector3 vector3 { get { return new Vector3(x, y, z); } }
 }
 
 [System.Serializable]
@@ -50,12 +67,16 @@ public class SerializableQuaternion
     {
         target.transform.rotation = new Quaternion(x, y, z, w);
     }
+
+    public Quaternion quaternion { get { return new Quaternion(x, y, z, w); } }
 }
 
 [System.Serializable]
 public class SerializableAbilities
 {
     List<string> abilityList = new List<string>();
+    List<string> slots = new List<string>();
+    List<string> slotSprites = new List<string>();
 
     public void Fill(List<Ability> abilities)
     {
@@ -63,11 +84,14 @@ public class SerializableAbilities
         {
             abilityList.Add(ability.name);
         }
+        slots = SkillTree.instance.slots;
+        slotSprites = SkillTree.instance.slotSprites;
     }
 
     public void Load(GameObject player)
     {
-        AbilityManager.instance.equipAbilities(abilityList, player);
+        AbilityManager.instance.EquipAbilities(abilityList, player);
+        SkillTree.instance.LoadSlots(slots, slotSprites);
     }
 }
 
@@ -77,6 +101,7 @@ public class SerializableItem
     public int id;
     public int stackAmount;
     public int slot;
+    public string equipmentSlot;
 
     public void Fill(ItemData data)
     {
@@ -84,14 +109,21 @@ public class SerializableItem
         stackAmount = data.stackAmount;
         slot = data.slot;
     }
+
+    public void Fill(int id, string equipmentSlot)
+    {
+        this.id = id;
+        this.equipmentSlot = equipmentSlot;
+    }
 }
 
 [System.Serializable]
 public class SerializableInventory
 {
     List<SerializableItem> items = new List<SerializableItem>();
+    List<SerializableItem> equipment = new List<SerializableItem>();
 
-    public void Fill(List<GameObject> itemList)
+    public void Fill(List<GameObject> itemList, Dictionary<string, Item> equipmentList)
     {
         foreach(GameObject item in itemList)
         {
@@ -102,11 +134,18 @@ public class SerializableInventory
                 items.Add(serItem);
             }
         }
+
+        foreach(KeyValuePair<string,Item> item in equipmentList)
+        {
+            SerializableItem serItem = new SerializableItem();
+            serItem.Fill(item.Value.id, item.Key);
+            equipment.Add(serItem);
+        }
     }
 
     public void Load()
     {
-        Inventory.instance.LoadInventory(items);
+        Inventory.instance.LoadInventory(items, equipment);
     }
 }
 
@@ -116,23 +155,25 @@ public class GameState
     public static GameState current;
 
     public SerializableVector3 playerPosition = new SerializableVector3();
+    public SerializableVector2 playerDirection = new SerializableVector2();
     public SerializableAbilities playerAbilities = new SerializableAbilities();
     public SerializableInventory playerInventory = new SerializableInventory();
-
 
     public GameState()
     {
         GameObject player = GameObject.Find("Player");
 
         playerPosition.Fill(player.transform.position);
+        playerDirection.Fill(PlayerControl.instance.lastDirection);
         playerAbilities.Fill(AbilityManager.instance.equippedAbilities);
-        playerInventory.Fill(Inventory.instance.slots);
+        playerInventory.Fill(Inventory.instance.slots, Inventory.instance.equipmentSlots);
     }
 
     public void Load()
     {
         GameObject player = GameObject.Find("Player");
         playerPosition.Load(player);
+        PlayerControl.instance.SetDirection(playerDirection.vector2);
         playerAbilities.Load(player);
         playerInventory.Load();
     }

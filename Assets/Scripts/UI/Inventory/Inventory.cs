@@ -70,7 +70,7 @@ public class Inventory : MonoBehaviour {
 
     }
 
-    public void LoadInventory(List<SerializableItem> itemList)
+    public void LoadInventory(List<SerializableItem> itemList, List<SerializableItem> equipmentList)
     {
         items.Clear();
 
@@ -87,6 +87,34 @@ public class Inventory : MonoBehaviour {
         foreach (SerializableItem item in itemList)
         {
             SetItem(item.id, item.stackAmount, item.slot);
+        }
+
+        equipmentSlots.Clear();
+        for(int i = 0; i < equipmentPanel.transform.childCount; i++)
+        {
+            if(equipmentPanel.transform.GetChild(i).childCount != 0)
+            {
+                Destroy(equipmentPanel.transform.GetChild(i).GetChild(0).gameObject);
+            }
+        }
+
+        foreach (SerializableItem item in equipmentList)
+        {
+            if (item.id != -1)
+            {
+                equipmentSlots.Add(item.equipmentSlot, database.GetItemByID(item.id));
+                Item itemToAdd = database.GetItemByID(item.id);
+                GameObject itemObj = Instantiate(inventoryItem);
+                itemObj.GetComponent<ItemData>().item = itemToAdd;
+                itemObj.GetComponent<ItemData>().stackAmount = 1;
+                itemObj.transform.SetParent(equipmentPanel.transform.FindChild(item.equipmentSlot));
+                itemObj.transform.localPosition = Vector2.zero;
+                itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
+            }
+            else
+            {
+                equipmentSlots.Add(item.equipmentSlot, new Item());
+            }
         }
     }
 
