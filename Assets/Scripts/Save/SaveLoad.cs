@@ -194,7 +194,9 @@ public static class SaveLoad
             savedGames[0] = new GameState();
         }
         BinaryFormatter bf = new BinaryFormatter();
+        //CR: A .acm file is generally for storing audio. We should not use that extension here.
         FileStream file = File.Create(Path.Combine(Application.persistentDataPath, "/savedGames.acm"));
+        //CR: We shouldn't use the namespace of the current class unless it is done to prevent ambiguity.
         bf.Serialize(file, SaveLoad.savedGames);
         file.Close();
     }
@@ -205,6 +207,7 @@ public static class SaveLoad
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Path.Combine(Application.persistentDataPath, "/savedGames.acm"), FileMode.Open);
+            //CR: We shouldn't use the namespace of the current class unless it is done to prevent ambiguity.
             SaveLoad.savedGames = (List<GameState>)bf.Deserialize(file);
             file.Close();
 

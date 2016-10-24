@@ -107,11 +107,11 @@ public sealed class Player : Entity
 
         if (health.value <= 0)
         {
-            OnDeath();
+            Death();
         }
     }
     
-    protected override void OnDeath()
+    protected override void Death()
     {
         if (health.value <= 0)
         {

@@ -12,6 +12,8 @@ public class Inventory : MonoBehaviour {
     GameObject slotPanel;
     GameObject equipmentPanel;
     ItemDatabase database;
+
+    //CR: Prefabs should have names that end in Prefab.
     public GameObject inventorySlot;
     public GameObject inventoryItem;
 
@@ -23,10 +25,13 @@ public class Inventory : MonoBehaviour {
 
     public bool equippedItem = false;
 
-    void Start()
+    void Awake()
     {
         _instance = this;
+    }
 
+    void Start()
+    {
         inventoryPanel = GameObject.Find("Inventory Panel");
         slotPanel = inventoryPanel.transform.FindChild("Slot Panel").gameObject;
         equipmentPanel = GameObject.Find("Equipment Slot Panel");

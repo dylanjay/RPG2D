@@ -22,7 +22,7 @@ public class Entity : MonoBehaviour {
 
     }
 
-    protected virtual void OnDeath()
+    protected virtual void Death()
     {
         
     }

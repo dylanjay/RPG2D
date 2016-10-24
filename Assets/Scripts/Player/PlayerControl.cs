@@ -63,6 +63,11 @@ public class PlayerControl : MonoBehaviour {
     {   
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
+
+        //CR: For encapsulation reasons, it would make more sense if we moved UI and Menu Management
+        //inside of a script attached to the Canvas. This way the PlayerControl doesn't have to require a UI
+        //in order to function properly. It will also get rid of all of these ugly GameObject.Find calls.
+
         inventoryPanel = GameObject.Find("Inventory Panel");
         equipmentPanel = GameObject.Find("Equipment Panel");
         skillsPanel = GameObject.Find("Skill Tree Panel");
@@ -170,6 +175,14 @@ public class PlayerControl : MonoBehaviour {
             MenuCloser();
         }
 
+        //CR: The branching here should be cleaned up.
+        //If the first if statement's condition is false, then the second two already have
+        //their first condition true no matter what.
+        //Also, the logic can be reduced:
+        //Menu currentActiveMenu = activeMenu;
+        //if(currentActiveMenu != Menu.Empty){MenuCloser();}
+        //if(currentActiveMenu != menuQueued){MenuOpener();}
+
         if (activeMenu == Menu.Empty)
         {
             MenuOpener(menuQueued);
@@ -186,12 +199,15 @@ public class PlayerControl : MonoBehaviour {
             MenuOpener(menuQueued);
         }
     }
-
+    
     void ComboManager()
     {
         if (comboTimer <= 0)
         {
             Player.instance.ResetCombo();
+            //CR: Should use a field instead of a magic number, like private float maxComboTime = 3.0f
+            //This way it's possible to have the value increase as the player levels up,
+            //or make it tweakable in the inspector.
             comboTimer = 3.0f;
         }
 
@@ -234,8 +250,10 @@ public class PlayerControl : MonoBehaviour {
                 moving = false;
             }
 
+            //TODO: Eventually make this with less branches for easier maintainability.
             if (moveX != 0)
             {
+                //Wait, why 2?
                 anim.SetInteger(AnimParams.Direction, (int)(moveX * -1) + 2);
                 weapon.localPosition = new Vector2(moveX / Mathf.Abs(moveX) / 4, 0);
                 if(moveX < 0)
@@ -287,6 +305,9 @@ public class PlayerControl : MonoBehaviour {
         itemInstance.GetComponent<ItemComponent>().setStack(itemData.stackAmount);
     }
 
+    //CR: We should implement a list/queue of possible items to collect instead.
+    //This will prevent what is essentially a FixedUpate function that runs whenever
+    //the player stands over an object.
     void OnTriggerStay2D(Collider2D other)
     {
         if(other.GetComponent<ItemComponent>() && Input.GetButtonDown("Use"))

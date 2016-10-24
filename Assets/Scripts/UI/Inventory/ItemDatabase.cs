@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 
+//CR:This does not seem to need to be a MonoBehavior.
 public class ItemDatabase : MonoBehaviour {
 
     public List<string> itemNames = new List<string>();

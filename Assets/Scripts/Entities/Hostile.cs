@@ -12,18 +12,14 @@ public class Hostile : Entity {
 
     public int lvl = 1;
     public int expGiven = 1;
-    Player player;
 
     List<CastableAbility> abilities;
-
-    float healthBarDisplay = 0.0f;
-    float healthBarDisplayMax = 0.0f;
-    GameObject healthBarFill;
-
+    
     GameObject healthBar;
 
     HealthBarManager healthBarManager;
 
+    //CR: We should not have a reference in each Hostile object when ItemDatabase.instance already exists.
     ItemDatabase itemDatabase;
 
     [HideInInspector]
@@ -56,7 +52,6 @@ public class Hostile : Entity {
     void Start()
     {
         anim = GetComponent<Animator>();
-        player = Player.instance;
         itemDatabase = ItemDatabase.instance;
         healthBarManager = HealthBarManager.instance;
 
@@ -75,14 +70,15 @@ public class Hostile : Entity {
     }
 
     //TEMPORARY REMOVE LATER
-    public void takeDamage(int damage)
+    //CR: this function seems to be adequate enough to not be temporary.
+    public void TakeDamage(int damage)
     {
-        health.value -= 5;
+        health.value -= damage;
         healthBarManager.UpdateHealthBar(healthBar, health);
 
         if (health.value <= 0)
         {
-            OnDeath();
+            Death();
         }
     }
 
@@ -101,7 +97,7 @@ public class Hostile : Entity {
 
         if (health.value <= 0)
         {
-            OnDeath();
+            Death();
         }
     }
 
@@ -112,7 +108,7 @@ public class Hostile : Entity {
         itemInstance.GetComponent<ItemComponent>().setStack(1);
     }
 
-    protected override void OnDeath()
+    protected override void Death()
     {
         if (health.value <= 0)
         {
@@ -122,6 +118,7 @@ public class Hostile : Entity {
             }
 
             Destroy(healthBar);
+            //CR: Unnecessary this's
             Destroy(this.gameObject);
 
             Player.instance.SetExp(this.expGiven);

@@ -17,16 +17,7 @@ public class HealthBarManager : MonoBehaviour {
     {
         instance = this;
     }
-
-	void Start ()
-    {
-        
-	}
-	
-	void Update ()
-    {
-    }
-
+    
     public void UpdateHealthBar(GameObject healthBar, MaxableStat health)
     {
         float healthBarDisplay = health.ratio;
