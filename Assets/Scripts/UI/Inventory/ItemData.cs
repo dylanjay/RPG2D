@@ -8,74 +8,100 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
     public Item item;
     public int stackAmount;
     public int slot;
-    public bool endInventory = true;
-    public bool beginInventory = true;
+    public string equipmentSlot;
 
-    Inventory inv;
+    Inventory inventory;
     PlayerControl player;
     Tooltip tooltip;
     Vector2 offset;
-    GameObject equipmentPanel;
-    //GameObject slotPanel;
+    GameObject equipmentSlotPanel;
     GameObject canvas;
-    public string equipmentSlot;
-
-    public bool clicked = false;
-    public bool transferSuccess = false;
+    GameObject inventoryPanel;
 
     bool dragged = false;
 
     void Start()
     {
-        inv = Inventory.instance;
+        inventory = Inventory.instance;
         player = PlayerControl.instance;
-        tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
-        equipmentPanel = GameObject.Find("Equipment Slot Panel");
-        //slotPanel = GameObject.Find("Slot Panel");
-        canvas = GameObject.Find("Canvas");
+        canvas = GameObject.FindGameObjectWithTag("Screen Canvas");
+        inventoryPanel = canvas.transform.FindChild("Inventory Panel").gameObject;
+        equipmentSlotPanel = canvas.transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
+        tooltip = canvas.GetComponent<Tooltip>();
+    }
+
+    public void setData(Item item, int stackAmount, int slot, string equipmentSlot)
+    {
+        this.item = item;
+        this.stackAmount = stackAmount;
+        this.slot = slot;
+        this.equipmentSlot = equipmentSlot;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        clicked = true;
-        if (item != null)
+        if (item != null && eventData.button == PointerEventData.InputButton.Left)
         {
-            offset = eventData.position - new Vector2(this.transform.position.x, this.transform.position.y);
+            offset = eventData.position - new Vector2(transform.position.x, transform.position.y);
             transform.SetParent(canvas.transform);
             transform.position = eventData.position - offset;
             GetComponent<CanvasGroup>().blocksRaycasts = false;
+        }
 
-            if (eventData.hovered.Count > 0)
+        //if slot is not equal to -1 the item is in the inventory so I am equipping
+        if (item != null && stackAmount == 1 && eventData.button == PointerEventData.InputButton.Right && slot != -1)
+        {
+            if (item is Weapon || item is Wearable)
             {
-                if (eventData.hovered[0] == equipmentPanel)
+                if (inventory.equipmentSlots[equipmentSlot].id == -1)
                 {
-                    beginInventory = false;
+                    inventory.equipmentSlots[equipmentSlot] = item;
+                    inventory.items[slot] = new Item();
+                    inventory.slots[slot].name = "Empty Slot";
                 }
+
                 else
                 {
-                    beginInventory = true;
+                    Transform itemToReplace = equipmentSlotPanel.transform.FindChild(equipmentSlot).FindChild(inventory.equipmentSlots[equipmentSlot].title);
+                    itemToReplace.GetComponent<ItemData>().slot = slot;
+                    itemToReplace.transform.SetParent(inventory.slots[slot].transform);
+                    itemToReplace.transform.position = inventory.slots[slot].transform.position;
+                    inventory.slots[slot].name = itemToReplace.GetComponent<ItemData>().item.title + " Slot";
+                    inventory.equipmentSlots[equipmentSlot] = item;
+                    
                 }
+                slot = -1;
+                Transform slotTransform = equipmentSlotPanel.transform.FindChild(equipmentSlot);
+                transform.SetParent(slotTransform);
+                transform.position = slotTransform.position;
             }
+            inventory.UpdateStats();
+        }
+
+        //else I am un-equipping
+        else if (item != null && stackAmount == 1 && eventData.button == PointerEventData.InputButton.Right && slot == -1)
+        {
+            
+            inventory.AddItem(item.id);
+            inventory.equipmentSlots[equipmentSlot] = new Item();
+            Destroy(gameObject);
         }
     }
 
     public void Reset()
     {
-        clicked = false;
-        transform.SetParent(inv.slots[slot].transform);
-        transform.position = inv.slots[slot].transform.position;
+        transform.SetParent(inventory.slots[slot].transform);
+        transform.position = inventory.slots[slot].transform.position;
         GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if(!dragged)
+        if (eventData.button == PointerEventData.InputButton.Left)
         {
-            Reset();
-        }
-        else
-        {
-            dragged = false;
+            if (!dragged) { Reset(); }
+
+            else { dragged = false; }
         }
     }
 
@@ -90,11 +116,59 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (eventData.hovered.Count > 0)
+        //if cursor is not hovering over the inventory drop item
+        bool dropItem = true;
+        foreach(GameObject hoveredObject in eventData.hovered)
         {
-            if ((eventData.hovered[0] == equipmentPanel && (transferSuccess || (!transferSuccess && !beginInventory))) || eventData.hovered[0].name == "Slot Panel" && !transferSuccess && !beginInventory)
+            if(hoveredObject == inventoryPanel)
             {
-                Transform trans = equipmentPanel.transform.FindChild(equipmentSlot);
+                dropItem = false;
+                break;
+            }
+        }
+
+        if(dropItem)
+        {
+            inventory.items[slot] = new Item();
+            inventory.slots[slot].name = "Empty Slot";
+            player.DropItem(eventData.position, eventData.pointerDrag.GetComponent<ItemData>());
+            Destroy(gameObject);
+        }
+
+        else
+        {
+            bool hitSlot = false;
+            foreach (GameObject hoveredObject in eventData.hovered)
+            {
+                if (hoveredObject.name.Substring(hoveredObject.name.Length - 5) == "Slot") 
+                {
+                    hitSlot = true;
+                    break;
+                }
+            }
+
+            //if hit inventory slot transfer item
+            if (hitSlot)
+            {
+                Transform trans = equipmentSlotPanel.transform.FindChild(equipmentSlot);
+                transform.SetParent(trans);
+                transform.position = trans.position;
+            }
+
+            //else reset item back
+            else
+            {
+                transform.SetParent(inventory.slots[slot].transform);
+                transform.position = inventory.slots[slot].transform.transform.position;
+            }
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
+        }
+
+        /*if (eventData.hovered.Count > 0)
+        {
+            if ((eventData.hovered[0] == equipmentSlotPanel && (transferSuccess || (!transferSuccess && !beginInventory))) || eventData.hovered[0].name == "Slot Panel" && !transferSuccess && !beginInventory)
+            {
+                Transform trans = equipmentSlotPanel.transform.FindChild(equipmentSlot);
                 transform.SetParent(trans);
                 transform.position = trans.position;
                 transferSuccess = false;
@@ -104,9 +178,10 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
                 transform.SetParent(inv.slots[slot].transform);
                 transform.position = inv.slots[slot].transform.transform.position;
             }
-            clicked = false;
             GetComponent<CanvasGroup>().blocksRaycasts = true;
         }
+
+        //drop item
         else
         {
             if (beginInventory)
@@ -120,7 +195,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
             }
             player.DropItem(eventData.position, eventData.pointerDrag.GetComponent<ItemData>());
             Destroy(gameObject);
-        }
+        }*/
     }
 
     public void OnPointerEnter(PointerEventData eventData)

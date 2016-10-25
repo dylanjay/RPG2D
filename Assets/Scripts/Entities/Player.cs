@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public sealed class Player : Entity
 {
-    public static Player instance;
+    public static Player instance { get; private set; }
 
     //Level
     public int curLvl = 1;
@@ -30,11 +30,6 @@ public sealed class Player : Entity
         healthBarManager = HealthBarManager.instance;
         healthBar = GameObject.FindGameObjectWithTag("Screen Canvas").transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
     }
-
-    void Update()
-    {
-    }
-
 
     public void IncrementCombo()
     {
@@ -78,12 +73,12 @@ public sealed class Player : Entity
             {
                 for (int i = 0; i < item.stats.Count; i++)
                 {
-                    Stat stat = item.stats[i];
+                    ItemStat stat = item.stats[i];
 
                     switch (stat.name)
                     {
                         case "Power":
-                            attack.value += stat.value; //Change names accordingly
+                            attack.value += stat.value;
                             break;
                         case "Defence":
                             defence.value += stat.value;

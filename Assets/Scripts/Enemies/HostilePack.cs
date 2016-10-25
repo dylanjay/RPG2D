@@ -12,8 +12,8 @@ public class HostilePack : MonoBehaviour {
     void DropItem(Item item)
     {
         GameObject itemInstance = Instantiate(Resources.Load("Prefabs/Item", typeof(GameObject)), transform.position, transform.rotation) as GameObject;
-        itemInstance.GetComponent<ItemComponent>().reset(item.id);
-        itemInstance.GetComponent<ItemComponent>().setStack(1);
+        itemInstance.GetComponent<ItemComponent>().Reset(item.id);
+        itemInstance.GetComponent<ItemComponent>().SetStack(1);
     }
 
     void Start()

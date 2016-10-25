@@ -3,19 +3,17 @@ using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
-public class Inventory : MonoBehaviour {
-
-    public static Inventory instance { get { return _instance; } }
-    private static Inventory _instance;
+public class Inventory : MonoBehaviour
+{
+    public static Inventory instance { get; private set; }
 
     GameObject inventoryPanel;
     GameObject slotPanel;
-    GameObject equipmentPanel;
+    GameObject equipmentSlotPanel;
     ItemDatabase database;
 
-    //CR: Prefabs should have names that end in Prefab.
-    public GameObject inventorySlot;
-    public GameObject inventoryItem;
+    public GameObject inventorySlotPrefab;
+    public GameObject inventoryItemPrefab;
 
     int slotSize = 16;
     public List<Item> items = new List<Item>();
@@ -23,36 +21,34 @@ public class Inventory : MonoBehaviour {
 
     public Dictionary<string, Item> equipmentSlots = new Dictionary<string, Item>();
 
-    public bool equippedItem = false;
-
     void Awake()
     {
-        _instance = this;
+        instance = this;
     }
 
     void Start()
     {
-        inventoryPanel = GameObject.Find("Inventory Panel");
-        slotPanel = inventoryPanel.transform.FindChild("Slot Panel").gameObject;
-        equipmentPanel = GameObject.Find("Equipment Slot Panel");
+        inventoryPanel = transform.FindChild("Inventory Panel").gameObject;
+        slotPanel = inventoryPanel.transform.FindChild("Inventory Slot Panel").gameObject;
+        equipmentSlotPanel = transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
 
-        database = GetComponent<ItemDatabase>();
-
+        database = ItemDatabase.instance;
 
         Player.instance.UpdateStats(equipmentSlots);
 
+        //Populate slots and instantiate canvas objects
         for (int i = 0; i < slotSize; i++)
         {
             items.Add(new Item());
-            slots.Add(Instantiate(inventorySlot));
-            slots[i].GetComponent<Slot>().slotID = i;
+            slots.Add(Instantiate(inventorySlotPrefab));
+            slots[i].GetComponent<InventorySlot>().slotID = i;
             slots[i].transform.SetParent(slotPanel.transform);
             slots[i].name = "Empty Slot";
         }
 
-        for (int i = 0; i < equipmentPanel.transform.childCount; i++)
+        for (int i = 0; i < equipmentSlotPanel.transform.childCount; i++)
         {
-            equipmentSlots.Add(equipmentPanel.transform.GetChild(i).name, new Item());
+            equipmentSlots.Add(equipmentSlotPanel.transform.GetChild(i).name, new Item());
         }
 
         //NEEDS TO BE DELETED
@@ -65,57 +61,77 @@ public class Inventory : MonoBehaviour {
         AddItem(1);
     }
 
-    void Update() {
-        
-        if (equippedItem)
-        {
-            Player.instance.UpdateStats(equipmentSlots);
-            equippedItem = false;
-        }
+    public void UpdateStats()
+    {
+        Player.instance.UpdateStats(equipmentSlots);
+    }
 
+    GameObject CreateItemObject(Item itemToAdd, int stackAmount, int slot, Transform parent)
+    {
+        GameObject itemObj = Instantiate(inventoryItemPrefab);
+        string equipmentSlot = "";
+        if(itemToAdd is Weapon)
+        {
+            Weapon weapon = itemToAdd as Weapon;
+            equipmentSlot = weapon.typeString;
+        }
+        else if(itemToAdd is Wearable)
+        {
+            Wearable wearable = itemToAdd as Wearable;
+            equipmentSlot = wearable.typeString;
+        }
+        itemObj.GetComponent<ItemData>().setData(itemToAdd, stackAmount, slot, equipmentSlot);
+        itemObj.transform.SetParent(parent);
+        itemObj.transform.localPosition = Vector2.zero;
+        itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
+        itemObj.name = itemToAdd.title;
+        return itemObj;
     }
 
     public void LoadInventory(List<SerializableItem> itemList, List<SerializableItem> equipmentList)
     {
+        //Delete current inventory
         items.Clear();
 
         for (int i = 0; i < slotSize; i++)
         {
+            //refill items with empty slots
             items.Add(new Item());
             slots[i].name = "Empty Slot";
+            //destroy current slot
             if(slots[i].transform.childCount > 0)
             {
                 Destroy(slots[i].transform.GetChild(0).gameObject);
             }
         }
 
+        //Set new inventory
         foreach (SerializableItem item in itemList)
         {
             SetItem(item.id, item.stackAmount, item.slot);
         }
 
+        //Delete current equipment
         equipmentSlots.Clear();
-        for(int i = 0; i < equipmentPanel.transform.childCount; i++)
+        for(int i = 0; i < equipmentSlotPanel.transform.childCount; i++)
         {
-            if(equipmentPanel.transform.GetChild(i).childCount != 0)
+            //if slot has no child it is empty so don't destroy
+            if(equipmentSlotPanel.transform.GetChild(i).childCount != 0)
             {
-                Destroy(equipmentPanel.transform.GetChild(i).GetChild(0).gameObject);
+                Destroy(equipmentSlotPanel.transform.GetChild(i).GetChild(0).gameObject);
             }
         }
 
+        //Set new equipment
         foreach (SerializableItem item in equipmentList)
         {
+            //set equipment slot to new item and add to list
             if (item.id != -1)
             {
                 equipmentSlots.Add(item.equipmentSlot, database.GetItemByID(item.id));
-                Item itemToAdd = database.GetItemByID(item.id);
-                GameObject itemObj = Instantiate(inventoryItem);
-                itemObj.GetComponent<ItemData>().item = itemToAdd;
-                itemObj.GetComponent<ItemData>().stackAmount = 1;
-                itemObj.transform.SetParent(equipmentPanel.transform.FindChild(item.equipmentSlot));
-                itemObj.transform.localPosition = Vector2.zero;
-                itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
+                CreateItemObject(database.GetItemByID(item.id), 1, -1, equipmentSlotPanel.transform.FindChild(item.equipmentSlot));
             }
+            //it item id is -1 it is empty so add empty item
             else
             {
                 equipmentSlots.Add(item.equipmentSlot, new Item());
@@ -127,24 +143,18 @@ public class Inventory : MonoBehaviour {
     {
         Item itemToAdd = database.GetItemByID(id);
         items[slot] = itemToAdd;
-        GameObject itemObj = Instantiate(inventoryItem);
-        itemObj.GetComponent<ItemData>().item = itemToAdd;
-        itemObj.GetComponent<ItemData>().stackAmount = stackAmount;
-        itemObj.GetComponent<ItemData>().slot = slot;
+        GameObject itemObj = CreateItemObject(itemToAdd, stackAmount, slot, slots[slot].transform);
         if (stackAmount > 1)
         {
             itemObj.transform.FindChild("Stack Amount").GetComponent<Text>().text = stackAmount.ToString();
         }
-        itemObj.transform.SetParent(slots[slot].transform);
-        itemObj.transform.localPosition = Vector2.zero;
-        itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
-        itemObj.name = itemToAdd.title;
         slots[slot].name = itemToAdd.title + " Slot";
     }
 
     public void AddItem(int id)
     {
         Item itemToAdd = database.GetItemByID(id);
+        //if item already exists in inventory increment its stack count
         if (itemToAdd.stackable && CheckInventory(itemToAdd))
         {
             for (int i = 0; i < items.Count; i++)
@@ -157,7 +167,7 @@ public class Inventory : MonoBehaviour {
                 }
             }
         }
-
+        //else its a new item so create new item
         else
         {
             for (int i = 0; i < items.Count; i++)
@@ -165,16 +175,8 @@ public class Inventory : MonoBehaviour {
                 if (items[i].id == -1)
                 {
                     items[i] = itemToAdd;
-                    GameObject itemObj = Instantiate(inventoryItem);
-                    itemObj.GetComponent<ItemData>().item = itemToAdd;
-                    itemObj.GetComponent<ItemData>().stackAmount = 1;
-                    itemObj.GetComponent<ItemData>().slot = i;
-                    itemObj.transform.SetParent(slots[i].transform);
-                    itemObj.transform.localPosition = Vector2.zero;
-                    itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
-                    itemObj.name = itemToAdd.title;
+                    CreateItemObject(itemToAdd, 1, i, slots[i].transform);
                     slots[i].name = itemToAdd.title + " Slot";
-
                     break;
                 }
             }

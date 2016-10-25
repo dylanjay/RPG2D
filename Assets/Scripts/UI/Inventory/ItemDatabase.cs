@@ -6,21 +6,22 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 
-//CR:This does not seem to need to be a MonoBehavior.
-public class ItemDatabase : MonoBehaviour {
+public class ItemDatabase
+{
+    public static ItemDatabase instance { get; private set; }
 
-    public List<string> itemNames = new List<string>();
-    public Dictionary<string, Item> itemDict = new Dictionary<string, Item>();
+    static public List<string> itemNames = new List<string>();
+    static public Dictionary<string, Item> itemDict = new Dictionary<string, Item>();
 
-    public OrderedDictionary[] itemTierDicts = new OrderedDictionary[10];
-    JsonData data;
+    static public OrderedDictionary[] itemTierDicts = new OrderedDictionary[10];
+    static JsonData data;
 
-    private static ItemDatabase _instance;
-    public static ItemDatabase instance { get { return _instance; } }
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    static void Initialize()
+    {        
+        if(instance != null) { return; }
 
-    void Awake()
-    {
-        _instance = this;
+        instance = new ItemDatabase();
         data = JsonMapper.ToObject(File.ReadAllText(Application.dataPath + "/StreamingAssets/Items.json"));
         for(int i = 0; i < 10; i++)
         {
@@ -28,31 +29,6 @@ public class ItemDatabase : MonoBehaviour {
         }
         FillDatabase();
     }
-
-    /*public Item GetItemByID(int id)
-    {
-        string listName = itemNames[id];
-        if(GetItemByName(listName) == null)
-        {
-            return null;
-        }
-        int dictID = GetItemByName(listName, tier).id;
-        if (id != dictID)
-        {
-            Debug.LogError(listName + " has the wrong id");
-        }
-
-        return GetItemByName(listName);
-    }
-
-    public Item GetItemByName(string name)
-    {
-        if(itemDict.ContainsKey(name))
-        {
-            return itemDict[name];
-        }
-        return null;
-    }*/
 
     public Item GetItemByID(int id)
     {
@@ -93,64 +69,29 @@ public class ItemDatabase : MonoBehaviour {
         return items[Random.Range(0, size)];
     }
 
-    /*void FillDatabase()
-    {
-        for(int i = 0; i < data.Count; i++)
-        {
-            string name = (string)data[i]["title"];
-            itemNames.Add(name);
-            List<Stat> stats = new List<Stat>();
-            for (int j = 0; j < data[i]["stats"].Count; j++)
-            {
-                stats.Add(new Stat((string)data[i]["stats"][j]["name"], (int)data[i]["stats"][j]["value"], (int)data[i]["stats"][j]["range"]));
-            }
-
-            if((string)data[i]["type"] == "Weapon")
-            {
-                Weapon item = new Weapon((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
-                 (int)data[i]["tier"], (string)data[i]["slug"], stats);
-                itemDict.Add(name, item);
-            }
-
-            else if((string)data[i]["type"] == "Wearable")
-            {
-                Wearable item = new Wearable((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
-                 (int)data[i]["tier"], (string)data[i]["slug"], stats);
-                itemDict.Add(name, item);
-            }
-
-            else if((string)data[i]["type"] == "Consumable")
-            {
-                Consumable item = new Consumable((int)data[i]["id"], (string)data[i]["title"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
-                 (int)data[i]["tier"], (string)data[i]["slug"], stats);
-                itemDict.Add(name, item);
-            }
-        }
-    }*/
-
-    void FillDatabase()
+    static void FillDatabase()
     {
         for (int i = 0; i < data.Count; i++)
         {
             string name = (string)data[i]["title"];
             itemNames.Add(name);
-            List<Stat> stats = new List<Stat>();
+            List<ItemStat> stats = new List<ItemStat>();
             for (int j = 0; j < data[i]["stats"].Count; j++)
             {
-                stats.Add(new Stat((string)data[i]["stats"][j]["name"], (int)data[i]["stats"][j]["value"], (int)data[i]["stats"][j]["range"]));
+                stats.Add(new ItemStat((string)data[i]["stats"][j]["name"], (int)data[i]["stats"][j]["value"], (int)data[i]["stats"][j]["range"]));
             }
 
             int tier = (int)data[i]["tier"];
             if ((string)data[i]["type"] == "Weapon")
             {
-                Weapon item = new Weapon((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
+                Weapon item = new Weapon((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["type"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
                  tier, (string)data[i]["slug"], stats);
                 itemTierDicts[tier].Add(name, item);
             }
 
             else if ((string)data[i]["type"] == "Wearable")
             {
-                Wearable item = new Wearable((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
+                Wearable item = new Wearable((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["type"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
                  tier, (string)data[i]["slug"], stats);
                 itemTierDicts[tier].Add(name, item);
             }

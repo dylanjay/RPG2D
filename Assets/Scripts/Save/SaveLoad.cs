@@ -4,12 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
-/*public abstract class Serializable
-{
-    public abstract void Fill();
-    public abstract void Load();
-}*/
-
 [System.Serializable]
 public class SerializableVector2
 {
@@ -84,8 +78,7 @@ public class SerializableAbilities
         {
             abilityList.Add(ability.name);
         }
-        slots = SkillTree.instance.slots;
-        slotSprites = SkillTree.instance.slotSprites;
+        slots = SkillTree.instance.SaveSlots(slotSprites);
     }
 
     public void Load(GameObject player)
@@ -130,7 +123,7 @@ public class SerializableInventory
             if (item.transform.childCount > 0)
             {
                 SerializableItem serItem = new SerializableItem();
-                serItem.Fill(item.transform.GetChild(0).GetComponent<ItemData>());
+                serItem.Fill(item.transform.FindChild(item.name.Substring(0, item.name.Length - 5)).GetComponent<ItemData>());
                 items.Add(serItem);
             }
         }
@@ -159,10 +152,11 @@ public class GameState
     public SerializableAbilities playerAbilities = new SerializableAbilities();
     public SerializableInventory playerInventory = new SerializableInventory();
 
+    
+
     public GameState()
     {
         GameObject player = GameObject.Find("Player");
-
         playerPosition.Fill(player.transform.position);
         playerDirection.Fill(PlayerControl.instance.lastDirection);
         playerAbilities.Fill(AbilityManager.instance.equippedAbilities);
@@ -194,10 +188,8 @@ public static class SaveLoad
             savedGames[0] = new GameState();
         }
         BinaryFormatter bf = new BinaryFormatter();
-        //CR: A .acm file is generally for storing audio. We should not use that extension here.
-        FileStream file = File.Create(Path.Combine(Application.persistentDataPath, "/savedGames.acm"));
-        //CR: We shouldn't use the namespace of the current class unless it is done to prevent ambiguity.
-        bf.Serialize(file, SaveLoad.savedGames);
+        FileStream file = File.Create(Path.Combine(Application.persistentDataPath, "/savedGames.tbd"));
+        bf.Serialize(file, savedGames);
         file.Close();
     }
 
@@ -206,9 +198,8 @@ public static class SaveLoad
         if (File.Exists(Application.persistentDataPath + "/savedGames.acm"))
         {
             BinaryFormatter bf = new BinaryFormatter();
-            FileStream file = File.Open(Path.Combine(Application.persistentDataPath, "/savedGames.acm"), FileMode.Open);
-            //CR: We shouldn't use the namespace of the current class unless it is done to prevent ambiguity.
-            SaveLoad.savedGames = (List<GameState>)bf.Deserialize(file);
+            FileStream file = File.Open(Path.Combine(Application.persistentDataPath, "/savedGames.tbd"), FileMode.Open);
+            savedGames = (List<GameState>)bf.Deserialize(file);
             file.Close();
 
             savedGames[0].Load();

@@ -18,15 +18,12 @@ public class ItemComponent : MonoBehaviour
         GetComponent<SpriteRenderer>().sprite = item.sprite;
     }
 
-    //CR: UpperCamelCaseFunctionNames() 
-    //CTRL + R, CTRL + R to rename.
-    public void setStack(int num)
+    public void SetStack(int num)
     {
         stackAmount = num;
     }
 
-    //CR: UpperCamelCaseFunctionNames()
-    public void reset(int id)
+    public void Reset(int id)
     {
         item = ItemDatabase.instance.GetItemByID(id);
         

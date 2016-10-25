@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Stat{
+public class ItemStat{
 
     public string name { get; set; }
 
@@ -10,12 +10,12 @@ public class Stat{
 
     public int range { get; set; }
 
-    public Stat()
+    public ItemStat()
     {
   
     }
 
-    public Stat(string Name, int Value, int Range)
+    public ItemStat(string Name, int Value, int Range)
     {
         name = Name;
         value = Value;

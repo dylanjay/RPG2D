@@ -14,7 +14,7 @@ public class Item {
     public int tier { get; set; }
     public string slug { get; set; }
 
-    public List<Stat> stats { get; set; }
+    public List<ItemStat> stats { get; set; }
 
     public Sprite sprite;
 
@@ -23,7 +23,7 @@ public class Item {
         id = -1;
     }
 
-    public Item(int id, string title, int value, string desc, bool stack, int tier, string slug, List<Stat> stats)
+    public Item(int id, string title, int value, string desc, bool stack, int tier, string slug, List<ItemStat> stats)
     {
         this.id = id;
         this.title = title;

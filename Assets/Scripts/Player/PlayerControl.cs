@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlayerControl : MonoBehaviour {
 
     public enum Direction { Up = 0, Right = 1, Down = 2, Left = 3 }
-    public enum Menu { Empty = 0, Main = 1, Inventory = 2, Skills = 3 }
 
-    public static PlayerControl instance { get { return _instance; } }
-    private static PlayerControl _instance;
+    public static PlayerControl instance { get; private set; }
 
     //Basically an enum, but C# enums do not support values from functions, even if they are static.
     //When Unity 5.5 drops with .NET 4.6 support, we might want to look into this:
@@ -24,13 +23,8 @@ public class PlayerControl : MonoBehaviour {
     public float moveSpeed = 0f;
 
     public Animator anim;
-    GameObject inventoryPanel;
-    GameObject equipmentPanel;
-    GameObject skillsPanel;
-    GameObject mainMenuPanel;
+    
     Inventory inv;
-    Transform slotPanel;
-    Tooltip tooltip;
     
     public Player player;
 
@@ -39,13 +33,14 @@ public class PlayerControl : MonoBehaviour {
     //Same as lastDirection, but lastInput also allows itself to be 0,0.
     private Vector2 lastInput = Vector2.zero;
 
-    Menu activeMenu = Menu.Empty;
-
     bool moving = false;
 
-    public float comboTimer = 3.0f;
+    float comboTimer = 0.0f;
+    public float maxComboTime = 3.0f;
 
     Transform weapon;
+
+    List<GameObject> pickableItems = new List<GameObject>();
 
     private bool _lockMovement;
     public bool lockMovement
@@ -56,7 +51,7 @@ public class PlayerControl : MonoBehaviour {
 
     void Awake()
     {
-        _instance = this;
+        instance = this;
     }
 
     void Start()
@@ -64,26 +59,15 @@ public class PlayerControl : MonoBehaviour {
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
 
-        //CR: For encapsulation reasons, it would make more sense if we moved UI and Menu Management
-        //inside of a script attached to the Canvas. This way the PlayerControl doesn't have to require a UI
-        //in order to function properly. It will also get rid of all of these ugly GameObject.Find calls.
-
-        inventoryPanel = GameObject.Find("Inventory Panel");
-        equipmentPanel = GameObject.Find("Equipment Panel");
-        skillsPanel = GameObject.Find("Skill Tree Panel");
-        mainMenuPanel = GameObject.Find("Main Menu Panel");
-        slotPanel = GameObject.Find("Slot Panel").transform;
-        tooltip = GameObject.Find("Inventory").GetComponent<Tooltip>();
-        inventoryPanel.SetActive(false);
-        equipmentPanel.SetActive(false);
-        skillsPanel.SetActive(false);
-        mainMenuPanel.SetActive(false);
         weapon = transform.FindChild("Weapon");
     }
 
     void Update()
     {
-        MenuManager();
+        if(Input.GetButtonDown("Use"))
+        {
+            PickUpItems();
+        }
 
         ComboManager();
 
@@ -99,116 +83,13 @@ public class PlayerControl : MonoBehaviour {
         }
         
     }
-
-    void MenuCloser()
-    {
-        switch (activeMenu)
-        {
-            case Menu.Main:
-                mainMenuPanel.SetActive(false);
-                break;
-
-            case Menu.Inventory:
-                if (tooltip.tooltip.activeSelf)
-                {
-                    tooltip.Deactivate();
-                }
-
-                if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
-                {
-                    slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>().Reset();
-                }
-
-                inventoryPanel.SetActive(false);
-                equipmentPanel.SetActive(false);
-                break;
-
-            case Menu.Skills:
-                skillsPanel.SetActive(false);
-                break;
-        }
-        activeMenu = Menu.Empty;
-    }
-
-    void MenuOpener(Menu menuQueued)
-    {
-        activeMenu = menuQueued;
-
-        switch (activeMenu)
-        {
-            case Menu.Main:
-                mainMenuPanel.SetActive(true);
-                break;
-
-            case Menu.Inventory:
-                inventoryPanel.SetActive(true);
-                equipmentPanel.SetActive(true);
-                break;
-
-            case Menu.Skills:
-                skillsPanel.SetActive(true);
-                break;
-        }
-    }
-
-    void MenuManager()
-    {
-        Menu menuQueued = Menu.Empty;
-        
-        if(Input.GetButtonDown("Main Menu"))
-        {
-            menuQueued = Menu.Main;
-        }
-
-        else if(Input.GetButtonDown("Inventory"))
-        {
-            menuQueued = Menu.Inventory;
-        }
-
-        else if (Input.GetButtonDown("Skills"))
-        {
-            menuQueued = Menu.Skills;
-        }
-
-        else if(Input.GetButtonDown("Escape"))
-        {
-            MenuCloser();
-        }
-
-        //CR: The branching here should be cleaned up.
-        //If the first if statement's condition is false, then the second two already have
-        //their first condition true no matter what.
-        //Also, the logic can be reduced:
-        //Menu currentActiveMenu = activeMenu;
-        //if(currentActiveMenu != Menu.Empty){MenuCloser();}
-        //if(currentActiveMenu != menuQueued){MenuOpener();}
-
-        if (activeMenu == Menu.Empty)
-        {
-            MenuOpener(menuQueued);
-        }
-
-        else if(activeMenu != Menu.Empty && menuQueued == activeMenu)
-        {
-            MenuCloser();
-        }
-
-        else if(activeMenu != Menu.Empty && menuQueued != Menu.Empty)
-        {
-            MenuCloser();
-            MenuOpener(menuQueued);
-        }
-    }
-    
+ 
     void ComboManager()
     {
         if (comboTimer <= 0)
         {
             Player.instance.ResetCombo();
-            //CR: Should use a field instead of a magic number, like private float maxComboTime = 3.0f
-            //This way it's possible to have the value increase as the player levels up,
-            //or make it tweakable in the inspector.
-            comboTimer = 3.0f;
+            comboTimer = maxComboTime;
         }
 
         if (Player.instance.combo > 0)
@@ -295,28 +176,38 @@ public class PlayerControl : MonoBehaviour {
 
     public void DropItem(Vector2 position, ItemData itemData)
     {
-        //MoveTo(position);
-        /*if (slotPanel.GetChild(slotPanel.childCount - 1).GetComponent<ItemData>())
-        {
-            Destroy(slotPanel.GetChild(slotPanel.childCount - 1).gameObject);
-        }*/
         GameObject itemInstance = Instantiate(Resources.Load("Prefabs/Item", typeof(GameObject)), transform.position, transform.rotation) as GameObject;
-        itemInstance.GetComponent<ItemComponent>().reset(itemData.item.id);
-        itemInstance.GetComponent<ItemComponent>().setStack(itemData.stackAmount);
+        itemInstance.GetComponent<ItemComponent>().Reset(itemData.item.id);
+        itemInstance.GetComponent<ItemComponent>().SetStack(itemData.stackAmount);
+    }
+    
+    void PickUpItems()
+    {
+        while (pickableItems.Count != 0)
+        {
+            ItemComponent item = pickableItems[0].GetComponent<ItemComponent>();
+            for (int i = 0; i < item.stackAmount; i++)
+            {
+                inv.AddItem(item.itemID);
+            }
+            Destroy(pickableItems[0]);
+            pickableItems.RemoveAt(0);
+        }
     }
 
-    //CR: We should implement a list/queue of possible items to collect instead.
-    //This will prevent what is essentially a FixedUpate function that runs whenever
-    //the player stands over an object.
-    void OnTriggerStay2D(Collider2D other)
+    void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.GetComponent<ItemComponent>() && Input.GetButtonDown("Use"))
+        if (other.GetComponent<ItemComponent>())
         {
-            for (int i = 0; i < other.GetComponent<ItemComponent>().stackAmount; i++)
-            {
-                inv.AddItem(other.GetComponent<ItemComponent>().itemID);
-            }
-            Destroy(other.gameObject);
+            pickableItems.Add(other.gameObject);
+        }
+    }
+
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.GetComponent<ItemComponent>() && pickableItems.Contains(other.gameObject))
+        {
+            pickableItems.Remove(other.gameObject);
         }
     }
 }

@@ -13,11 +13,11 @@ public class Wearable : Item {
 
     }
 
-    public Wearable(int ID, string Title, string Type, int Value, string Desc, bool Stack, int Rarity, string Slug, List<Stat> Stats)
+    public Wearable(int ID, string Title, string Type, string SubType, int Value, string Desc, bool Stack, int Rarity, string Slug, List<ItemStat> Stats)
         : base(ID, Title, Value, Desc, Stack, Rarity, Slug, Stats)
     {
-        typeString = Type;
-        switch (Type)
+        typeString = SubType;
+        switch (SubType)
         {
             case "Chest":
                 type = baseType.Chest;

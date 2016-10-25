@@ -104,8 +104,8 @@ public class Hostile : Entity {
     void DropItem(Item item)
     {
         GameObject itemInstance = Instantiate(Resources.Load("Prefabs/Item", typeof(GameObject)), transform.position, transform.rotation) as GameObject;
-        itemInstance.GetComponent<ItemComponent>().reset(item.id);
-        itemInstance.GetComponent<ItemComponent>().setStack(1);
+        itemInstance.GetComponent<ItemComponent>().Reset(item.id);
+        itemInstance.GetComponent<ItemComponent>().SetStack(1);
     }
 
     protected override void Death()
@@ -117,11 +117,17 @@ public class Hostile : Entity {
                 DropItem(itemDatabase.GetRandomItem(tier));
             }
 
-            Destroy(healthBar);
-            //CR: Unnecessary this's
-            Destroy(this.gameObject);
+            if (isBoss)
+            {
+                healthBar.SetActive(false);
+            }
+            else
+            {
+                Destroy(healthBar);
+            }
+            Destroy(gameObject);
 
-            Player.instance.SetExp(this.expGiven);
+            Player.instance.SetExp(expGiven);
 
             //Debug.Log("Current expGiven :" + hostile.expGiven);
             Debug.Log("Current curLvl :" + Player.instance.curLvl);

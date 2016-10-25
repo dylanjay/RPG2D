@@ -7,19 +7,18 @@ public class Tooltip : MonoBehaviour {
     Item item;
     string data;
 
-    public GameObject tooltip;
+    public GameObject tooltipReference;
 
     void Start()
     {
-        tooltip = GameObject.Find("Tooltip");
-        tooltip.SetActive(false);
+        tooltipReference.SetActive(false);
     }
 
     void Update()
     {
-        if(tooltip.activeSelf)
+        if(tooltipReference.activeSelf)
         {
-            tooltip.transform.position = Input.mousePosition;
+            tooltipReference.transform.position = Input.mousePosition;
         }
     }
 
@@ -27,12 +26,12 @@ public class Tooltip : MonoBehaviour {
     {
         item = hoveredItem;
         ConstructDataString();
-        tooltip.SetActive(true);
+        tooltipReference.SetActive(true);
     }
 
     public void Deactivate()
     {
-        tooltip.SetActive(false);
+        tooltipReference.SetActive(false);
     }
 
     public void ConstructDataString()
@@ -46,7 +45,7 @@ public class Tooltip : MonoBehaviour {
             data += item.stats[i].name + ": " + item.stats[i].value + "\n";
         }
 
-        tooltip.transform.GetChild(0).GetComponent<Text>().text = data;
+        tooltipReference.transform.GetChild(0).GetComponent<Text>().text = data;
 
     }
 }

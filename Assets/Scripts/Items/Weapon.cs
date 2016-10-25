@@ -13,11 +13,11 @@ public class Weapon : Item {
 
     }
 
-    public Weapon(int ID, string Title, string Type, int Value, string Desc, bool Stack, int Rarity, string Slug, List<Stat> Stats)
+    public Weapon(int ID, string Title, string Type, string SubType, int Value, string Desc, bool Stack, int Rarity, string Slug, List<ItemStat> Stats)
         : base(ID, Title, Value, Desc, Stack, Rarity, Slug, Stats)
     {
         typeString = Type;
-        switch(Type)
+        switch(SubType)
         {
             case "Sword":
                 type = baseType.Sword;

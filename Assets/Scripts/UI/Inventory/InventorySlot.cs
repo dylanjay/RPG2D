@@ -4,24 +4,57 @@ using System.Collections.Generic;
 using UnityEngine.EventSystems;
 using System;
 
-public class Slot : MonoBehaviour, IDropHandler {
-
+public class InventorySlot : MonoBehaviour, IDropHandler
+{
     public int slotID;
 
-    Inventory inv;
-    Dictionary<string, Item> equipment;
+    Inventory inventory;
+
     GameObject equipmentPanel;
+    GameObject inventoryPanel;
 
     void Start()
     {
-        inv = Inventory.instance;
-        equipment = inv.equipmentSlots;
-        equipmentPanel = GameObject.Find("Equipment Slot Panel");
+        inventory = Inventory.instance;
+        equipmentPanel = transform.parent.parent.parent.FindChild("Equipment Panel").gameObject;
+        inventoryPanel = transform.parent.parent.parent.FindChild("Inventory Panel").gameObject;
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        
+        ItemData selectedItem = eventData.pointerDrag.GetComponent<ItemData>();
+
+        //if this slot is empty fill it with item and empty item's previous slot
+        if (inventory.items[slotID].id == -1)
+        {
+            inventory.items[selectedItem.slot] = new Item();
+            inventory.slots[selectedItem.slot].name = "Empty Slot";
+            inventory.items[slotID] = selectedItem.item;
+            inventory.slots[slotID].name = selectedItem.item.title + " Slot";
+            selectedItem.slot = slotID;
+        }
+
+        //If this slot is full swap items
+        else if (selectedItem.slot != slotID)
+        {
+            Transform item = transform.FindChild(transform.name.Substring(0, transform.name.Length-5));
+            item.GetComponent<ItemData>().slot = selectedItem.slot;
+            item.transform.SetParent(inventory.slots[selectedItem.slot].transform);
+            item.transform.position = inventory.slots[selectedItem.slot].transform.position;
+            inventory.slots[selectedItem.slot].name = item.GetComponent<ItemData>().item.title + " Slot";
+
+            selectedItem.slot = slotID;
+            selectedItem.transform.SetParent(transform);
+            selectedItem.transform.position = transform.position;
+
+            inventory.items[selectedItem.slot] = item.GetComponent<ItemData>().item;
+            inventory.items[slotID] = selectedItem.item;
+            inventory.slots[slotID].name = selectedItem.item.title + " Slot";
+        }
+    }
+
+    /*public void OnDrop(PointerEventData eventData)
+    {
         ItemData droppedItem = eventData.pointerDrag.GetComponent<ItemData>();
         bool endInventory = true;
         if (eventData.hovered.Count > 0)
@@ -141,5 +174,5 @@ public class Slot : MonoBehaviour, IDropHandler {
                 inv.slots[slotID].name = droppedItem.item.title + " Slot";
             }
         }
-    }
+    }*/
 }
