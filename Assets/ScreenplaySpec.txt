@@ -1,0 +1,11 @@
+#Screenplay for First Level
+#Comments have a number/pound sign at the beginning of the line.
+#Adding any whitespace before # will make it no longer a comment.
+#Any whitespace at the beginning or end of a line will be truncated.
+#If the space is needed, use a Unicode non-breaking space.
+
+#Empty lines are also ignored.
+
+#There are two types of attributes/tags that can be used in the script:
+#Brackets and 
+#Script, EndScript, Pause, Skippable, Position, Character, Option
