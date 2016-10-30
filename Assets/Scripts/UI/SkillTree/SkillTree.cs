@@ -16,7 +16,7 @@ public class SkillTree : MonoBehaviour
     int maxAbilities = 4;
 
     public bool slotSelected = false;
-    public int selectedSlotID;
+    public int selectedSlotIndex;
     public bool cancelSelection = true;
 
     List<SkillTreeNode> treeNodes = new List<SkillTreeNode>();
@@ -33,7 +33,6 @@ public class SkillTree : MonoBehaviour
         abilityManager = AbilityManager.instance;
         skillTree = transform.FindChild("Skill Tree Panel");
         activeSlotsUI = skillTree.FindChild("Active Skill Slots");
-        skillTree = skillTree.FindChild("Skill Tree Slots");
         player = Player.instance;
         playerGO = player.gameObject;
 
@@ -46,9 +45,12 @@ public class SkillTree : MonoBehaviour
 
         for (int i = 0; i < skillTree.childCount; i++)
         {
-            SkillTreeNode node = skillTree.transform.GetChild(i).GetComponent<SkillTreeNode>();
-            node.slot = i;
-            treeNodes.Add(node);
+            if (skillTree.transform.GetChild(i).GetComponent<SkillTreeNode>())
+            {
+                SkillTreeNode node = skillTree.transform.GetChild(i).GetComponent<SkillTreeNode>();
+                node.slot = i;
+                treeNodes.Add(node);
+            }
         }
     }
 
@@ -62,21 +64,21 @@ public class SkillTree : MonoBehaviour
 
     public void AssignSlot(int slot)
     {
-        SkillTreeActiveSlot activeSlot = activeSlots[selectedSlotID];
+        AbilityBarIcon skillSlot = abilityManager.skillSlots[selectedSlotIndex];
         SkillTreeNode node = treeNodes[slot];
 
         string skillName = node.skillName;
         if (!abilityManager.isEquipped(skillName))
         {
-            activeSlot.sprite = node.sprite;
-            activeSlot.SlotSkill(skillName);
+            //activeSlot.sprite = node.sprite;
+            //activeSlot.SlotSkill(skillName);
             Ability ability = abilityManager.abilityDict[skillName];
             if (ability is CastableAbility)
             {
                 CastableAbility castableAbility = (CastableAbility)ability;
-                castableAbility.keybinding = "Ability" + selectedSlotID.ToString();
+                castableAbility.keybinding = skillSlot.keybinding;
             }
-            abilityManager.EnableAbility(abilityManager.abilityDict[skillName], playerGO);
+            abilityManager.EnableAbility(abilityManager.abilityDict[skillName], playerGO, selectedSlotIndex);
         }
         slotSelected = false;
     }

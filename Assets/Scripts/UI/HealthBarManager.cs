@@ -21,6 +21,7 @@ public class HealthBarManager : MonoBehaviour {
     public void UpdateHealthBar(GameObject healthBar, MaxableStat health)
     {
         float healthBarDisplay = health.ratio;
+        Debug.Log(healthBarDisplay);
         Transform healthBarFill = healthBar.transform.FindChild("Foreground").FindChild("Fill");
         Vector3 barScale = healthBarFill.GetComponent<RectTransform>().localScale;
         healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplay, barScale.y, barScale.z);

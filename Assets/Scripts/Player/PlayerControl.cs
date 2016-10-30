@@ -58,6 +58,7 @@ public class PlayerControl : MonoBehaviour {
     {   
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
+        SetDirection(Vector2.down);
 
         weapon = transform.FindChild("Weapon");
     }
@@ -68,8 +69,6 @@ public class PlayerControl : MonoBehaviour {
         {
             PickUpItems();
         }
-
-        ComboManager();
 
         if (_lockMovement)
         {
@@ -82,20 +81,6 @@ public class PlayerControl : MonoBehaviour {
             UpdatePlayerMovementInput();
         }
         
-    }
- 
-    void ComboManager()
-    {
-        if (comboTimer <= 0)
-        {
-            Player.instance.ResetCombo();
-            comboTimer = maxComboTime;
-        }
-
-        if (Player.instance.combo > 0)
-        {
-            comboTimer -= Time.deltaTime;
-        }
     }
 
     public void SetDirection(Vector2 dir)

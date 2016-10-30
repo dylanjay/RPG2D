@@ -37,7 +37,7 @@ public class SkillTreeActiveSlot : MonoBehaviour, IPointerDownHandler, IPointerE
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        skillTree.selectedSlotID = slot;
+        skillTree.selectedSlotIndex = slot;
         skillTree.slotSelected = true;
     }
 

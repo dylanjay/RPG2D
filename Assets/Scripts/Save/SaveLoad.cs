@@ -94,6 +94,7 @@ public class SerializableItem
     public int id;
     public int stackAmount;
     public int slot;
+    public int tab;
     public string equipmentSlot;
 
     public void Fill(ItemData data)
@@ -101,6 +102,7 @@ public class SerializableItem
         id = data.item.id;
         stackAmount = data.stackAmount;
         slot = data.slot;
+        tab = data.tab;
     }
 
     public void Fill(int id, string equipmentSlot)
@@ -116,15 +118,19 @@ public class SerializableInventory
     List<SerializableItem> items = new List<SerializableItem>();
     List<SerializableItem> equipment = new List<SerializableItem>();
 
-    public void Fill(List<GameObject> itemList, Dictionary<string, Item> equipmentList)
+    public void Fill(List<List<GameObject>> itemList, Dictionary<string, Item> equipmentList)
     {
-        foreach(GameObject item in itemList)
+        for(int i = 0; i < itemList.Count; i++)
         {
-            if (item.transform.childCount > 0)
+            for(int j = 0; j < itemList[i].Count; j++)
             {
-                SerializableItem serItem = new SerializableItem();
-                serItem.Fill(item.transform.FindChild(item.name.Substring(0, item.name.Length - 5)).GetComponent<ItemData>());
-                items.Add(serItem);
+                GameObject item = itemList[i][j];
+                if (item.transform.childCount > 0)
+                {
+                    SerializableItem serItem = new SerializableItem();
+                    serItem.Fill(item.transform.FindChild(item.name.Substring(0, item.name.Length - 5)).GetComponent<ItemData>());
+                    items.Add(serItem);
+                }
             }
         }
 
@@ -140,6 +146,13 @@ public class SerializableInventory
     {
         Inventory.instance.LoadInventory(items, equipment);
     }
+}
+
+[System.Serializable]
+public class SerializablePlayerStats
+{
+    int playerLevel;
+    int playerExp;
 }
 
 [System.Serializable]

@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class AbilityManager : MonoBehaviour {
+public class AbilityManager : MonoBehaviour
+{
 
     /// <summary>
     /// Used for testing purposes only! Will be removed during actual use.
@@ -35,7 +36,9 @@ public class AbilityManager : MonoBehaviour {
 
     private float lockoutTimer = 0;
 
-    public int maxEquippedAbilities;
+    public int maxAbilityCount;
+
+    public List<AbilityBarIcon> skillSlots = new List<AbilityBarIcon>();
 
     PlayerControl player;
 
@@ -56,6 +59,36 @@ public class AbilityManager : MonoBehaviour {
     void Start()
     {
         player = PlayerControl.instance;
+
+        //Create ability bar
+        for (int i = 0; i < maxAbilityCount; i++)
+        {
+            GameObject abilityDisplay = Instantiate(abilityDisplayPrefab);
+            AbilityBarIcon skillSlot = abilityDisplay.GetComponent<AbilityBarIcon>();
+            skillSlot.keybinding = "Ability" + i.ToString();
+            skillSlot.slot = i;
+            switch(i)
+            {
+                case 0:
+                    skillSlot.AbilityKeybindingChanged("Space");
+                    break;
+
+                case 1:
+                    skillSlot.AbilityKeybindingChanged("Shift");
+                    break;
+
+                case 2:
+                    skillSlot.AbilityKeybindingChanged("Q");
+                    break;
+
+                case 3:
+                    skillSlot.AbilityKeybindingChanged("F");
+                    break;
+            }
+            keybindingKeys.Add("Ability" + i.ToString());
+            abilityDisplay.transform.SetParent(abilityDisplayBar);
+            skillSlots.Add(skillSlot);
+        }
     }
 
     void Update()
@@ -93,23 +126,27 @@ public class AbilityManager : MonoBehaviour {
     {
         while(equippedAbilities.Count != 0)
         {
-            DisableAbility(equippedAbilities[0]);
+            //DisableAbility(equippedAbilities[0]);
         }
-        //CastableAbility ca = abilityDict[name] as CastableAbility;
-        //keybindingsToAbilities.ContainsKey(ca.keybinding);
+
         foreach(string name in list)
         {
-            EnableAbility(abilityDict[name], target);
+            //EnableAbility(abilityDict[name], target);
         }
     }
 
-    public void DisableAbility(Ability ability)
+    public void DisableAbility(Ability ability, int skillSlotIndex)
     {
         if (equippedAbilities.Count > 0)
         {
             if (ability is CastableAbility)
             {
-                RemoveKeybinding((CastableAbility)ability);
+                //RemoveKeybinding((CastableAbility)ability);
+                keybindingsToAbilities.Remove(skillSlots[skillSlotIndex].keybinding);
+                CastableAbility castableAbility = (CastableAbility)ability;
+                skillSlots[skillSlotIndex].RemoveAbility(castableAbility);
+
+                skillSlots[skillSlotIndex].slotted = false;
             }
             equippedAbilities.Remove(ability);
             ability.Disable();
@@ -122,11 +159,11 @@ public class AbilityManager : MonoBehaviour {
         {
             keybindingsToAbilities.Remove(ability.keybinding);
             keybindingKeys.Remove(ability.keybinding);
-            //ability.keybinding = "";
+            ability.keybinding = "";
         }
 
         //Remove from to Ability Bar
-        foreach (AbilityBarIcon child in abilityDisplayBar.GetComponentsInChildren<AbilityBarIcon>())
+        /*foreach (AbilityBarIcon child in abilityDisplayBar.GetComponentsInChildren<AbilityBarIcon>())
         {
             if(child.ability == ability)
             {
@@ -134,7 +171,7 @@ public class AbilityManager : MonoBehaviour {
                 //TODO: Possibly remove destroy by pooling objects.
                 Destroy(child.gameObject);
             }
-        }
+        }*/
     }
 
     public void AddKeybinding(CastableAbility ability, string keybinding)
@@ -148,31 +185,43 @@ public class AbilityManager : MonoBehaviour {
         keybindingKeys.Add(keybinding);
 
         //Add to Ability Bar
-        GameObject abilityDisplay = Instantiate(abilityDisplayPrefab);
+        /*GameObject abilityDisplay = Instantiate(abilityDisplayPrefab);
         abilityDisplay.GetComponent<AbilityBarIcon>().SetAbility(ability);
-        abilityDisplay.transform.SetParent(abilityDisplayBar);
+        abilityDisplay.transform.SetParent(abilityDisplayBar);*/
     }
 
-    public void EnableAbility(Ability ability, GameObject target)
+    public void EnableAbility(Ability ability, GameObject target, int skillSlotIndex)
     {
         //Set the ability to the same keybind as last time if set previously.
         //If something is already in that slot, remove the keybinding.
         ability.gameObject = target;
-        if (equippedAbilities.Count < maxEquippedAbilities)
+        if (equippedAbilities.Count < maxAbilityCount)
         {
             if (ability is CastableAbility)
             {
                 CastableAbility castableAbility = (CastableAbility)ability;
-                if (keybindingsToAbilities.ContainsKey(castableAbility.keybinding))
+                AbilityBarIcon skillSlot = skillSlots[skillSlotIndex].GetComponent<AbilityBarIcon>();
+                if(!skillSlot.slotted)
+                {
+                    skillSlot.slotted = true;
+                }
+                else
+                {
+                    //keybindingsToAbilities.Remove(skillSlot.keybinding);
+                }
+                skillSlot.SetAbility(castableAbility);
+                castableAbility.keybinding = skillSlot.keybinding;
+                keybindingsToAbilities.Add(skillSlot.keybinding, castableAbility);
+
+                /*if (keybindingsToAbilities.ContainsKey(castableAbility.keybinding))
                 {
                     castableAbility.keybinding = "";
                 }
                 else if (castableAbility.keybinding != "")
                 {
                     AddKeybinding(castableAbility, castableAbility.keybinding);
-                }
+                }*/
             }
-
 
             //Add the ability to the list and enable it.
             equippedAbilities.Add(ability);

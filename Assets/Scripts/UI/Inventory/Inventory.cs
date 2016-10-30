@@ -8,18 +8,30 @@ public class Inventory : MonoBehaviour
     public static Inventory instance { get; private set; }
 
     GameObject inventoryPanel;
+    GameObject tabPanel;
     GameObject slotPanel;
     GameObject equipmentSlotPanel;
     ItemDatabase database;
 
     public GameObject inventorySlotPrefab;
     public GameObject inventoryItemPrefab;
+    public GameObject inventoryTabPrefab;
 
-    int slotSize = 16;
-    public List<Item> items = new List<Item>();
-    public List<GameObject> slots = new List<GameObject>();
+    public int numSlots;
+    public int slotsPerTab;
+    public int maxStackAmount;
+    int numTabs;
+    //public List<Item> items = new List<Item>();
+    //public List<GameObject> slots = new List<GameObject>();
+    public List<List<Item>> items = new List<List<Item>>();
+    public List<List<GameObject>> slots = new List<List<GameObject>>();
 
     public Dictionary<string, Item> equipmentSlots = new Dictionary<string, Item>();
+
+    public int currentTab = 0;
+
+    public bool holdingItem = false;
+    public int initialTab;
 
     void Awake()
     {
@@ -29,6 +41,7 @@ public class Inventory : MonoBehaviour
     void Start()
     {
         inventoryPanel = transform.FindChild("Inventory Panel").gameObject;
+        tabPanel = inventoryPanel.transform.FindChild("Inventory Tab Panel").gameObject;
         slotPanel = inventoryPanel.transform.FindChild("Inventory Slot Panel").gameObject;
         equipmentSlotPanel = transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
 
@@ -36,14 +49,43 @@ public class Inventory : MonoBehaviour
 
         Player.instance.UpdateStats(equipmentSlots);
 
-        //Populate slots and instantiate canvas objects
-        for (int i = 0; i < slotSize; i++)
+        numTabs = numSlots / slotsPerTab;
+        if(numSlots % slotsPerTab != 0)
         {
-            items.Add(new Item());
-            slots.Add(Instantiate(inventorySlotPrefab));
-            slots[i].GetComponent<InventorySlot>().slotID = i;
-            slots[i].transform.SetParent(slotPanel.transform);
-            slots[i].name = "Empty Slot";
+            numTabs++;
+        }
+
+        //Populate slots and instantiate canvas objects
+        for(int i = 0; i < numTabs; i++)
+        {
+            items.Add(new List<Item>());
+            slots.Add(new List<GameObject>());
+            GameObject newTab = Instantiate(inventoryTabPrefab);
+            newTab.GetComponent<InventoryTab>().SetTabNumber(i);
+            newTab.transform.SetParent(tabPanel.transform);
+
+            int currentTabSlots = 0;
+            if(numSlots % slotsPerTab != 0 && i == numTabs-1)
+            {
+                currentTabSlots = numSlots % slotsPerTab;
+            }
+            else
+            {
+                currentTabSlots = slotsPerTab;
+            }
+            for(int j = 0; j < currentTabSlots; j++)
+            {
+                items[i].Add(new Item());
+                slots[i].Add(Instantiate(inventorySlotPrefab));
+                slots[i][j].GetComponent<InventorySlot>().slotID = j;
+                slots[i][j].transform.SetParent(slotPanel.transform);
+                slots[i][j].name = "Empty Slot";
+
+                if (i != 0)
+                {
+                    slots[i][j].SetActive(false);
+                }
+            }
         }
 
         for (int i = 0; i < equipmentSlotPanel.transform.childCount; i++)
@@ -61,12 +103,32 @@ public class Inventory : MonoBehaviour
         AddItem(1);
     }
 
+    public void SwitchTabs(int tab)
+    {
+        for (int i = 0; i < slots[currentTab].Count; i++)
+        {
+            slots[currentTab][i].SetActive(false);
+        }
+
+        for(int i = 0; i < slots[tab].Count; i++)
+        {
+            slots[tab][i].SetActive(true);
+        }
+        currentTab = tab;
+    }
+
+    public void HoldItem()
+    {
+        holdingItem = true;
+        initialTab = currentTab;
+    }
+
     public void UpdateStats()
     {
         Player.instance.UpdateStats(equipmentSlots);
     }
 
-    GameObject CreateItemObject(Item itemToAdd, int stackAmount, int slot, Transform parent)
+    GameObject CreateItemObject(Item itemToAdd, int stackAmount, int tab, int slot, Transform parent)
     {
         GameObject itemObj = Instantiate(inventoryItemPrefab);
         string equipmentSlot = "";
@@ -80,7 +142,7 @@ public class Inventory : MonoBehaviour
             Wearable wearable = itemToAdd as Wearable;
             equipmentSlot = wearable.typeString;
         }
-        itemObj.GetComponent<ItemData>().setData(itemToAdd, stackAmount, slot, equipmentSlot);
+        itemObj.GetComponent<ItemData>().setData(itemToAdd, stackAmount, tab, slot, equipmentSlot);
         itemObj.transform.SetParent(parent);
         itemObj.transform.localPosition = Vector2.zero;
         itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
@@ -93,22 +155,42 @@ public class Inventory : MonoBehaviour
         //Delete current inventory
         items.Clear();
 
-        for (int i = 0; i < slotSize; i++)
+        for (int i = 0; i < numTabs; i++)
         {
-            //refill items with empty slots
-            items.Add(new Item());
-            slots[i].name = "Empty Slot";
-            //destroy current slot
-            if(slots[i].transform.childCount > 0)
+            items.Add(new List<Item>());
+            slots.Add(new List<GameObject>());
+
+            int currentTabSlots = 0;
+            if (numSlots % slotsPerTab != 0 && i == numTabs - 1)
             {
-                Destroy(slots[i].transform.GetChild(0).gameObject);
+                currentTabSlots = numSlots % slotsPerTab;
+            }
+            else
+            {
+                currentTabSlots = slotsPerTab;
+            }
+            for (int j = 0; j < currentTabSlots; j++)
+            {
+                items[i].Add(new Item());
+                slots[i][j].name = "Empty Slot";
+                
+                if(slots[i][j].transform.childCount > 0)
+                {
+                    //Destroy(slots[i][j].transform.FindChild(slots[i][j].name.Substring(0,slots[i][j].name.Length-5)).gameObject);
+                    Destroy(slots[i][j].transform.GetChild(0).gameObject);
+                }
+
+                if (i != 0)
+                {
+                    slots[i][j].SetActive(false);
+                }
             }
         }
 
         //Set new inventory
         foreach (SerializableItem item in itemList)
         {
-            SetItem(item.id, item.stackAmount, item.slot);
+            SetItem(item.id, item.stackAmount, item.tab, item.slot);
         }
 
         //Delete current equipment
@@ -129,7 +211,7 @@ public class Inventory : MonoBehaviour
             if (item.id != -1)
             {
                 equipmentSlots.Add(item.equipmentSlot, database.GetItemByID(item.id));
-                CreateItemObject(database.GetItemByID(item.id), 1, -1, equipmentSlotPanel.transform.FindChild(item.equipmentSlot));
+                CreateItemObject(database.GetItemByID(item.id), 1, -1, -1, equipmentSlotPanel.transform.FindChild(item.equipmentSlot));
             }
             //it item id is -1 it is empty so add empty item
             else
@@ -139,16 +221,16 @@ public class Inventory : MonoBehaviour
         }
     }
 
-    public void SetItem(int id, int stackAmount, int slot)
+    public void SetItem(int id, int stackAmount, int tab, int slot)
     {
         Item itemToAdd = database.GetItemByID(id);
-        items[slot] = itemToAdd;
-        GameObject itemObj = CreateItemObject(itemToAdd, stackAmount, slot, slots[slot].transform);
+        items[tab][slot] = itemToAdd;
+        GameObject itemObj = CreateItemObject(itemToAdd, stackAmount, tab, slot, slots[tab][slot].transform);
         if (stackAmount > 1)
         {
             itemObj.transform.FindChild("Stack Amount").GetComponent<Text>().text = stackAmount.ToString();
         }
-        slots[slot].name = itemToAdd.title + " Slot";
+        slots[tab][slot].name = itemToAdd.title + " Slot";
     }
 
     public void AddItem(int id)
@@ -159,27 +241,76 @@ public class Inventory : MonoBehaviour
         {
             for (int i = 0; i < items.Count; i++)
             {
-                if (items[i].id == id)
+                for (int j = 0; j < items[i].Count; j++)
                 {
-                    ItemData data = slots[i].transform.FindChild(itemToAdd.title).GetComponent<ItemData>();
-                    data.stackAmount++;
-                    data.transform.FindChild("Stack Amount").GetComponent<Text>().text = data.stackAmount.ToString();
+                    if (items[i][j].id == id)
+                    {
+                        ItemData data = slots[i][j].transform.FindChild(itemToAdd.title).GetComponent<ItemData>();
+                        data.stackAmount++;
+                        data.transform.FindChild("Stack Amount").GetComponent<Text>().text = data.stackAmount.ToString();
+                        return;
+                    }
                 }
             }
         }
         //else its a new item so create new item
         else
         {
-            for (int i = 0; i < items.Count; i++)
+            if(currentTab != 0)
             {
-                if (items[i].id == -1)
+                bool checkCurrent = false;
+                for (int i = currentTab; i < items.Count; i++)
                 {
-                    items[i] = itemToAdd;
-                    CreateItemObject(itemToAdd, 1, i, slots[i].transform);
-                    slots[i].name = itemToAdd.title + " Slot";
-                    break;
+                    if (i == currentTab && checkCurrent)
+                    {
+                        continue;
+                    }
+                    for (int j = 0; j < items[i].Count; j++)
+                    {
+                        items[i][j] = itemToAdd;
+                        CreateItemObject(itemToAdd, 1, i, j, slots[i][j].transform);
+                        slots[i][j].name = itemToAdd.title + " Slot";
+                        return;
+                    }
+                    if (i == currentTab && !checkCurrent)
+                    {
+                        i = 0;
+                        checkCurrent = true;
+                    }
                 }
             }
+
+            else
+            {
+                for (int i = 0; i < items.Count; i++)
+                {
+                    for (int j = 0; j < items[i].Count; j++)
+                    {
+                        if (items[i][j].id == -1)
+                        {
+                            items[i][j] = itemToAdd;
+                            CreateItemObject(itemToAdd, 1, i, j, slots[i][j].transform);
+                            slots[i][j].name = itemToAdd.title + " Slot";
+                            return;
+                        }
+                    }
+                }
+            }
+
+            /*
+            for (int i = 0; i < items.Count; i++)
+            {
+                for (int j = 0; j < items[i].Count; j++)
+                {
+                    if (items[i][j].id == -1)
+                    {
+                        items[i][j] = itemToAdd;
+                        CreateItemObject(itemToAdd, 1, j, slots[i][j].transform);
+                        slots[i][j].name = itemToAdd.title + " Slot";
+                        return;
+                    }
+                }
+            }*/
         }
     }
 
@@ -187,9 +318,12 @@ public class Inventory : MonoBehaviour
     {
         for(int i = 0; i < items.Count; i++)
         {
-            if(items[i].id == item.id)
+            for (int j = 0; j < items[i].Count; j++)
             {
-                return true;
+                if (items[i][j].id == item.id)
+                {
+                    return true;
+                }
             }
         }
         return false;

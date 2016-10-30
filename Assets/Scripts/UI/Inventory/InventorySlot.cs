@@ -25,31 +25,36 @@ public class InventorySlot : MonoBehaviour, IDropHandler
         ItemData selectedItem = eventData.pointerDrag.GetComponent<ItemData>();
 
         //if this slot is empty fill it with item and empty item's previous slot
-        if (inventory.items[slotID].id == -1)
+        if (inventory.items[inventory.currentTab][slotID].id == -1)
         {
-            inventory.items[selectedItem.slot] = new Item();
-            inventory.slots[selectedItem.slot].name = "Empty Slot";
-            inventory.items[slotID] = selectedItem.item;
-            inventory.slots[slotID].name = selectedItem.item.title + " Slot";
+            inventory.items[inventory.initialTab][selectedItem.slot] = new Item();
+            inventory.slots[inventory.initialTab][selectedItem.slot].name = "Empty Slot";
+            inventory.items[inventory.currentTab][slotID] = selectedItem.item;
+            inventory.slots[inventory.currentTab][slotID].name = selectedItem.item.title + " Slot";
+            selectedItem.tab = inventory.currentTab;
             selectedItem.slot = slotID;
+            selectedItem.transform.SetParent(transform);
+            selectedItem.transform.position = transform.position;
         }
 
         //If this slot is full swap items
         else if (selectedItem.slot != slotID)
         {
-            Transform item = transform.FindChild(transform.name.Substring(0, transform.name.Length-5));
-            item.GetComponent<ItemData>().slot = selectedItem.slot;
-            item.transform.SetParent(inventory.slots[selectedItem.slot].transform);
-            item.transform.position = inventory.slots[selectedItem.slot].transform.position;
-            inventory.slots[selectedItem.slot].name = item.GetComponent<ItemData>().item.title + " Slot";
+            Transform itemToReplace = transform.FindChild(transform.name.Substring(0, transform.name.Length-5));
+            itemToReplace.GetComponent<ItemData>().tab = inventory.initialTab;
+            itemToReplace.GetComponent<ItemData>().slot = selectedItem.slot;
+            itemToReplace.transform.SetParent(inventory.slots[inventory.initialTab][selectedItem.slot].transform);
+            itemToReplace.transform.position = inventory.slots[inventory.initialTab][selectedItem.slot].transform.position;
+            inventory.slots[inventory.initialTab][selectedItem.slot].name = itemToReplace.GetComponent<ItemData>().item.title + " Slot";
 
+            selectedItem.tab = inventory.currentTab;
             selectedItem.slot = slotID;
             selectedItem.transform.SetParent(transform);
             selectedItem.transform.position = transform.position;
 
-            inventory.items[selectedItem.slot] = item.GetComponent<ItemData>().item;
-            inventory.items[slotID] = selectedItem.item;
-            inventory.slots[slotID].name = selectedItem.item.title + " Slot";
+            inventory.items[inventory.initialTab][selectedItem.slot] = itemToReplace.GetComponent<ItemData>().item;
+            inventory.items[inventory.currentTab][slotID] = selectedItem.item;
+            inventory.slots[inventory.currentTab][slotID].name = selectedItem.item.title + " Slot";
         }
     }
 

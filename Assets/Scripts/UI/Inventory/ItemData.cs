@@ -8,6 +8,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
     public Item item;
     public int stackAmount;
     public int slot;
+    public int tab;
     public string equipmentSlot;
 
     Inventory inventory;
@@ -30,10 +31,11 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
         tooltip = canvas.GetComponent<Tooltip>();
     }
 
-    public void setData(Item item, int stackAmount, int slot, string equipmentSlot)
+    public void setData(Item item, int stackAmount, int tab, int slot, string equipmentSlot)
     {
         this.item = item;
         this.stackAmount = stackAmount;
+        this.tab = tab;
         this.slot = slot;
         this.equipmentSlot = equipmentSlot;
     }
@@ -46,6 +48,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
             transform.SetParent(canvas.transform);
             transform.position = eventData.position - offset;
             GetComponent<CanvasGroup>().blocksRaycasts = false;
+            inventory.HoldItem();
         }
 
         //if slot is not equal to -1 the item is in the inventory so I am equipping
@@ -56,17 +59,18 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
                 if (inventory.equipmentSlots[equipmentSlot].id == -1)
                 {
                     inventory.equipmentSlots[equipmentSlot] = item;
-                    inventory.items[slot] = new Item();
-                    inventory.slots[slot].name = "Empty Slot";
+                    inventory.items[inventory.currentTab][slot] = new Item();
+                    inventory.slots[inventory.currentTab][slot].name = "Empty Slot";
                 }
 
                 else
                 {
                     Transform itemToReplace = equipmentSlotPanel.transform.FindChild(equipmentSlot).FindChild(inventory.equipmentSlots[equipmentSlot].title);
+                    itemToReplace.GetComponent<ItemData>().tab = inventory.currentTab;
                     itemToReplace.GetComponent<ItemData>().slot = slot;
-                    itemToReplace.transform.SetParent(inventory.slots[slot].transform);
-                    itemToReplace.transform.position = inventory.slots[slot].transform.position;
-                    inventory.slots[slot].name = itemToReplace.GetComponent<ItemData>().item.title + " Slot";
+                    itemToReplace.transform.SetParent(inventory.slots[inventory.currentTab][slot].transform);
+                    itemToReplace.transform.position = inventory.slots[inventory.currentTab][slot].transform.position;
+                    inventory.slots[inventory.currentTab][slot].name = itemToReplace.GetComponent<ItemData>().item.title + " Slot";
                     inventory.equipmentSlots[equipmentSlot] = item;
                     
                 }
@@ -81,7 +85,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
         //else I am un-equipping
         else if (item != null && stackAmount == 1 && eventData.button == PointerEventData.InputButton.Right && slot == -1)
         {
-            
+            tooltip.Deactivate();
             inventory.AddItem(item.id);
             inventory.equipmentSlots[equipmentSlot] = new Item();
             Destroy(gameObject);
@@ -90,8 +94,8 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
     public void Reset()
     {
-        transform.SetParent(inventory.slots[slot].transform);
-        transform.position = inventory.slots[slot].transform.position;
+        transform.SetParent(inventory.slots[inventory.initialTab][slot].transform);
+        transform.position = inventory.slots[inventory.initialTab][slot].transform.position;
         GetComponent<CanvasGroup>().blocksRaycasts = true;
     }
 
@@ -102,6 +106,8 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
             if (!dragged) { Reset(); }
 
             else { dragged = false; }
+
+            inventory.holdingItem = false;
         }
     }
 
@@ -118,6 +124,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
     {
         //if cursor is not hovering over the inventory drop item
         bool dropItem = true;
+        
         foreach(GameObject hoveredObject in eventData.hovered)
         {
             if(hoveredObject == inventoryPanel)
@@ -129,8 +136,8 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
         if(dropItem)
         {
-            inventory.items[slot] = new Item();
-            inventory.slots[slot].name = "Empty Slot";
+            inventory.items[inventory.initialTab][slot] = new Item();
+            inventory.slots[inventory.initialTab][slot].name = "Empty Slot";
             player.DropItem(eventData.position, eventData.pointerDrag.GetComponent<ItemData>());
             Destroy(gameObject);
         }
@@ -140,29 +147,53 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
             bool hitSlot = false;
             foreach (GameObject hoveredObject in eventData.hovered)
             {
-                if (hoveredObject.name.Substring(hoveredObject.name.Length - 5) == "Slot") 
+                if (hoveredObject.name.Substring(hoveredObject.name.Length - 4) == "Slot" && hoveredObject != inventory.slots[inventory.currentTab][slot])
                 {
                     hitSlot = true;
                     break;
                 }
             }
 
+            if (!hitSlot)
+            {
+                Reset();
+            }
+
+            else
+            {
+                GetComponent<CanvasGroup>().blocksRaycasts = true;
+            }
+        }
+
+        /*else
+        {
+            bool hitSlot = false;
+            Transform slotTrans = null;
+            foreach (GameObject hoveredObject in eventData.hovered)
+            {
+                if (hoveredObject.name.Substring(hoveredObject.name.Length - 4) == "Slot" && hoveredObject != inventory.slots[inventory.currentTab][slot]) 
+                {
+                    hitSlot = true;
+                    Debug.Log(hoveredObject.name);
+                    slotTrans = hoveredObject.transform;
+                    break;
+                }
+            }
             //if hit inventory slot transfer item
             if (hitSlot)
             {
-                Transform trans = equipmentSlotPanel.transform.FindChild(equipmentSlot);
-                transform.SetParent(trans);
-                transform.position = trans.position;
+                transform.SetParent(inventory.slots[inventory.currentTab][slot].transform);
+                transform.position = inventory.slots[inventory.currentTab][slot].transform.transform.position;
             }
 
             //else reset item back
             else
             {
-                transform.SetParent(inventory.slots[slot].transform);
-                transform.position = inventory.slots[slot].transform.transform.position;
+                transform.SetParent(inventory.slots[inventory.initialTab][slot].transform);
+                transform.position = inventory.slots[inventory.initialTab][slot].transform.transform.position;
             }
             GetComponent<CanvasGroup>().blocksRaycasts = true;
-        }
+        }*/
 
         /*if (eventData.hovered.Count > 0)
         {

@@ -14,8 +14,6 @@ public sealed class Player : Entity
     public int curExp = 0;
     public int[] expToLvl = new int[maxLvl] {0, 1, 2, 4, 8, 16 };
 
-    public int combo = 0;
-
     HealthBarManager healthBarManager;
     GameObject healthBar;
 
@@ -29,20 +27,6 @@ public sealed class Player : Entity
     {
         healthBarManager = HealthBarManager.instance;
         healthBar = GameObject.FindGameObjectWithTag("Screen Canvas").transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
-    }
-
-    public void IncrementCombo()
-    {
-        combo++;
-        attack.value++;
-        Debug.Log("Current combo multiplier: " + combo);
-    }
-
-    public void ResetCombo()
-    {
-        attack.value -= combo;
-        combo = 0;
-        Debug.Log("Combo Reset");
     }
 
     public void SetExp(int expAmount)
@@ -90,6 +74,11 @@ public sealed class Player : Entity
                 }
             }
         }
+    }
+
+    public void SaveStats()
+    {
+
     }
 
     private void OnCollisionEnter2D(Collision2D other)
