@@ -8,6 +8,8 @@ public class SkillTree : MonoBehaviour
 {
     public static SkillTree instance { get; private set; }
 
+    public enum SkillTab { Strength = 0,  Endurance = 1, Charisma = 2, Intelligence = 3, Agility = 4 }
+
     AbilityManager abilityManager;
     Transform skillTree;
     Transform activeSlotsUI;
@@ -19,7 +21,9 @@ public class SkillTree : MonoBehaviour
     public int selectedSlotIndex;
     public bool cancelSelection = true;
 
-    List<SkillTreeNode> treeNodes = new List<SkillTreeNode>();
+    SkillTab currentTab;
+    int numTabs = 5;
+    List<List<SkillTreeNode>> treeNodes = new List<List<SkillTreeNode>>();
     List<SkillTreeActiveSlot> activeSlots = new List<SkillTreeActiveSlot>();
 
     void Awake()
@@ -31,25 +35,24 @@ public class SkillTree : MonoBehaviour
     {
         //TODO initialize skill tree with prefab (based on class?)
         abilityManager = AbilityManager.instance;
-        skillTree = transform.FindChild("Skill Tree Panel");
-        activeSlotsUI = skillTree.FindChild("Active Skill Slots");
+        skillTree = transform.FindChild("Skill Tree Panel").FindChild("Tree Viewer");
         player = Player.instance;
         playerGO = player.gameObject;
+        currentTab = SkillTab.Strength;
+        skillTree.GetChild((int)currentTab).gameObject.SetActive(true);
 
-        for (int i = 0; i < activeSlotsUI.childCount; i++)
+        for(int i  = 0; i < numTabs; i++)
         {
-            SkillTreeActiveSlot activeSlot = activeSlotsUI.transform.GetChild(i).GetComponent<SkillTreeActiveSlot>();
-            activeSlot.slot = i;
-            activeSlots.Add(activeSlot);
+            treeNodes.Add(new List<SkillTreeNode>());
         }
 
         for (int i = 0; i < skillTree.childCount; i++)
         {
-            if (skillTree.transform.GetChild(i).GetComponent<SkillTreeNode>())
+            for(int j = 0; j < skillTree.GetChild(i).childCount; j++)
             {
-                SkillTreeNode node = skillTree.transform.GetChild(i).GetComponent<SkillTreeNode>();
-                node.slot = i;
-                treeNodes.Add(node);
+                SkillTreeNode node = skillTree.transform.GetChild(i).GetChild(j).GetComponent<SkillTreeNode>();
+                node.slot = j;
+                treeNodes[i].Add(node);
             }
         }
     }
@@ -62,10 +65,20 @@ public class SkillTree : MonoBehaviour
         }
     }
 
+    public void SwitchTrees(SkillTab newTab)
+    {
+        if (newTab != currentTab)
+        {
+            skillTree.GetChild((int)currentTab).gameObject.SetActive(false);
+            skillTree.GetChild((int)newTab).gameObject.SetActive(true);
+            currentTab = newTab;
+        }
+    }
+
     public void AssignSlot(int slot)
     {
         AbilityBarIcon skillSlot = abilityManager.skillSlots[selectedSlotIndex];
-        SkillTreeNode node = treeNodes[slot];
+        SkillTreeNode node = treeNodes[(int)currentTab][slot];
 
         string skillName = node.skillName;
         if (!abilityManager.isEquipped(skillName))

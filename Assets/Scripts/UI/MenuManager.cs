@@ -9,6 +9,8 @@ public class MenuManager : MonoBehaviour
     GameObject equipmentPanel;
     GameObject skillsPanel;
     GameObject mainMenuPanel;
+    GameObject playerHealthBar;
+    GameObject playerManaBar;
 
     Transform slotPanel;
     Tooltip tooltip;
@@ -21,11 +23,8 @@ public class MenuManager : MonoBehaviour
         equipmentPanel = transform.FindChild("Equipment Panel").gameObject;
         skillsPanel = transform.FindChild("Skill Tree Panel").gameObject;
         mainMenuPanel = transform.FindChild("Main Menu Panel").gameObject;
-
-        inventoryPanel.SetActive(false);
-        equipmentPanel.SetActive(false);
-        skillsPanel.SetActive(false);
-        mainMenuPanel.SetActive(false);
+        playerHealthBar = transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
+        playerManaBar = transform.FindChild("Bottom Bar").FindChild("Mana Bar").gameObject;
 
         slotPanel = inventoryPanel.transform.FindChild("Inventory Slot Panel");
         tooltip = GetComponent<Tooltip>();
@@ -97,6 +96,8 @@ public class MenuManager : MonoBehaviour
 
             case Menu.Skills:
                 skillsPanel.SetActive(false);
+                playerHealthBar.SetActive(true);
+                playerManaBar.SetActive(true);
                 break;
         }
         activeMenu = Menu.Empty;
@@ -119,6 +120,8 @@ public class MenuManager : MonoBehaviour
 
             case Menu.Skills:
                 skillsPanel.SetActive(true);
+                playerHealthBar.SetActive(false);
+                playerManaBar.SetActive(false);
                 break;
         }
     } 
