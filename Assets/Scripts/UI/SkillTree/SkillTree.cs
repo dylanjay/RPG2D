@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -39,6 +40,7 @@ public class SkillTree : MonoBehaviour
         player = Player.instance;
         playerGO = player.gameObject;
         currentTab = SkillTab.Strength;
+        skillTree.GetComponent<ScrollRect>().content = skillTree.GetChild((int)currentTab).GetComponent<RectTransform>();
         skillTree.GetChild((int)currentTab).gameObject.SetActive(true);
 
         for(int i  = 0; i < numTabs; i++)
@@ -48,11 +50,16 @@ public class SkillTree : MonoBehaviour
 
         for (int i = 0; i < skillTree.childCount; i++)
         {
-            for(int j = 0; j < skillTree.GetChild(i).childCount; j++)
+            int slotNum = 0;
+            for (int j = 0; j < skillTree.GetChild(i).childCount; j++)
             {
-                SkillTreeNode node = skillTree.transform.GetChild(i).GetChild(j).GetComponent<SkillTreeNode>();
-                node.slot = j;
-                treeNodes[i].Add(node);
+                for(int k = 0; k < skillTree.GetChild(i).GetChild(j).childCount; k++)
+                {
+                    SkillTreeNode node = skillTree.transform.GetChild(i).GetChild(j).GetChild(k).GetComponent<SkillTreeNode>();
+                    node.slot = slotNum;
+                    slotNum++;
+                    treeNodes[i].Add(node);
+                }
             }
         }
     }
@@ -65,12 +72,22 @@ public class SkillTree : MonoBehaviour
         }
     }
 
+    public void LevelUp()
+    {
+        Transform currentTab = skillTree.parent.FindChild("Tree Tabs");
+        for (int i = 0; i < currentTab.childCount; i++)
+        {
+            currentTab.GetChild(i).FindChild("Increment Button").gameObject.SetActive(true);
+        }
+    }
+
     public void SwitchTrees(SkillTab newTab)
     {
         if (newTab != currentTab)
         {
             skillTree.GetChild((int)currentTab).gameObject.SetActive(false);
             skillTree.GetChild((int)newTab).gameObject.SetActive(true);
+            skillTree.GetComponent<ScrollRect>().content = skillTree.GetChild((int)newTab).GetComponent<RectTransform>();
             currentTab = newTab;
         }
     }
@@ -112,6 +129,32 @@ public class SkillTree : MonoBehaviour
             }
         }
         return slots;
+    }
+
+    public SkillTreeTab GetTab(string statName)
+    {
+        Transform treeTabs = transform.FindChild("Skill Tree Panel").FindChild("Tree Tabs");
+        switch (statName)
+        {
+            case "Strength":
+                return treeTabs.FindChild("Strength Tab").GetComponent<SkillTreeTab>();
+
+            case "Endurance":
+                return treeTabs.FindChild("Endurance Tab").GetComponent<SkillTreeTab>();
+
+            case "Charisma":
+                return treeTabs.FindChild("Charisma Tab").GetComponent<SkillTreeTab>();
+
+            case "Intelligence":
+                return treeTabs.FindChild("Intelligence Tab").GetComponent<SkillTreeTab>();
+
+            case "Agility":
+                return treeTabs.FindChild("Agility Tab").GetComponent<SkillTreeTab>();
+
+            default:
+                Debug.LogError("Incorrect Stat Name on GetTab");
+                return null;
+        }
     }
 
     /*

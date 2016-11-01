@@ -10,7 +10,7 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
 
     public string statName;
     public int points;
-    SkillTree.SkillTab tab;
+    public SkillTree.SkillTab tab;
 
     void Start ()
     {
@@ -18,7 +18,7 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
         skillTree = SkillTree.instance;
         statName = name.Substring(0, name.Length - 4);
         points = playerStats.GetStat(statName);
-        switch (statName)
+        switch(statName)
         {
             case "Strength":
                 tab = SkillTree.SkillTab.Strength;
@@ -41,6 +41,8 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
                 break;
         }
 	}
+
+    
 
     public void OnPointerDown(PointerEventData eventData)
     {

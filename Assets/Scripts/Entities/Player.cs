@@ -6,6 +6,9 @@ public sealed class Player : Entity
 {
     public static Player instance { get; private set; }
 
+    PlayerStats stats;
+    SkillTree skillTree;
+
     //Level
     public int curLvl = 1;
     public const int maxLvl = 6;
@@ -16,6 +19,7 @@ public sealed class Player : Entity
 
     HealthBarManager healthBarManager;
     GameObject healthBar;
+    GameObject skillTreeConfirmButtons;
 
     void Awake()
     {
@@ -27,6 +31,17 @@ public sealed class Player : Entity
     {
         healthBarManager = HealthBarManager.instance;
         healthBar = GameObject.FindGameObjectWithTag("Screen Canvas").transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
+        skillTreeConfirmButtons = healthBar.transform.parent.parent.FindChild("Skill Tree Panel").FindChild("Confirmation Buttons").gameObject;
+        stats = PlayerStats.instance;
+        skillTree = SkillTree.instance;
+    }
+
+    void LevelUp()
+    {
+        curLvl++;
+        stats.LevelUp();
+        skillTree.LevelUp();
+        skillTreeConfirmButtons.SetActive(true);
     }
 
     public void SetExp(int expAmount)
@@ -39,7 +54,7 @@ public sealed class Player : Entity
                 if (curExp >= expToLvl[curLvl])
                 {
                     curExp -= expToLvl[curLvl];
-                    curLvl++; //function for lvling up?
+                    LevelUp();
                 }
                 else
                 {

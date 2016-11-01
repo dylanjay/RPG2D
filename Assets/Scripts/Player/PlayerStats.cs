@@ -13,6 +13,9 @@ public class PlayerStats : MonoBehaviour
 
     Player player;
 
+    public int availablePoints = 0;
+    public int pointsPerLvl;
+
     void Awake()
     {
         instance = this;
@@ -21,6 +24,11 @@ public class PlayerStats : MonoBehaviour
     void Start()
     {
         player = Player.instance;
+    }
+
+    public void LevelUp()
+    {
+        availablePoints += pointsPerLvl;
     }
 
     public int GetStat(string statName)

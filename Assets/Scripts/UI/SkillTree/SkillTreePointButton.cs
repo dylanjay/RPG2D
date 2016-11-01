@@ -30,29 +30,42 @@ public class SkillTreePointButton : MonoBehaviour, IPointerDownHandler
         }
     }
 
-    void Update()
-    {
-
-    }
-
     public void OnPointerDown(PointerEventData eventData)
     {
         SkillTreeTab tab = transform.parent.GetComponent<SkillTreeTab>();
-        int points = tab.points;
-        if (incrementer && points < pointMax)
+        int points = int.Parse(pointsText.text);
+        if (incrementer && points < pointMax && playerStats.availablePoints > 0)
         {
             points++;
-            tab.points++;
-            playerStats.SetStat(statName, points);
+            playerStats.availablePoints--;
             pointsText.text = points.ToString();
+
+            if(points == tab.points + 1)
+            {
+                transform.parent.FindChild("Decrement Button").gameObject.SetActive(true);
+            }
+
+            if(playerStats.availablePoints == 0)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         else if(!incrementer && points > 0)
         {
+            if(playerStats.availablePoints == 0)
+            {
+                transform.parent.FindChild("Increment Button").gameObject.SetActive(true);
+            }
+
             points--;
-            tab.points--;
-            playerStats.SetStat(statName, points);
+            playerStats.availablePoints++;
             pointsText.text = points.ToString();
+
+            if (points == tab.points)
+            {
+                transform.parent.FindChild("Decrement Button").gameObject.SetActive(false);
+            }
         }
     }
 }
