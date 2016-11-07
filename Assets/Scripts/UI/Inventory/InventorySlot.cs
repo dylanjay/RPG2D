@@ -17,8 +17,8 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
     {
         inventory = Inventory.instance;
 
-        inventoryPanel = inventory.gameObject;
-        equipmentSlotPanel = inventoryPanel.transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
+        inventoryPanel = inventory.transform.FindChild("Inventory Panel").gameObject;
+        equipmentSlotPanel = inventory.transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
     }
 
     void PlaceItem(ItemData selectedItem)
