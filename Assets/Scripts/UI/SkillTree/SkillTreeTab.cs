@@ -23,7 +23,7 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
         statName = name.Substring(0, name.Length - 4);
         points = PlayerStats.instance.GetStat(statName);
 
-        InitializTreeeNodes();
+        InitializeTreeNodes();
 
         switch(statName)
         {
@@ -49,7 +49,7 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
         }
 	}
 
-    void InitializTreeeNodes()
+    void InitializeTreeNodes()
     {
         for (int i = 0; i < tree.childCount; i++)
         {
@@ -60,7 +60,7 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
                 {
                     node.Activate();
                 }
-
+    
                 else
                 {
                     node.Deactivate();

@@ -80,7 +80,6 @@ public abstract class CastableAbility : Ability
             yield return new WaitForSeconds(cooldownLength);
         }
         _available = true;
-        yield return null;
     }
 
     protected abstract IEnumerator OnAbilityCast();

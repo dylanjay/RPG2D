@@ -17,7 +17,6 @@ public abstract class Ability : ScriptableObject{
 
     [HideInInspector]
     public List<AbilityCallback> abilityCallbacks;
-    public List<Ability> extensionList;
 
     protected bool _available = true;
 
@@ -32,8 +31,6 @@ public abstract class Ability : ScriptableObject{
 
         abilityCallbacks = new List<AbilityCallback>();
         abilityCallbacks.Add(AbilityCastSequence);
-
-        AbilityManager.allAbilities.Add(GetType(), this);
     }
 
     public void Enable()
@@ -47,7 +44,7 @@ public abstract class Ability : ScriptableObject{
     {
         Debug.Assert(enabled, "Error: Ability " + name + " is not equipped.");
         enabled = false;
-        OnAbilityEnable();
+        OnAbilityDisable();
     }
 
     protected abstract void OnAbilityEnable();

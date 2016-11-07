@@ -25,7 +25,6 @@ public class AbilityManager : MonoBehaviour
     [SerializeField]
     private GameObject abilityDisplayPrefab;
 
-    public static Dictionary<Type, Ability> allAbilities = new Dictionary<Type, Ability>();
     public Dictionary<string, Ability> abilityDict = new Dictionary<string, Ability>();
 
     [HideInInspector]
@@ -47,12 +46,7 @@ public class AbilityManager : MonoBehaviour
         _instance = this;
 
         //equippedAbilities = new List<Ability>(abilities);
-        foreach(Ability ability in abilities)
-        {
-            //EnableAbility(ability, gameObject);
-            //ability.gameObject = gameObject;
-            abilityDict.Add(ability.name, ability);
-        }
+        
         //Probably want to load in the abilities here.
     }
 
@@ -93,6 +87,19 @@ public class AbilityManager : MonoBehaviour
 
     void Update()
     {
+        
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            int j = 0;
+            foreach (Ability ability in abilities)
+            {
+                EnableAbility(ability, gameObject, j);
+                //ability.gameObject = gameObject;
+                abilityDict.Add(ability.name, ability);
+                j++;
+            }
+        }
+
         lockoutTimer -= Time.deltaTime;
         if (lockoutTimer > 0) { return; }
 

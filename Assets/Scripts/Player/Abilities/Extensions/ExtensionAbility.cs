@@ -5,6 +5,7 @@ using UnityEngine;
 
 public abstract class ExtensionAbility<T> : Ability where T : Ability
 {
+    [SerializeField]
     protected T ability;
 
     protected override void OnAbilityDisable()
@@ -16,8 +17,6 @@ public abstract class ExtensionAbility<T> : Ability where T : Ability
     protected override void OnAbilityEnable()
     {
         ability.abilityCallbacks.Add(AbilityCastSequence);
-        ability = (T)AbilityManager.allAbilities[typeof(T)];
-
         abilityCallbacks = ability.abilityCallbacks;
         abilityCallbacks.Add(AbilityCastSequence);
     }

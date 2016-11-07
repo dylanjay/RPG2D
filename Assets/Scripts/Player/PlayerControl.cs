@@ -33,6 +33,7 @@ public class PlayerControl : MonoBehaviour {
     public Vector2 lastDirection = Vector2.down;
     //Same as lastDirection, but lastInput also allows itself to be 0,0.
     private Vector2 lastInput = Vector2.zero;
+    private Vector2 inputDirection = Vector2.zero;
 
     bool moving = false;
 
@@ -89,8 +90,8 @@ public class PlayerControl : MonoBehaviour {
 
     void UpdatePlayerMovementInput()
     {
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveY = Input.GetAxisRaw("Vertical");
+        float moveX = InputAxes.playerHorizontal;
+        float moveY = InputAxes.playerVertical;
 
         Vector2 curDirection = new Vector2(moveX, moveY);
 
@@ -120,7 +121,7 @@ public class PlayerControl : MonoBehaviour {
                 //Wait, why 2?
                 anim.SetInteger(AnimParams.Direction, (int)(moveX * -1) + 2);
                 weapon.localPosition = new Vector2(moveX / Mathf.Abs(moveX) / 4, 0);
-                if(moveX < 0)
+                if (moveX < 0)
                 {
                     weapon.eulerAngles = new Vector3(weapon.localEulerAngles.x, weapon.localEulerAngles.y, 180);
                 }
@@ -146,7 +147,6 @@ public class PlayerControl : MonoBehaviour {
             anim.SetFloat(AnimParams.SpeedX, moveSpeed * lastDirection.x);
             anim.SetFloat(AnimParams.SpeedY, moveSpeed * lastDirection.y);
         }
-
     }
 
     void FixedUpdate()
