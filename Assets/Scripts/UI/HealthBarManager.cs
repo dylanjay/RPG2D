@@ -13,6 +13,9 @@ public class HealthBarManager : MonoBehaviour {
     [SerializeField]
     GameObject bossHealthBarReference;
 
+    [SerializeField]
+    GameObject playerHealthBarReference;
+
     void Awake()
     {
         instance = this;
@@ -26,17 +29,20 @@ public class HealthBarManager : MonoBehaviour {
         healthBarFill.GetComponent<RectTransform>().localScale = new Vector3(healthBarDisplay, barScale.y, barScale.z);
     }
 
-    public GameObject RequestHealthBar(bool isBoss)
+    public GameObject RequestHealthBar()
     {
-        if(isBoss)
-        {
-            return bossHealthBarReference;
-        }
-        else
-        {
-            GameObject bar = Instantiate(hostileHealthBarPrefab, transform) as GameObject;
-            bar.GetComponent<RectTransform>().localScale = hostileHealthBarPrefab.GetComponent<RectTransform>().localScale;
-            return bar;
-        }
+        GameObject bar = Instantiate(hostileHealthBarPrefab, transform) as GameObject;
+        bar.GetComponent<RectTransform>().localScale = hostileHealthBarPrefab.GetComponent<RectTransform>().localScale;
+        return bar;
+    }
+
+    public GameObject GetPlayerHealthBar()
+    {
+        return playerHealthBarReference;
+    }
+
+    public GameObject GetBossHealthBar()
+    {
+        return bossHealthBarReference;
     }
 }

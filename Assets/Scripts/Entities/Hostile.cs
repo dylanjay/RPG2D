@@ -4,23 +4,23 @@ using System.Collections.Generic;
 
 public class Hostile : Entity {
 
-    public bool isBoss;
-    public float dropRate = 0.0f;
+    [SerializeField]
+    bool isBoss;
+
+    [SerializeField]
+    float dropRate = 0.0f;
 
     [HideInInspector]
     public Animator anim;
 
-    public int lvl = 1;
-    public int expGiven = 1;
+    int lvl = 1;
+    int expGiven = 1;
 
     List<CastableAbility> abilities;
     
     GameObject healthBar;
 
     HealthBarManager healthBarManager;
-
-    //CR: We should not have a reference in each Hostile object when ItemDatabase.instance already exists.
-    ItemDatabase itemDatabase;
 
     [HideInInspector]
     public bool hitPlayer = false;
@@ -44,18 +44,13 @@ public class Hostile : Entity {
         return BehaviorState.Success;
     }
 
-    void Awake()
-    {
-        
-    }
-
     void Start()
     {
         anim = GetComponent<Animator>();
-        itemDatabase = ItemDatabase.instance;
         healthBarManager = HealthBarManager.instance;
 
-        healthBar = healthBarManager.RequestHealthBar(isBoss);
+        if (isBoss) { healthBar = healthBarManager.GetBossHealthBar(); }
+        else { healthBar = healthBarManager.RequestHealthBar(); }
 
         health = new MaxableStat(10, 0.1f);
     }
@@ -69,8 +64,6 @@ public class Hostile : Entity {
         }
     }
 
-    //TEMPORARY REMOVE LATER
-    //CR: this function seems to be adequate enough to not be temporary.
     public void TakeDamage(int damage)
     {
         health.value -= damage;
@@ -114,7 +107,7 @@ public class Hostile : Entity {
         {
             if (Random.value <= dropRate)
             {
-                DropItem(itemDatabase.GetRandomItem(tier));
+                DropItem(ItemDatabase.instance.GetRandomItem(tier));
             }
 
             if (isBoss)

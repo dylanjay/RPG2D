@@ -19,7 +19,6 @@ public sealed class Player : Entity
 
     HealthBarManager healthBarManager;
     GameObject healthBar;
-    GameObject skillTreeConfirmButtons;
 
     void Awake()
     {
@@ -30,8 +29,7 @@ public sealed class Player : Entity
     void Start()
     {
         healthBarManager = HealthBarManager.instance;
-        healthBar = GameObject.FindGameObjectWithTag("Screen Canvas").transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
-        skillTreeConfirmButtons = healthBar.transform.parent.parent.FindChild("Skill Tree Panel").FindChild("Confirmation Buttons").gameObject;
+        healthBar = healthBarManager.GetPlayerHealthBar();
         stats = PlayerStats.instance;
         skillTree = SkillTree.instance;
     }
@@ -41,7 +39,6 @@ public sealed class Player : Entity
         curLvl++;
         stats.LevelUp();
         skillTree.LevelUp();
-        skillTreeConfirmButtons.SetActive(true);
     }
 
     public void SetExp(int expAmount)
@@ -64,7 +61,7 @@ public sealed class Player : Entity
         }
     }
 
-    public void UpdateStats(Dictionary<string, Item> equipmentSlots)
+    public void UpdateStats(Dictionary<Inventory.EquipmentType, Item> equipmentSlots)
     {
         foreach(Item item in equipmentSlots.Values)
         {

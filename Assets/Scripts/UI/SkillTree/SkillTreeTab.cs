@@ -8,16 +8,23 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
     PlayerStats playerStats;
     SkillTree skillTree;
 
+    [SerializeField]
+    Transform tree;
+
     public string statName;
     public int points;
     public SkillTree.SkillTab tab;
 
-    void Start ()
+    void Start()
     {
         playerStats = PlayerStats.instance;
         skillTree = SkillTree.instance;
+        //TODO change to enum
         statName = name.Substring(0, name.Length - 4);
-        points = playerStats.GetStat(statName);
+        points = PlayerStats.instance.GetStat(statName);
+
+        InitializTreeeNodes();
+
         switch(statName)
         {
             case "Strength":
@@ -42,7 +49,25 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
         }
 	}
 
-    
+    void InitializTreeeNodes()
+    {
+        for (int i = 0; i < tree.childCount; i++)
+        {
+            for (int j = 0; j < tree.GetChild(i).childCount; j++)
+            {
+                SkillTreeNode node = tree.GetChild(i).GetChild(j).GetComponent<SkillTreeNode>();
+                if (points > tree.GetChild(i).GetChild(j).GetComponent<SkillTreeNode>().pointRequirement)
+                {
+                    node.Activate();
+                }
+
+                else
+                {
+                    node.Deactivate();
+                }
+            }
+        }
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {

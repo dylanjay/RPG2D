@@ -118,7 +118,7 @@ public class SerializableInventory
     List<SerializableItem> items = new List<SerializableItem>();
     List<SerializableItem> equipment = new List<SerializableItem>();
 
-    public void Fill(List<List<GameObject>> itemList, Dictionary<string, Item> equipmentList)
+    public void Fill(List<List<GameObject>> itemList, Dictionary<Inventory.EquipmentType, Item> equipmentList)
     {
         for(int i = 0; i < itemList.Count; i++)
         {
@@ -134,10 +134,10 @@ public class SerializableInventory
             }
         }
 
-        foreach(KeyValuePair<string,Item> item in equipmentList)
+        foreach(KeyValuePair<Inventory.EquipmentType,Item> item in equipmentList)
         {
             SerializableItem serItem = new SerializableItem();
-            serItem.Fill(item.Value.id, item.Key);
+            serItem.Fill(item.Value.id, Inventory.EquipmentEnumToString(item.Key));
             equipment.Add(serItem);
         }
     }

@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Wearable : Item {
-
+public class Wearable : Equippable
+{
     public enum baseType { Chest, Boots, Head, Gloves, Jewelery }
     public baseType type;
     public string typeString;
@@ -13,8 +13,8 @@ public class Wearable : Item {
 
     }
 
-    public Wearable(int ID, string Title, string Type, string SubType, int Value, string Desc, bool Stack, int Rarity, string Slug, List<ItemStat> Stats)
-        : base(ID, Title, Value, Desc, Stack, Rarity, Slug, Stats)
+    public Wearable(int ID, string Title, string Type, string SubType, int Value, string Desc, bool Stack, int Rarity, string Slug, Inventory.EquipmentType EquipmentType, List<ItemStat> Stats)
+        : base(ID, Title, Value, Desc, Stack, Rarity, Slug, EquipmentType, Stats)
     {
         typeString = SubType;
         switch (SubType)

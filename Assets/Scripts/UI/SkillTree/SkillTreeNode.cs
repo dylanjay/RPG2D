@@ -13,16 +13,23 @@ public class SkillTreeNode : MonoBehaviour, IPointerDownHandler, IPointerEnterHa
     public GameObject skill;
     public string skillName;
 
+    [SerializeField]
+    public Ability ability;
+
     string statName;
     SkillTree.SkillTab tabName;
 
     SkillTreeTab parentTab;
 
-    public bool active;
-    public float deactivatedColorAlpha = 0.5f;
-    public int tier;
-    public int pointRequirement;
+    bool active;
 
+    float deactivatedColorAlpha = 0.5f;
+    int tier;
+
+    [SerializeField]
+    int _pointRequirement;
+    public int pointRequirement { get { return _pointRequirement; } private set { _pointRequirement = value; } }
+    
     //TODO fill skillRequirements list from string list
     public List<string> skillStringRequirements;
     List<Ability> skillRequirements;
@@ -31,21 +38,12 @@ public class SkillTreeNode : MonoBehaviour, IPointerDownHandler, IPointerEnterHa
     {
         skillTree = SkillTree.instance;
         skillName = skill.name;
-        sprite = skill.GetComponent<UnityEngine.UI.Image>().sprite;
+        sprite = skill.GetComponent<Image>().sprite;
+        //TODO change to enum
         statName = transform.parent.parent.name.Substring(0, transform.parent.parent.name.Length - 5);
         tier = int.Parse(transform.parent.name.Substring(5));
         parentTab = skillTree.GetTab(statName);
         tabName = parentTab.tab;
-
-        if (parentTab.points > pointRequirement)
-        {            
-            Activate();
-        }
-
-        else
-        {
-            Deactivate();
-        }
     }
 
     public void Activate()
@@ -58,18 +56,31 @@ public class SkillTreeNode : MonoBehaviour, IPointerDownHandler, IPointerEnterHa
     {
         active = false;
         Color curColor = transform.GetComponent<Image>().color;
-        Debug.Log(deactivatedColorAlpha);
         curColor.a = deactivatedColorAlpha;
         transform.GetComponent<Image>().color = curColor;
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if(skillTree.swapSlot)
+        {
+            skillTree.CancelSelection();
+        }
+
         if (active)
         {
-            if (skillTree.slotSelected)
+            if(skillTree.skillSelected && skillTree.selectedSkillSlot == slot)
             {
-                skillTree.AssignSlot(slot);
+                skillTree.CancelSelection();
+            }
+
+            else if(skillTree.selectedSkillSlot != slot)
+            {
+                if(!skillTree.skillSelected)
+                {
+                    skillTree.skillSelected = true;
+                }
+                skillTree.selectedSkillSlot = slot;
             }
         }
     }

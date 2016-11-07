@@ -20,13 +20,14 @@ public class PlayerControl : MonoBehaviour {
         public static readonly int Swing = Animator.StringToHash("Swing");
     }
 
-    public float moveSpeed = 0f;
+    [SerializeField]
+    float moveSpeed = 0f;
 
     public Animator anim;
     
     Inventory inv;
     
-    public Player player;
+    public Player player { get; private set; }
 
     //The last direction the player was facing. Useful for projectiles/abilities.
     public Vector2 lastDirection = Vector2.down;
@@ -34,9 +35,6 @@ public class PlayerControl : MonoBehaviour {
     private Vector2 lastInput = Vector2.zero;
 
     bool moving = false;
-
-    float comboTimer = 0.0f;
-    public float maxComboTime = 3.0f;
 
     Transform weapon;
 

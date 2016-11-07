@@ -6,7 +6,6 @@ using UnityEngine.UI;
 
 public class AbilityBarIcon : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerExitHandler
 {
-
     [SerializeField]
     Text keybindingText;
 
@@ -26,13 +25,17 @@ public class AbilityBarIcon : MonoBehaviour, IPointerDownHandler, IPointerEnterH
     SkillTree skillTree;
     AbilityManager abilityManager;
 
-    // Use this for initialization
-    void Awake () {
+    void Awake ()
+    {
         animator = GetComponent<Animator>();
+	}
+
+    void Start()
+    {
         skillTree = SkillTree.instance;
         abilityManager = AbilityManager.instance;
         playerGO = Player.instance.gameObject;
-	}
+    }
 
     public void SetAbility(CastableAbility newAbility)
     {
@@ -99,26 +102,41 @@ public class AbilityBarIcon : MonoBehaviour, IPointerDownHandler, IPointerEnterH
         }
     }
 
+    void AssignSlot()
+    {
+        SkillTreeNode node = skillTree.GetNode(skillTree.selectedSkillSlot);
+        string skillName = node.skillName;
+        if (!abilityManager.isEquipped(skillName))
+        {
+            Ability ability = abilityManager.abilityDict[skillName];
+            if (ability is CastableAbility)
+            {
+                CastableAbility castableAbility = (CastableAbility)ability;
+                castableAbility.keybinding = keybinding;
+            }
+            abilityManager.EnableAbility(abilityManager.abilityDict[skillName], playerGO, slot);
+        }
+        skillTree.skillSelected = false;
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
-        //if skill slot already selected
-        if (skillTree.slotSelected)
+        if (skillTree.skillSelected)
         {
-            //cancel skill slot selection if clicked itself again
-            skillTree.slotSelected = false;
-
-            //swap with other skill slot if selected another
-            if (skillTree.selectedSlotIndex != slot)
-            {
-                SwapAbilities(abilityManager.skillSlots[skillTree.selectedSlotIndex]);
-            }
+            AssignSlot();
+            //skillTree.AssignSlot(slot);
         }
 
-        //else select slot
-        else
+        else if(!skillTree.swapSlot)
         {
+            skillTree.swapSlot = true;
             skillTree.selectedSlotIndex = slot;
-            skillTree.slotSelected = true;
+        }
+
+        else if(skillTree.swapSlot)
+        {
+            skillTree.swapSlot = false;
+            SwapAbilities(abilityManager.skillSlots[skillTree.selectedSlotIndex]);
         }
     }
 

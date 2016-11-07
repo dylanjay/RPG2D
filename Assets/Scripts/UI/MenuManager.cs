@@ -19,9 +19,9 @@ public class MenuManager : MonoBehaviour
 
     void Start ()
     {
-        inventoryPanel = transform.FindChild("Inventory Panel").gameObject;
-        equipmentPanel = transform.FindChild("Equipment Panel").gameObject;
-        skillsPanel = transform.FindChild("Skill Tree Panel").gameObject;
+        inventoryPanel = transform.FindChild("Inventory").FindChild("Inventory Panel").gameObject;
+        equipmentPanel = transform.FindChild("Inventory").FindChild("Equipment Panel").gameObject;
+        skillsPanel = transform.FindChild("Skill Tree").FindChild("Skill Tree Panel").gameObject;
         mainMenuPanel = transform.FindChild("Main Menu Panel").gameObject;
         playerHealthBar = transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
         playerManaBar = transform.FindChild("Bottom Bar").FindChild("Mana Bar").gameObject;

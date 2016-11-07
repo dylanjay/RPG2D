@@ -7,31 +7,50 @@ public class Inventory : MonoBehaviour
 {
     public static Inventory instance { get; private set; }
 
+    public enum EquipmentType { Head, Chest, Legs, Jewelery, Gloves, Weapon };
+
     GameObject inventoryPanel;
     GameObject tabPanel;
     GameObject slotPanel;
     GameObject equipmentSlotPanel;
     ItemDatabase database;
 
-    public GameObject inventorySlotPrefab;
-    public GameObject inventoryItemPrefab;
-    public GameObject inventoryTabPrefab;
+    [SerializeField]
+    GameObject inventorySlotPrefab;
 
-    public int numSlots;
-    public int slotsPerTab;
-    public int maxStackAmount;
+    [SerializeField]
+    GameObject inventoryItemPrefab;
+
+    [SerializeField]
+    GameObject inventoryTabPrefab;
+
+    [SerializeField]
+    int numSlots;
+
+    [SerializeField]
+    int slotsPerTab;
+
+    [SerializeField]
+    int maxStackAmount;
+
     int numTabs;
-    //public List<Item> items = new List<Item>();
-    //public List<GameObject> slots = new List<GameObject>();
+
     public List<List<Item>> items = new List<List<Item>>();
     public List<List<GameObject>> slots = new List<List<GameObject>>();
 
-    public Dictionary<string, Item> equipmentSlots = new Dictionary<string, Item>();
+    public Dictionary<EquipmentType, Item> equipmentSlots = new Dictionary<EquipmentType, Item>();
 
+    [HideInInspector]
     public int currentTab = 0;
 
+    [HideInInspector]
     public bool holdingItem = false;
+
+    [HideInInspector]
     public int initialTab;
+
+    [HideInInspector]
+    public bool hoveringOverSlot = false;
 
     void Awake()
     {
@@ -90,17 +109,66 @@ public class Inventory : MonoBehaviour
 
         for (int i = 0; i < equipmentSlotPanel.transform.childCount; i++)
         {
-            equipmentSlots.Add(equipmentSlotPanel.transform.GetChild(i).name, new Item());
+            equipmentSlots.Add(EquipmentStringToEnum(equipmentSlotPanel.transform.GetChild(i).name), new Item());
         }
 
         //NEEDS TO BE DELETED
         AddItem(0);
         AddItem(1);
-        AddItem(1);
-        AddItem(1);
-        AddItem(1);
-        AddItem(1);
-        AddItem(1);
+    }
+
+    public static EquipmentType EquipmentStringToEnum(string type)
+    {
+        switch (type)
+        {
+            case "Head":
+                return EquipmentType.Head;
+
+            case "Chest":
+                return EquipmentType.Chest;
+
+            case "Legs":
+                return EquipmentType.Legs;
+
+            case "Jewelery":
+                return EquipmentType.Jewelery;
+
+            case "Gloves":
+                return EquipmentType.Gloves;
+
+            case "Weapon":
+                return EquipmentType.Weapon;
+
+            default:
+                return EquipmentType.Head;
+        }
+    }
+
+    public static string EquipmentEnumToString(EquipmentType type)
+    {
+        switch (type)
+        {
+            case EquipmentType.Head:
+                return "Head";
+
+            case EquipmentType.Chest:
+                return "Chest";
+
+            case EquipmentType.Legs:
+                return "Legs";
+
+            case EquipmentType.Jewelery:
+                return "Jewelery";
+
+            case EquipmentType.Gloves:
+                return "Gloves";
+
+            case EquipmentType.Weapon:
+                return "Weapon";
+
+            default:
+                return null;
+        }
     }
 
     public void SwitchTabs(int tab)
@@ -131,18 +199,7 @@ public class Inventory : MonoBehaviour
     GameObject CreateItemObject(Item itemToAdd, int stackAmount, int tab, int slot, Transform parent)
     {
         GameObject itemObj = Instantiate(inventoryItemPrefab);
-        string equipmentSlot = "";
-        if(itemToAdd is Weapon)
-        {
-            Weapon weapon = itemToAdd as Weapon;
-            equipmentSlot = weapon.typeString;
-        }
-        else if(itemToAdd is Wearable)
-        {
-            Wearable wearable = itemToAdd as Wearable;
-            equipmentSlot = wearable.typeString;
-        }
-        itemObj.GetComponent<ItemData>().setData(itemToAdd, stackAmount, tab, slot, equipmentSlot);
+        itemObj.GetComponent<ItemData>().setData(itemToAdd, stackAmount, tab, slot);
         itemObj.transform.SetParent(parent);
         itemObj.transform.localPosition = Vector2.zero;
         itemObj.GetComponent<Image>().sprite = itemToAdd.sprite;
@@ -210,13 +267,13 @@ public class Inventory : MonoBehaviour
             //set equipment slot to new item and add to list
             if (item.id != -1)
             {
-                equipmentSlots.Add(item.equipmentSlot, database.GetItemByID(item.id));
+                equipmentSlots.Add(EquipmentStringToEnum(item.equipmentSlot), database.GetItemByID(item.id));
                 CreateItemObject(database.GetItemByID(item.id), 1, -1, -1, equipmentSlotPanel.transform.FindChild(item.equipmentSlot));
             }
             //it item id is -1 it is empty so add empty item
             else
             {
-                equipmentSlots.Add(item.equipmentSlot, new Item());
+                equipmentSlots.Add(EquipmentStringToEnum(item.equipmentSlot), new Item());
             }
         }
     }
@@ -296,21 +353,6 @@ public class Inventory : MonoBehaviour
                     }
                 }
             }
-
-            /*
-            for (int i = 0; i < items.Count; i++)
-            {
-                for (int j = 0; j < items[i].Count; j++)
-                {
-                    if (items[i][j].id == -1)
-                    {
-                        items[i][j] = itemToAdd;
-                        CreateItemObject(itemToAdd, 1, j, slots[i][j].transform);
-                        slots[i][j].name = itemToAdd.title + " Slot";
-                        return;
-                    }
-                }
-            }*/
         }
     }
 

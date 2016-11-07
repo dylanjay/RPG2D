@@ -82,17 +82,20 @@ public class ItemDatabase
             }
 
             int tier = (int)data[i]["tier"];
+
             if ((string)data[i]["type"] == "Weapon")
             {
+                Inventory.EquipmentType equipmentType = Inventory.EquipmentStringToEnum((string)data[i]["equipmentType"]);
                 Weapon item = new Weapon((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["type"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
-                 tier, (string)data[i]["slug"], stats);
+                 tier, (string)data[i]["slug"], equipmentType, stats);
                 itemTierDicts[tier].Add(name, item);
             }
 
             else if ((string)data[i]["type"] == "Wearable")
             {
+                Inventory.EquipmentType equipmentType = Inventory.EquipmentStringToEnum((string)data[i]["equipmentType"]);
                 Wearable item = new Wearable((int)data[i]["id"], (string)data[i]["title"], (string)data[i]["type"], (string)data[i]["subtype"], (int)data[i]["value"], (string)data[i]["description"], (bool)data[i]["stackable"],
-                 tier, (string)data[i]["slug"], stats);
+                 tier, (string)data[i]["slug"], equipmentType, stats);
                 itemTierDicts[tier].Add(name, item);
             }
 
