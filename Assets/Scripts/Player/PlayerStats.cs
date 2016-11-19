@@ -31,52 +31,47 @@ public class PlayerStats : MonoBehaviour
         availablePoints += pointsPerLvl;
     }
 
-    public int GetStat(string statName)
+    public int GetStat(SkillTree.SkillStat stat)
     {
-        switch (statName)
+        switch (stat)
         {
-            case "Strength":
+            case SkillTree.SkillStat.Strength:
                 return strength;
-
-            case "Endurance":
+            case SkillTree.SkillStat.Endurance:
                 return endurance;
-
-            case "Charisma":
+            case SkillTree.SkillStat.Charisma:
                 return charisma;
-
-            case "Intelligence":
+            case SkillTree.SkillStat.Intelligence:
                 return intelligence;
-
-            case "Agility":
+            case SkillTree.SkillStat.Agility:
                 return agility;
-
             default:
+                Debug.LogError("Incorrect stat on GetStat");
                 return -1;
         }
     }
 
-    public void SetStat(string statName, int value)
+    public void SetStat(SkillTree.SkillStat stat, int value)
     {
-        switch(statName)
+        switch (stat)
         {
-            case "Strength":
+            case SkillTree.SkillStat.Strength:
                 strength = value;
                 break;
-
-            case "Endurance":
+            case SkillTree.SkillStat.Endurance:
                 endurance = value;
                 break;
-
-            case "Charisma":
+            case SkillTree.SkillStat.Charisma:
                 charisma = value;
                 break;
-
-            case "Intelligence":
+            case SkillTree.SkillStat.Intelligence:
                 intelligence = value;
                 break;
-
-            case "Agility":
+            case SkillTree.SkillStat.Agility:
                 agility = value;
+                break;
+            default:
+                Debug.LogError("Incorrect stat on SetStat");
                 break;
         }
     }

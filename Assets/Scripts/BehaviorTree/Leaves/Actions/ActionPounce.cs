@@ -2,14 +2,20 @@
 using System.Collections;
 using System;
 
-public class ActionPounce : Action
+[CreateAssetMenu(fileName = "New Action Pounce", menuName = "Actions/Pounce", order = 3)]
+public class ActionPounce : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
     float force = 3.0f;
     Vector2 startPos;
 
-    public ActionPounce(string name, Player player, Hostile hostile) : base(name)
+    public ActionPounce(string name) : base(name)
+    {
+        
+    }
+
+    public void Init(Player player, Hostile hostile)
     {
         this.player = player;
         this.hostile = hostile;

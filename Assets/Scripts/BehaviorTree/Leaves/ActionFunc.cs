@@ -6,7 +6,7 @@ using System;
 /// This class is not abstract because it can be used as 
 /// a wrapper around a behavior.
 /// </summary>
-public class ActionFunc : BehaviorLeaf
+/*public class ActionFunc : BehaviorLeaf
 {
     [SerializeField]
     protected Func<BehaviorState> func;
@@ -52,4 +52,4 @@ public class ActionFunc<T> : BehaviorLeaf
         _returnState = func(value);
         return _returnState;
     }
-}
+}*/

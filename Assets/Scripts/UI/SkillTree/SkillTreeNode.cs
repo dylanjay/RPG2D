@@ -16,14 +16,14 @@ public class SkillTreeNode : MonoBehaviour, IPointerDownHandler, IPointerEnterHa
     [SerializeField]
     public Ability ability;
 
-    string statName;
-    SkillTree.SkillTab tabName;
-
-    SkillTreeTab parentTab;
+    [SerializeField]
+    SkillTree.SkillStat skillStat;
 
     bool active;
 
     float deactivatedColorAlpha = 0.5f;
+
+    [SerializeField]
     int tier;
 
     [SerializeField]
@@ -39,11 +39,6 @@ public class SkillTreeNode : MonoBehaviour, IPointerDownHandler, IPointerEnterHa
         skillTree = SkillTree.instance;
         skillName = skill.name;
         sprite = skill.GetComponent<Image>().sprite;
-        //TODO change to enum
-        statName = transform.parent.parent.name.Substring(0, transform.parent.parent.name.Length - 5);
-        tier = int.Parse(transform.parent.name.Substring(5));
-        parentTab = skillTree.GetTab(statName);
-        tabName = parentTab.tab;
     }
 
     public void Activate()
@@ -69,11 +64,12 @@ public class SkillTreeNode : MonoBehaviour, IPointerDownHandler, IPointerEnterHa
 
         if (active)
         {
-            if(skillTree.skillSelected && skillTree.selectedSkillSlot == slot)
+            if (skillTree.skillSelected && skillTree.selectedSkillSlot == slot)
             {
                 skillTree.CancelSelection();
             }
 
+            
             else if(skillTree.selectedSkillSlot != slot)
             {
                 if(!skillTree.skillSelected)

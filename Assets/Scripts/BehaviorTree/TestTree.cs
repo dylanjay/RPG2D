@@ -25,22 +25,22 @@ public class TestTree : MonoBehaviour {
             {
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
-                    new ActionFunc<float>("Condition: In Attack Range", InAttackRange, 2.0f),
+                    //new ActionFunc<float>("Condition: In Attack Range", InAttackRange, 2.0f),
                    // new BehaviorWait("Wait to aggress to player", new ActionPounce("Pounce", player, GetComponent<Hostile>()), 2.0f)
                     new BehaviorMemSequence("Sequence", new BehaviorComponent[]
                     {
-                        new ActionWait("Idle", 2.0f, GetComponent<Hostile>()),
-                        new ActionPounce("Pounce", player, GetComponent<Hostile>())
+                        //new ActionWait("Idle", 2.0f, GetComponent<Hostile>()),
+                       // new ActionPounce("Pounce", player, GetComponent<Hostile>())
                     })
                 }),
 
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
                 {
-                    new ActionFunc<float>("Condition: In Alert Distance", IsAlert, 8.0f),
-                    new ActionMoveTowardsPlayer("Alert", player, GetComponent<Hostile>())
+                    //new ActionFunc<float>("Condition: In Alert Distance", IsAlert, 8.0f),
+                    //new ActionMoveTowardsPlayer("Alert", player, GetComponent<Hostile>())
                 }),
 
-                new ActionPatrol("Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
+                //new ActionPatrol("Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
             });
     }
 

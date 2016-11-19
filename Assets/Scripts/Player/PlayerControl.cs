@@ -58,7 +58,6 @@ public class PlayerControl : MonoBehaviour {
         inv = Inventory.instance;
         anim = GetComponent<Animator>();
         SetDirection(Vector2.down);
-
         weapon = transform.FindChild("Weapon");
     }
 

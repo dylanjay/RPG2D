@@ -123,23 +123,18 @@ public class Inventory : MonoBehaviour
         {
             case "Head":
                 return EquipmentType.Head;
-
             case "Chest":
                 return EquipmentType.Chest;
-
             case "Legs":
                 return EquipmentType.Legs;
-
             case "Jewelery":
                 return EquipmentType.Jewelery;
-
             case "Gloves":
                 return EquipmentType.Gloves;
-
             case "Weapon":
                 return EquipmentType.Weapon;
-
             default:
+                Debug.LogError("Incorrect string on EquipmentStringToEnum");
                 return EquipmentType.Head;
         }
     }
@@ -150,23 +145,18 @@ public class Inventory : MonoBehaviour
         {
             case EquipmentType.Head:
                 return "Head";
-
             case EquipmentType.Chest:
                 return "Chest";
-
             case EquipmentType.Legs:
                 return "Legs";
-
             case EquipmentType.Jewelery:
                 return "Jewelery";
-
             case EquipmentType.Gloves:
                 return "Gloves";
-
             case EquipmentType.Weapon:
                 return "Weapon";
-
             default:
+                Debug.Log("Incorrect type on EquipmentStringToEnum");
                 return null;
         }
     }

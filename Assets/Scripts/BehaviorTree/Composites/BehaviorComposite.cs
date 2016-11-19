@@ -1,10 +1,16 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BehaviorComposite : BehaviorComponent {
-
+[System.Serializable]
+public abstract class BehaviorComposite : BehaviorComponent
+{
     public BehaviorComponent[] childBehaviors;
 	
+    public BehaviorComposite(string name) : base(name)
+    {
+
+    }
+
     public BehaviorComposite(string name, BehaviorComponent[] childBehaviors) : base(name)
     {
         this.childBehaviors = childBehaviors;

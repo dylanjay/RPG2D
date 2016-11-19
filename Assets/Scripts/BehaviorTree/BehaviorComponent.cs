@@ -11,11 +11,12 @@ public enum BehaviorState
 
 public delegate BehaviorState Behavior();
 
-public abstract class BehaviorComponent {
+[System.Serializable]
+public abstract class BehaviorComponent : ScriptableObject{
     
     protected BehaviorState _returnState = BehaviorState.None;
 
-    public string name = "";
+    //public string name = "";
 
     /// <summary>
     /// Most recent return state.

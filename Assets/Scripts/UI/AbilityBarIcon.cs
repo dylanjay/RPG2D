@@ -106,15 +106,15 @@ public class AbilityBarIcon : MonoBehaviour, IPointerDownHandler, IPointerEnterH
     {
         SkillTreeNode node = skillTree.GetNode(skillTree.selectedSkillSlot);
         string skillName = node.skillName;
-        if (!abilityManager.isEquipped(skillName))
+        Ability ability = node.ability;
+        if (!abilityManager.isEquipped(node.skillName))
         {
-            Ability ability = abilityManager.abilityDict[skillName];
             if (ability is CastableAbility)
             {
                 CastableAbility castableAbility = (CastableAbility)ability;
                 castableAbility.keybinding = keybinding;
             }
-            abilityManager.EnableAbility(abilityManager.abilityDict[skillName], playerGO, slot);
+            abilityManager.EnableAbility(ability, playerGO, slot);
         }
         skillTree.skillSelected = false;
     }
@@ -124,7 +124,6 @@ public class AbilityBarIcon : MonoBehaviour, IPointerDownHandler, IPointerEnterH
         if (skillTree.skillSelected)
         {
             AssignSlot();
-            //skillTree.AssignSlot(slot);
         }
 
         else if(!skillTree.swapSlot)

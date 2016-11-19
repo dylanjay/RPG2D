@@ -34,7 +34,7 @@ public class SkillTreeConfirmationButton : MonoBehaviour, IPointerDownHandler
             int points = int.Parse(pointsString);
             pointsUsed += points - tab.points;
             tab.points = points;
-            playerStats.SetStat(tab.statName, tab.points);
+            playerStats.SetStat(tab.skillStat, tab.points);
             treeTabs.GetChild(i).FindChild("Decrement Button").gameObject.SetActive(false);
 
             for(int j = 0; j < treeTabs.GetChild(i).childCount; j++)

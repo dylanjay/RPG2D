@@ -11,13 +11,13 @@ public class ScriptTreeMake : MonoBehaviour {
         tree =
             new BehaviorSequence("Sequence", new BehaviorComponent[]
             {
-                new BehaviorWhile(
-                    "While Above 50% HP",
-                    new ActionFunc<float>("Condition: Above 50% HP", GetComponent<Entity>().PercentHealthAboveRatio, .5f),
-                    new ActionFunc("Action: Basic Attack", GetComponent<Entity>().Attack)
-                ),
+                //new BehaviorWhile(
+                   // "While Above 50% HP",
+                    //new ActionFunc<float>("Condition: Above 50% HP", GetComponent<Entity>().PercentHealthAboveRatio, .5f),
+                    //new ActionFunc("Action: Basic Attack", GetComponent<Entity>().Attack)
+               // ),
 
-                new ActionFunc("Action: Heavy Attack", GetComponent<Entity>().HeavyAttack)
+                //new ActionFunc("Action: Heavy Attack", GetComponent<Entity>().HeavyAttack)
 
             });
 	}

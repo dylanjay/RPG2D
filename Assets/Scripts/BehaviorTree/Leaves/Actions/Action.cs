@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public abstract class Action : BehaviorLeaf
+/*public abstract class Action : BehaviorLeaf
 {
     private float lastTime = float.MinValue;
 
@@ -20,4 +20,4 @@ public abstract class Action : BehaviorLeaf
     public abstract void Start();
 
     public abstract BehaviorState Update();
-}
+}*/

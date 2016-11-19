@@ -11,42 +11,18 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
     [SerializeField]
     Transform tree;
 
-    public string statName;
     public int points;
-    public SkillTree.SkillTab tab;
+    [SerializeField]
+    SkillTree.SkillStat _skillStat;
+    public SkillTree.SkillStat skillStat { get { return _skillStat; } private set { _skillStat = value; } }
 
     void Start()
     {
         playerStats = PlayerStats.instance;
         skillTree = SkillTree.instance;
-        //TODO change to enum
-        statName = name.Substring(0, name.Length - 4);
-        points = PlayerStats.instance.GetStat(statName);
+        points = PlayerStats.instance.GetStat(skillStat);
 
         InitializeTreeNodes();
-
-        switch(statName)
-        {
-            case "Strength":
-                tab = SkillTree.SkillTab.Strength;
-                break;
-
-            case "Endurance":
-                tab = SkillTree.SkillTab.Endurance;
-                break;
-
-            case "Charisma":
-                tab = SkillTree.SkillTab.Charisma;
-                break;
-
-            case "Intelligence":
-                tab = SkillTree.SkillTab.Intelligence;
-                break;
-
-            case "Agility":
-                tab = SkillTree.SkillTab.Agility;
-                break;
-        }
 	}
 
     void InitializeTreeNodes()
@@ -71,6 +47,6 @@ public class SkillTreeTab : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        skillTree.SwitchTrees(tab);
+        skillTree.SwitchTrees(skillStat);
     }
 }

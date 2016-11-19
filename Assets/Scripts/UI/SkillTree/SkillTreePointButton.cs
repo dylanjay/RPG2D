@@ -14,15 +14,13 @@ public class SkillTreePointButton : MonoBehaviour, IPointerDownHandler
 
     [SerializeField]
     public Text pointsText;
-
-    string statName;
+    [SerializeField]
+    SkillTree.SkillStat skillStat;
 
 
     void Start()
     {
         playerStats = PlayerStats.instance;
-
-        statName = transform.parent.GetComponent<SkillTreeTab>().statName;
 
         if (name == "Increment Button")
         {

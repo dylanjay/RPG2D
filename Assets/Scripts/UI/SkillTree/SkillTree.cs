@@ -9,7 +9,7 @@ public class SkillTree : MonoBehaviour
 {
     public static SkillTree instance { get; private set; }
 
-    public enum SkillTab { Strength = 0,  Endurance = 1, Charisma = 2, Intelligence = 3, Agility = 4 }
+    public enum SkillStat { Strength = 0,  Endurance = 1, Charisma = 2, Intelligence = 3, Agility = 4 }
 
     [SerializeField]
     GameObject confirmationButtons;
@@ -26,13 +26,13 @@ public class SkillTree : MonoBehaviour
     [HideInInspector]
     public int selectedSlotIndex;
     [HideInInspector]
-    public int selectedSkillSlot;
+    public int selectedSkillSlot = -1;
     [HideInInspector]
     public bool cancelSelection = true;
     [HideInInspector]
     public bool swapSlot = false;
 
-    SkillTab currentTab;
+    SkillStat currentTab;
     int numTabs = 5;
     List<List<SkillTreeNode>> treeNodes = new List<List<SkillTreeNode>>();
     List<SkillTreeActiveSlot> activeSlots = new List<SkillTreeActiveSlot>();
@@ -49,7 +49,7 @@ public class SkillTree : MonoBehaviour
         skillTree = transform.FindChild("Skill Tree Panel").FindChild("Tree Viewer");
         player = Player.instance;
         playerGO = player.gameObject;
-        currentTab = SkillTab.Strength;
+        currentTab = SkillStat.Strength;
         skillTree.GetComponent<ScrollRect>().content = skillTree.GetChild((int)currentTab).GetComponent<RectTransform>();
         skillTree.GetChild((int)currentTab).gameObject.SetActive(true);
 
@@ -74,19 +74,59 @@ public class SkillTree : MonoBehaviour
         }
     }
 
-    public void CancelSelection()
-    {
-        skillSelected = false;
-        selectedSkillSlot = -1;
-        selectedSlotIndex = -1;
-    }
-
     void Update()
     {
         if(Input.GetMouseButtonDown(0) && cancelSelection)
         {
             CancelSelection();
         }
+    }
+
+    public static SkillStat StatStringToEnum(string stat)
+    {
+        switch (stat)
+        {
+            case "Strength":
+                return SkillStat.Strength;
+            case "Endurance":
+                return SkillStat.Endurance;
+            case "Charisma":
+                return SkillStat.Charisma;
+            case "Intelligence":
+                return SkillStat.Intelligence;
+            case "Agility":
+                return SkillStat.Agility;
+            default:
+                Debug.LogError("Incorrect String on StatEnumToString");
+                return SkillStat.Strength;
+        }
+    }
+
+    public static string StatEnumToString(SkillStat stat)
+    {
+        switch (stat)
+        {
+            case SkillStat.Strength:
+                return "Strength";
+            case SkillStat.Endurance:
+                return "Endurance";
+            case SkillStat.Charisma:
+                return "Charisma";
+            case SkillStat.Intelligence:
+                return "Intelligence";
+            case SkillStat.Agility:
+                return "Agility";
+            default:
+                Debug.LogError("Incorrect Stat on StatEnumToString");
+                return null;
+        }
+    }
+
+    public void CancelSelection()
+    {
+        skillSelected = false;
+        selectedSkillSlot = -1;
+        selectedSlotIndex = -1;
     }
 
     public SkillTreeNode GetNode(int slot)
@@ -104,7 +144,7 @@ public class SkillTree : MonoBehaviour
         confirmationButtons.SetActive(true);
     }
 
-    public void SwitchTrees(SkillTab newTab)
+    public void SwitchTrees(SkillStat newTab)
     {
         if (newTab != currentTab)
         {
@@ -113,24 +153,6 @@ public class SkillTree : MonoBehaviour
             skillTree.GetComponent<ScrollRect>().content = skillTree.GetChild((int)newTab).GetComponent<RectTransform>();
             currentTab = newTab;
         }
-    }
-
-    public void AssignSlot(int slot)
-    {
-        AbilityBarIcon skillSlot = abilityManager.skillSlots[selectedSlotIndex];
-        SkillTreeNode node = treeNodes[(int)currentTab][slot];
-        string skillName = node.skillName;
-        if (!abilityManager.isEquipped(skillName))
-        {
-            Ability ability = abilityManager.abilityDict[skillName];
-            if (ability is CastableAbility)
-            {
-                CastableAbility castableAbility = (CastableAbility)ability;
-                castableAbility.keybinding = skillSlot.keybinding;
-            }
-            abilityManager.EnableAbility(abilityManager.abilityDict[skillName], playerGO, selectedSlotIndex);
-        }
-        skillSelected = false;
     }
 
     public List<string> SaveSlots(List<string> slotSprites)
@@ -151,26 +173,21 @@ public class SkillTree : MonoBehaviour
         return slots;
     }
 
-    public SkillTreeTab GetTab(string statName)
+    public SkillTreeTab GetTab(SkillStat stat)
     {
         Transform treeTabs = transform.FindChild("Skill Tree Panel").FindChild("Tree Tabs");
-        switch (statName)
+        switch (stat)
         {
-            case "Strength":
+            case SkillStat.Strength:
                 return treeTabs.FindChild("Strength Tab").GetComponent<SkillTreeTab>();
-
-            case "Endurance":
+            case SkillStat.Endurance:
                 return treeTabs.FindChild("Endurance Tab").GetComponent<SkillTreeTab>();
-
-            case "Charisma":
+            case SkillStat.Charisma:
                 return treeTabs.FindChild("Charisma Tab").GetComponent<SkillTreeTab>();
-
-            case "Intelligence":
+            case SkillStat.Intelligence:
                 return treeTabs.FindChild("Intelligence Tab").GetComponent<SkillTreeTab>();
-
-            case "Agility":
+            case SkillStat.Agility:
                 return treeTabs.FindChild("Agility Tab").GetComponent<SkillTreeTab>();
-
             default:
                 Debug.LogError("Incorrect Stat Name on GetTab");
                 return null;

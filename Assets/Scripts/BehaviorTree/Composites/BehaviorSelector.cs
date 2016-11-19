@@ -21,6 +21,11 @@ public class BehaviorSelector : BehaviorComposite
 
     }
 
+    public void Init(BehaviorComponent[] childBehaviors)
+    {
+        this.childBehaviors = childBehaviors;
+    }
+
     /// <summary>
     /// A helper function to reset the behavior
     /// </summary>
