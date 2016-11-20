@@ -8,6 +8,7 @@ public class ScriptTreeMake : MonoBehaviour {
 	void Start ()
     {
         //BehaviorComponent[] children = new BehaviorComponent[] { new BehaviorLeaf(), };
+        /*
         tree =
             new BehaviorSequence("Sequence", new BehaviorComponent[]
             {
@@ -19,7 +20,7 @@ public class ScriptTreeMake : MonoBehaviour {
 
                 //new ActionFunc("Action: Heavy Attack", GetComponent<Entity>().HeavyAttack)
 
-            });
+            });*/
 	}
 	
 	// Update is called once per frame

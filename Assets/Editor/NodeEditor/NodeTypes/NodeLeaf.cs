@@ -6,12 +6,25 @@ using System.Reflection;
 
 public class NodeLeaf : NodeBase
 {
-    public UnityEngine.Object behavior = null;
-    public string pathToBehavior;
-    private Type behaviorType;
-    private ConstructorInfo constructor;
-    private Type[] constructorTypes;
-    public object[] constructorValues;
+    private static GUIContent[] _allLeafOptions = null;
+    private static GUIContent[] allLeafOptions
+    {
+        get
+        {
+            if(_allLeafOptions == null)
+            {
+                GUIContent[] tmp = NodeEditorTags.allLeaves;
+                _allLeafOptions = new GUIContent[tmp.Length + 1];
+                _allLeafOptions[0] = new GUIContent("None");
+                for(int i = 0; i < tmp.Length; i++)
+                {
+                    _allLeafOptions[i + 1] = tmp[i];
+                }
+            }
+            return _allLeafOptions;
+        }
+    }
+    private int optionNumber = 0;
 
     public NodeLeaf()
     {
@@ -24,37 +37,19 @@ public class NodeLeaf : NodeBase
         nodeRect = new Rect(10, 10, 150, 35);
     }
 
-    public void SetBehavior()
-    {
-        Debug.Log(pathToBehavior);
-        if(pathToBehavior != null || pathToBehavior != string.Empty)
-        {
-            behavior = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(pathToBehavior);
-        }
-    }
-
+    //TODO: Fix saving
     public void SaveBehavior()
     {
-        if (behavior != null)
+        if (behaviorComponent != null)
         {
-            pathToBehavior = @"Assets/Editor/NodeEditor/Data/" + behavior.name + ".asset";
-            AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(behavior.GetInstanceID()), pathToBehavior);
+            string pathToTree = @"Assets/Resources/BehaviorTrees/" + "ConcreteTree" + ".asset";
+            AssetDatabase.AddObjectToAsset(behaviorComponent, pathToTree);
             /*for(int i = 1;  i < constructor.GetParameters().Length; i++)
             {
                 UnityEngine.Object obj = constructorValues[i] as UnityEngine.Object;
                 AssetDatabase.AddObjectToAsset(obj, pathToBehavior);
             }*/
         }
-    }
-
-    public override bool CreateTree()
-    {
-        if (behavior != null)
-        {
-            behaviorNode = constructor.Invoke(constructorValues) as BehaviorComponent;
-            return true;
-        }
-        return false;
     }
 
     public override void UpdateNodeGUI(Event e, Rect viewRect)
@@ -72,140 +67,79 @@ public class NodeLeaf : NodeBase
         EditorGUILayout.BeginVertical();
         {
             EditorGUILayout.Space();
-            bool behaviorChanged = true;
-            UnityEngine.Object behaviorCopy = behavior;
-            behavior = EditorGUILayout.ObjectField("Behavior", behavior, typeof(BehaviorLeaf), false);
-            if (behavior == behaviorCopy)
+
+            int prevOptionNumber = optionNumber;
+            optionNumber = EditorGUILayout.Popup(optionNumber, allLeafOptions);
+            
+            if(optionNumber != prevOptionNumber)
             {
-                behaviorChanged = false;
+                DestroyImmediate(behaviorComponent, true);
+                //Option 0 is "None", a null behaviorComponent
+                if(optionNumber == 0)
+                {
+                    behaviorComponent = null;
+                }
+                else
+                {
+                    behaviorComponent = BehaviorComponent.CreateComponent(NodeEditorTags.allLeafTypes[optionNumber - 1]);
+                }
             }
-            else if(behavior != behaviorCopy && pathToBehavior != string.Empty && pathToBehavior != null)
-            {
-                AssetDatabase.DeleteAsset(pathToBehavior);
-                pathToBehavior = string.Empty;
-            }
+
             EditorGUILayout.Space();
-            if (behavior != null)
+
+            if (behaviorComponent != null)
             {
                 EditorGUILayout.LabelField("Parameters");
-                behaviorType = behavior.GetType();
-                ConstructorInfo[] constructors = behaviorType.GetConstructors();
-                constructor = constructors[0];
-                constructorTypes = new Type[constructor.GetParameters().Length];
-                if (behaviorChanged)
+                foreach(FieldInfo fieldInfo in behaviorComponent.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    constructorValues = new object[constructor.GetParameters().Length];
-                    constructorValues[0] = title;
-                }
-                foreach (ParameterInfo param in constructor.GetParameters())
-                {
-                    string paramName = param.Name.Substring(0, 1);
-                    paramName = paramName.ToUpper();
-                    paramName += param.Name.Substring(1);
-                    if (param.ParameterType == typeof(int))
+                    bool hideInInspector = false;
+                    foreach (Attribute attribute in fieldInfo.GetCustomAttributes(false))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        int value = 0;
-                        if (!behaviorChanged)
+                        if(attribute.GetType() == typeof(HideInInspector))
                         {
-                            value = (int)constructorValues[param.Position];
+                            hideInInspector = true;
+                            break;
                         }
-                        constructorValues[param.Position] = EditorGUILayout.IntField(paramName, value);
                     }
+                    if (hideInInspector) { continue; }
 
-                    else if (param.ParameterType == typeof(float))
+                    if (fieldInfo.FieldType == typeof(int))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        float value = 0;
-                        if (!behaviorChanged)
-                        {
-                            value = (float)constructorValues[param.Position];
-                        }
-                        constructorValues[param.Position] = EditorGUILayout.FloatField(paramName, value);
+                        int value = (int)fieldInfo.GetValue(behaviorComponent);
+                        value = EditorGUILayout.IntField(fieldInfo.Name, value);
+                        fieldInfo.SetValue(behaviorComponent, value);
                     }
-
-                    else if (param.ParameterType == typeof(string) && param.Position != 0)
+                    else if (fieldInfo.FieldType == typeof(float))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        string value = "";
-                        if (!behaviorChanged)
-                        {
-                            value = (string)constructorValues[param.Position];
-                        }
-                        constructorValues[param.Position] = EditorGUILayout.TextField(paramName, value);
+                        float value = (float)fieldInfo.GetValue(behaviorComponent);
+                        value = EditorGUILayout.FloatField(fieldInfo.Name, value);
+                        fieldInfo.SetValue(behaviorComponent, value);
                     }
-
-                    else if (param.ParameterType == typeof(Player))
+                    else if (fieldInfo.FieldType == typeof(string))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        Player value = null;
-                        if (!behaviorChanged)
-                        {
-                            value = (Player)constructorValues[param.Position];
-                        }
-                        constructorValues[param.Position] = EditorGUILayout.ObjectField(paramName, value, typeof(Player), true);
+                        string value = (string)fieldInfo.GetValue(behaviorComponent);
+                        value = EditorGUILayout.TextField(fieldInfo.Name, value);
+                        fieldInfo.SetValue(behaviorComponent, value);
                     }
-
-                    else if (param.ParameterType == typeof(Hostile))
+                    else if (fieldInfo.FieldType == typeof(Vector2))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        Hostile value = null;
-                        if (!behaviorChanged)
-                        {
-                            value = (Hostile)constructorValues[param.Position];
-                        }
-                        Debug.Log(param.Position);
-                        constructorValues[param.Position] = EditorGUILayout.ObjectField(paramName, value, typeof(Hostile), true);
+                        Vector2 value = (Vector2)fieldInfo.GetValue(behaviorComponent);
+                        value = EditorGUILayout.Vector2Field(fieldInfo.Name, value);
+                        fieldInfo.SetValue(behaviorComponent, value);
                     }
-
-                    /*else if(param.ParameterType == typeof(SerializableVector2))
+                    else if (fieldInfo.FieldType == typeof(Vector3))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        SerializableVector2 serializedValue = new SerializableVector2();
-                        serializedValue.Fill(Vector2.zero);
-                        if (!behaviorChanged)
-                        {
-                            serializedValue = (SerializableVector2)constructorValues[param.Position];
-                        }
-                        Vector2 value = serializedValue.vector2;
-                        serializedValue.Fill(EditorGUILayout.Vector2Field(paramName, value));
-                        constructorValues[param.Position] = serializedValue;
+                        Vector3 value = (Vector3)fieldInfo.GetValue(behaviorComponent);
+                        value = EditorGUILayout.Vector3Field(fieldInfo.Name, value);
+                        fieldInfo.SetValue(behaviorComponent, value);
                     }
-
-                    else if (param.ParameterType == typeof(SerializableVector3))
+                    //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because
+                    //fieldInfo.FieldType will point to a derived class, making the comparison false.
+                    else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldInfo.FieldType))
                     {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        SerializableVector3 serializedValue = new SerializableVector3();
-                        serializedValue.Fill(Vector3.zero);
-                        if (!behaviorChanged)
-                        {
-                            serializedValue = (SerializableVector3)constructorValues[param.Position];
-                        }
-                        Vector2 value = serializedValue.vector3;
-                        serializedValue.Fill(EditorGUILayout.Vector3Field(paramName, value));
-                        constructorValues[param.Position] = serializedValue;
-                    }*/
-
-                    else if (param.ParameterType == typeof(Vector2))
-                    {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        Vector2 value = Vector2.zero;
-                        if (!behaviorChanged)
-                        {
-                            value = (Vector2)constructorValues[param.Position];
-                        }
-                        constructorValues[param.Position] = EditorGUILayout.Vector2Field(paramName, value);
-                    }
-
-                    else if (param.ParameterType == typeof(Vector3))
-                    {
-                        constructorTypes[param.Position] = param.ParameterType;
-                        Vector3 value = Vector3.zero;
-                        if (!behaviorChanged)
-                        {
-                            value = (Vector3)constructorValues[param.Position];
-                        }
-                        constructorValues[param.Position] = EditorGUILayout.Vector3Field(paramName, value);
+                        UnityEngine.Object value = (UnityEngine.Object)fieldInfo.GetValue(behaviorComponent);
+                        value = EditorGUILayout.ObjectField(fieldInfo.Name, value, fieldInfo.FieldType, false);
+                        fieldInfo.SetValue(behaviorComponent, value);
                     }
                 }
             }

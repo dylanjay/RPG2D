@@ -19,12 +19,7 @@ public class BehaviorMemSelector : BehaviorComposite
     /// This is a summary.
     /// </summary>
     int currentChild = 0;
-
-    public BehaviorMemSelector(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
-    {
-
-    }
-
+    
     /// <summary>
     /// A helper function to reset the behavior
     /// </summary>

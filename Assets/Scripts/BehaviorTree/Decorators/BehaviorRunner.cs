@@ -10,11 +10,6 @@ using System;
 
 public class BehaviorRunner : BehaviorDecorator
 {
-    public BehaviorRunner(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
-    {
-
-    }
-
     public override BehaviorState Behave()
     {
         returnState = _Behave();

@@ -16,8 +16,6 @@ public class ObjectReference
 [System.Serializable]
 public abstract class BehaviorLeaf : BehaviorComponent
 {
-    public BehaviorLeaf(string name) : base(name) { }
-
     private float lastTime = float.MinValue;
 
     public virtual void Init(List<ObjectReference> objs)

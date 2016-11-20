@@ -20,11 +20,6 @@ public class BehaviorMemSequence : BehaviorComposite
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorMemSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
-    {
-        Debug.Assert(childBehaviors.Length > 0, "Error: Behavior \"" + name + "\" has no children.");
-    }
-
     /// <summary>
     /// A helper function to reset the behavior
     /// </summary>

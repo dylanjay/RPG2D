@@ -12,11 +12,6 @@ public class BehaviorRepeatUntilFail : BehaviorDecorator
 {
     bool failure = false;
 
-    public BehaviorRepeatUntilFail(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
-    {
-
-    }
-
     public override BehaviorState Behave()
     {
         returnState = _Behave();

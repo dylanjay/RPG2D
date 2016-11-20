@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "New Action Move Towards Player", menuName = "Actions/MoveTowardsPlayer", order = 2)]
+[ShowInNodeEditor(false)]
 public class ActionMoveTowardsPlayer : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
-
-    public ActionMoveTowardsPlayer(string name) : base(name)
-    {
-    }
 
     public override void Init(List<ObjectReference> objs)
     {

@@ -12,12 +12,7 @@ using System;
 public class BehaviorLimiter : BehaviorDecorator
 {
     int iteration = 0;
-    int maxIterations;
-
-    public BehaviorLimiter(string name, BehaviorComponent childBehavior, int maxIterations) : base(name, childBehavior)
-    {
-        this.maxIterations = maxIterations;
-    }
+    int maxIterations = 1;
 
     public override BehaviorState Behave()
     {

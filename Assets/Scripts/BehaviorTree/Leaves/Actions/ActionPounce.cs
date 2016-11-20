@@ -3,17 +3,13 @@ using System.Collections;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Pounce", menuName = "Actions/Pounce", order = 3)]
+[ShowInNodeEditor(false)]
 public class ActionPounce : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
     float force = 3.0f;
     Vector2 startPos;
-
-    public ActionPounce(string name) : base(name)
-    {
-        
-    }
 
     public void Init(Player player, Hostile hostile)
     {

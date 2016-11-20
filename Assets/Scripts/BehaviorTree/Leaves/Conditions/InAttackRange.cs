@@ -6,12 +6,7 @@ public class InAttackRange : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
-    float distance;
-
-    public InAttackRange(string name, float distance) : base(name)
-    {
-        this.distance = distance;
-    }
+    float distance = 1.0f;
 
     public void Init(Player player, Hostile hostile, float distance)
     {

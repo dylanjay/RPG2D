@@ -12,11 +12,6 @@ using System;
 
 public class BehaviorInverter : BehaviorDecorator
 {
-    public BehaviorInverter(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
-    {
-
-    }
-
     public override BehaviorState Behave()
     {
         returnState = _Behave();

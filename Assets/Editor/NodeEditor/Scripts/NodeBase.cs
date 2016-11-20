@@ -3,7 +3,7 @@ using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
 
-public class NodeBase : ScriptableObject
+public abstract class NodeBase : ScriptableObject
 {
     public string title;
     public string description;
@@ -24,7 +24,19 @@ public class NodeBase : ScriptableObject
     public GUISkin nodeSkin;
     Rect viewRect;
 
-    public BehaviorComponent behaviorNode;
+    public BehaviorComponent behaviorComponent;
+
+    public static NodeBase CreateNode(System.Type t)
+    {
+        NodeBase nodeBase = (NodeBase)ScriptableObject.CreateInstance(t);
+        nodeBase.title = nodeBase.name = nodeBase.GetType().ToString().Substring(4);
+        return nodeBase;
+    }
+
+    public NodeBase clone()
+    {
+        return (NodeBase)this.MemberwiseClone();
+    }
 
     public virtual void Initialize()
     {
@@ -39,11 +51,6 @@ public class NodeBase : ScriptableObject
             inputRect = new Rect(nodeRect.x + nodeRect.width / 2 - 8, nodeRect.y - 18, 24, 18);
         }
         hideFlags = HideFlags.HideInHierarchy;
-    }
-
-    public virtual bool CreateTree()
-    {
-        return true;
     }
 
     public virtual void UpdateNode(Event e)

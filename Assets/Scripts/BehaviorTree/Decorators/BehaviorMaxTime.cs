@@ -10,12 +10,7 @@ using System;
 public class BehaviorMaxTime : BehaviorDecorator
 {
     float time = 0.0f;
-    float maxTime;
-
-    public BehaviorMaxTime(string name, BehaviorComponent childBehavior, float maxTime) : base(name, childBehavior)
-    {
-        this.maxTime = maxTime;
-    }
+    float maxTime = 1.0f;
 
     public override BehaviorState Behave()
     {

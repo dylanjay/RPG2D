@@ -4,7 +4,7 @@ using UnityEditor;
 public class NodePopupWindow : EditorWindow
 {
     static NodePopupWindow instance;
-    string name = "Enter a name...";
+    string graphName = "Enter a name...";
 
     public static void Init()
     {
@@ -21,7 +21,7 @@ public class NodePopupWindow : EditorWindow
         {
             GUILayout.Space(20);
             EditorGUILayout.LabelField("New Graph", EditorStyles.boldLabel, GUILayout.Width(80));
-            name = EditorGUILayout.TextField(name);
+            graphName = EditorGUILayout.TextField(graphName);
             GUILayout.Space(20);
         }
         GUILayout.EndHorizontal();
@@ -31,9 +31,9 @@ public class NodePopupWindow : EditorWindow
             GUILayout.Space(20);
             if(GUILayout.Button("Create"))
             {
-                if(!string.IsNullOrEmpty(name) && !name.Equals("Enter a name..."))
+                if(!string.IsNullOrEmpty(graphName) && !graphName.Equals("Enter a name..."))
                 {
-                    NodeGraph newGraph = NodeUtilities.CreateNodeGraph(name);
+                    NodeGraph newGraph = NodeUtilities.CreateNodeGraph(graphName);
                     instance.Close();
                 }
                 else

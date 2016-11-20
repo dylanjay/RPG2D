@@ -3,16 +3,13 @@ using System.Collections;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Wait", menuName = "Actions/Wait", order = 0)]
+[ShowInNodeEditor(false)]
 public class ActionWait : BehaviorLeaf
 {
     float time = 0.0f;
-    float maxTime;
+    float maxTime = 1.0f;
     Hostile hostile;
-
-    public ActionWait(string name, float maxTime) : base(name)
-    {
-        this.maxTime = maxTime;
-    }
+    
 
     public void Init(float maxTime, Hostile hostile)
     {

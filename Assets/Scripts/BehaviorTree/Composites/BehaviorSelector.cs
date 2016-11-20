@@ -16,12 +16,7 @@ public class BehaviorSelector : BehaviorComposite
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorSelector(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
-    {
-
-    }
-
-    public void Init(BehaviorComponent[] childBehaviors)
+    public void Initialize(BehaviorComponent[] childBehaviors)
     {
         this.childBehaviors = childBehaviors;
     }

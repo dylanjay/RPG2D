@@ -16,68 +16,70 @@ public class NodeTypeView : ViewBase
         {
             GUILayout.BeginVertical();
             {
-                if (GUILayout.Button("Seq", viewSkin.GetStyle("SequenceNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width/2)))
+                Vector2 spawnLocation = new Vector2(30, 30);
+                GUILayoutOption[] buttonParams = new GUILayoutOption[] { GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)};
+                if (GUILayout.Button("Seq", viewSkin.GetStyle("SequenceNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeComposite), typeof(BehaviorSequence), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeComposite), BehaviorComponent.CreateComponent(typeof(BehaviorSequence)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("Sel", viewSkin.GetStyle("SelectorNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Sel", viewSkin.GetStyle("SelectorNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeComposite), typeof(BehaviorSelector), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeComposite), BehaviorComponent.CreateComponent(typeof(BehaviorSelector)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("MSeq", viewSkin.GetStyle("MemSequenceNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("MSeq", viewSkin.GetStyle("MemSequenceNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeComposite), typeof(BehaviorMemSequence), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeComposite), BehaviorComponent.CreateComponent(typeof(BehaviorMemSequence)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("MSel", viewSkin.GetStyle("MemSelectorNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("MSel", viewSkin.GetStyle("MemSelectorNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeComposite), typeof(BehaviorMemSelector),new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeComposite), BehaviorComponent.CreateComponent(typeof(BehaviorMemSelector)), currentGraph, spawnLocation);
                 }
 
                 GUILayout.Box("", viewSkin.GetStyle("Separator"), GUILayout.Width(viewRect.width), GUILayout.Height(8));
 
-                if (GUILayout.Button("Invert", viewSkin.GetStyle("InverterNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Invert", viewSkin.GetStyle("InverterNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorInverter), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorInverter)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("Succ", viewSkin.GetStyle("SucceederNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Succ", viewSkin.GetStyle("SucceederNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorSucceeder), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorSucceeder)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("Fail", viewSkin.GetStyle("FailerNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Fail", viewSkin.GetStyle("FailerNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorFailer), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorFailer)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("Run", viewSkin.GetStyle("RunnerNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Run", viewSkin.GetStyle("RunnerNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorMemSelector), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorMemSelector)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("Wait", viewSkin.GetStyle("WaitNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Wait", viewSkin.GetStyle("WaitNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorWait), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorWait)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("Limiter", viewSkin.GetStyle("LimiterNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("Limiter", viewSkin.GetStyle("LimiterNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorLimiter), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorLimiter)), currentGraph, spawnLocation);
                 }
 
-                if (GUILayout.Button("MaxTime", viewSkin.GetStyle("MaxTimeNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width / 2)))
+                if (GUILayout.Button("MaxTime", viewSkin.GetStyle("MaxTimeNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeDecorator), typeof(BehaviorMaxTime), new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeDecorator), BehaviorComponent.CreateComponent(typeof(BehaviorMaxTime)), currentGraph, spawnLocation);
                 }   
 
                 GUILayout.Box("", viewSkin.GetStyle("Separator"), GUILayout.Width(viewRect.width), GUILayout.Height(8));
 
-                if (GUILayout.Button("Leaf", viewSkin.GetStyle("LeafNodeButton"), GUILayout.Width(viewRect.width), GUILayout.Height(viewRect.width/2)))
+                if (GUILayout.Button("Leaf", viewSkin.GetStyle("LeafNodeButton"), buttonParams))
                 {
-                    NodeUtilities.CreateNode(currentGraph, typeof(NodeLeaf), null, new Vector2(30, 30));
+                    NodeUtilities.CreateNode(typeof(NodeLeaf), null, currentGraph, spawnLocation);
                 }
             }
             GUILayout.EndVertical();

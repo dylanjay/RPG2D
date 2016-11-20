@@ -6,12 +6,8 @@ public class IsAlert : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
-    float distance;
+    float distance = 1.0f;
 
-    public IsAlert(string name, float distance) : base(name)
-    {
-        this.distance = distance;
-    }
 
     public void Init(Player player, Hostile hostile, float distance)
     {

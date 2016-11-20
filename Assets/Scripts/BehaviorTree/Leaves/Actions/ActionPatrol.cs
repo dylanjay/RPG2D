@@ -3,46 +3,13 @@ using System.Collections.Generic;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Patrol", menuName = "Actions/Patrol", order = 1)]
+[ShowInNodeEditor(false)]
 public class ActionPatrol : BehaviorLeaf
 {
     Vector2 waypoint1;
     Vector2 waypoint2;
     Hostile hostile;
-    bool towards1 = true;
-
-    /*public ActionPatrol(string name, SerializableVector2 waypoint1, SerializableVector2 waypoint2) : base(name)
-    {
-        this.waypoint1 = waypoint1.vector2;
-        this.waypoint2 = waypoint2.vector2;
-    }
-
-    public override void Init(List<ObjectReference> objs)
-    {
-        base.Init(objs);
-        foreach (ObjectReference objRef in objs)
-        {
-            switch (objRef.name)
-            {
-                case "waypoint1":
-                    waypoint1 = ((SerializableVector2)objRef.obj).vector2;
-                    break;
-
-                case "waypoint2":
-                    waypoint2 = ((SerializableVector2)objRef.obj).vector2;
-                    break;
-
-                case "hostile":
-                    hostile = (Hostile)objRef.obj;
-                    break;
-            }
-        }
-    }*/
-
-    public ActionPatrol(string name, Vector2 waypoint1, Vector2 waypoint2) : base(name)
-    {
-        this.waypoint1 = waypoint1;
-        this.waypoint2 = waypoint2;
-    }
+    bool towardsFirstWaypoint = true;
 
     public override void Init(List<ObjectReference> objs)
     {
@@ -74,12 +41,12 @@ public class ActionPatrol : BehaviorLeaf
     public override BehaviorState Update()
     {
         Vector2 curPos = hostile.transform.position;
-        if (towards1)
+        if (towardsFirstWaypoint)
         {
             hostile.transform.position = Vector2.MoveTowards(curPos, waypoint1, hostile.moveSpeed.value * Time.deltaTime);
             if (curPos == waypoint1)
             {
-                towards1 = false;
+                towardsFirstWaypoint = false;
             }
         }
 
@@ -88,7 +55,7 @@ public class ActionPatrol : BehaviorLeaf
             hostile.transform.position = Vector2.MoveTowards(curPos, waypoint2, hostile.moveSpeed.value * Time.deltaTime);
             if (curPos == waypoint2)
             {
-                towards1 = true;
+                towardsFirstWaypoint = true;
             }
         }
 

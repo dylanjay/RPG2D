@@ -17,15 +17,13 @@ public class BehaviorWhile : BehaviorComposite
     private BehaviorComponent condition { get { return childBehaviors[CONDTION_BEHAVIOR]; } }
     private BehaviorComponent action { get { return childBehaviors[ACTION_BEHAVIOR]; } }
 
-    public BehaviorWhile(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
+    protected override void Initialize(string name, BehaviorComponent[] childBehaviors = null)
     {
-        Debug.Assert(childBehaviors.Length == 2, "Error: BehaviorWhile's can only have two children. The first is a condition, the second is the action.");
-        this.childBehaviors = childBehaviors;
-    }
-
-    public BehaviorWhile(string name, BehaviorComponent condition, BehaviorComponent action) : base(name, new BehaviorComponent[2] { condition, action })
-    {
-
+        if (childBehaviors != null)
+        {
+            Debug.Assert(childBehaviors.Length == 2, "Error: BehaviorWhile's can only have two children. The first is a condition, the second is the action.");
+        }
+        base.Initialize(name, childBehaviors);
     }
 
     public override BehaviorState Behave()

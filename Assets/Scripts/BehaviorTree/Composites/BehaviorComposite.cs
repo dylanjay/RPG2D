@@ -5,14 +5,27 @@ using UnityEngine;
 public abstract class BehaviorComposite : BehaviorComponent
 {
     public BehaviorComponent[] childBehaviors;
-	
-    public BehaviorComposite(string name) : base(name)
-    {
 
+    public static BehaviorComposite CreateInstance<T>(string name = "", BehaviorComponent[] childBehaviors = null) where T : BehaviorComposite
+    {
+        BehaviorComposite behaviorComposite = ScriptableObject.CreateInstance<T>();
+        if(name == "")
+        {
+            //Gets the name of the type and removes the word "Behavior" from the beginning of the string.
+            behaviorComposite.GetType().ToString().Substring(8);
+        }
+        behaviorComposite.Initialize(name, childBehaviors);
+        return behaviorComposite;
     }
 
-    public BehaviorComposite(string name, BehaviorComponent[] childBehaviors) : base(name)
+    protected override void Initialize(string name)
     {
+        Initialize(name, null);
+    }
+
+    protected virtual void Initialize(string name, BehaviorComponent[] childBehaviors = null)
+    {
+        base.Initialize(name);
         this.childBehaviors = childBehaviors;
     }
 

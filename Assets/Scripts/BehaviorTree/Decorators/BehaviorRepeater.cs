@@ -10,13 +10,9 @@ using System;
 
 public class BehaviorRepeater : BehaviorDecorator
 {
-    int maxRepetitions;
+    int maxRepetitions = 1;
     int repetition = 0;
-    public BehaviorRepeater(string name, BehaviorComponent childBehavior, int maxRepetitions) : base(name, childBehavior)
-    {
-        this.maxRepetitions = maxRepetitions;
-    }
-
+    
     public override BehaviorState Behave()
     {
         returnState = _Behave();

@@ -14,19 +14,6 @@ public class NodeRoot : NodeBase
         nodeRect = new Rect(10, 10, 150, 35);
     }
 
-    public override bool CreateTree()
-    {
-        if (output != null)
-        {
-            if (output.childNodes.Any())
-            {
-                behaviorNode = output.childNodes[0].behaviorNode;
-                return true;
-            }
-        }
-        return false;
-    }
-
     public override void UpdateNode(Event e)
     {
         base.UpdateNode(e);

@@ -21,7 +21,7 @@ public class BossTestTree : MonoBehaviour
     {
         player = Player.instance;
         //BehaviorComponent[] children = new BehaviorComponent[] { new BehaviorLeaf(), };
-        tree =
+        /*tree =
             new BehaviorSelector("Selector", new BehaviorComponent[]
             {
                 new BehaviorSequence("Sequence", new BehaviorComponent[]
@@ -42,7 +42,7 @@ public class BossTestTree : MonoBehaviour
                 }),
 
                 //new ActionPatrol("Patrol", transform.position, transform.position + new Vector3(0, 5, 0), GetComponent<Hostile>())
-            });
+            });*/
     }
 
     BehaviorState IsAlert(float distance)

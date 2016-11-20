@@ -16,11 +16,6 @@ public class BehaviorSequence : BehaviorComposite
     /// </summary>
     int currentChild = 0;
 
-    public BehaviorSequence(string name, BehaviorComponent[] childBehaviors) : base(name, childBehaviors)
-    {
-
-    }
-
     /// <summary>
     /// A helper function to reset the behavior
     /// </summary>

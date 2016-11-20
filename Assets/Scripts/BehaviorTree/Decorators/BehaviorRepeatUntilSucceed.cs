@@ -12,11 +12,6 @@ public class BehaviorRepeatUntilSucceed : BehaviorDecorator
 {
     bool succeed = false;
 
-    public BehaviorRepeatUntilSucceed(string name, BehaviorComponent childBehavior) : base(name, childBehavior)
-    {
-
-    }
-
     public override BehaviorState Behave()
     {
         returnState = _Behave();

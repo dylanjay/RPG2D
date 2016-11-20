@@ -6,11 +6,6 @@ public class BehaviorWait : BehaviorDecorator
     float time = 0.0f;
     float maxTime;
 
-    public BehaviorWait(string name, BehaviorComponent childBehavior, float maxTime) : base(name, childBehavior)
-    {
-        this.maxTime = maxTime;
-    }
-
     void Reset()
     {
         time = 0.0f;

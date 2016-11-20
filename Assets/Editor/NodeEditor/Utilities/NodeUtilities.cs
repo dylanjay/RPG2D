@@ -25,7 +25,7 @@ public static class NodeUtilities
                 AskSaveGraph(currentWindow);
                 currentGraphPath = "Assets/Resources/BehaviorTrees/" + graphName + ".asset";
                 currentWindow.currentGraph = currentGraph;
-                CreateNode(currentGraph, typeof(NodeRoot), null, new Vector2(30, 50));
+                CreateNode(typeof(NodeRoot), null, currentGraph, new Vector2(30, 50));
             }
         }
         return currentGraph;
@@ -35,7 +35,7 @@ public static class NodeUtilities
     {
         if (currentWindow.currentGraph != null)
         {
-            if (EditorUtility.DisplayDialog("Save Graph", "Save current graph? ", "yes", "no"))
+            if (EditorUtility.DisplayDialog("Save Graph", "Save the current graph?", "Yes", "No"))
             {
                 SaveGraph();
             }
@@ -61,14 +61,6 @@ public static class NodeUtilities
 
             if (currentGraph != null)
             {
-                foreach (NodeBase node in currentGraph.nodes)
-                {
-                    if (node.GetType() == typeof(NodeLeaf))
-                    {
-                        ((NodeLeaf)node).SetBehavior();
-                    }
-                }
-
                 if (currentWindow != null)
                 {
                     AskSaveGraph(currentWindow);
@@ -83,16 +75,6 @@ public static class NodeUtilities
             else
             {
                 ErrorMessage("The selected asset can't be loaded as a Node Graph. ");
-            }
-        }
-        else
-        {
-            foreach (NodeBase node in currentWindow.currentGraph.nodes)
-            {
-                if (node.GetType() == typeof(NodeLeaf))
-                {
-                    ((NodeLeaf)node).SetBehavior();
-                }
             }
         }
     }
@@ -124,32 +106,12 @@ public static class NodeUtilities
         return valid;
     }*/
 
-    static bool CreateTree(NodeBase node)
-    {
-        if (node.output != null)
-        {
-            if (node.output.childNodes.Any())
-            {
-                foreach (NodeBase child in node.output.childNodes)
-                {
-                    CreateTree(child);
-                }
-            }
-        }
-        
-        if (!node.CreateTree())
-        {
-            return false;
-        }
-        return true;
-    }
-
     static void CreateTreeAsset(NodeBase node, BehaviorComponent root)
     {   
-        if(node.behaviorNode != root)
+        if(node.behaviorComponent != root)
         {
-            EditorUtility.SetDirty(node.behaviorNode);
-            AssetDatabase.AddObjectToAsset(node.behaviorNode, root);
+            EditorUtility.SetDirty(node.behaviorComponent);
+            AssetDatabase.AddObjectToAsset(node.behaviorComponent, root);
         }
 
         if (node.output != null)
@@ -188,23 +150,24 @@ public static class NodeUtilities
                     }
                 }
 
-                if (CreateTree(root))
+                //TODO: Actually Serialize.
+                /*if (CreateTree(root))
                 {
                     AssetDatabase.CreateAsset(root.behaviorNode, @"Assets/Resources/BehaviorTrees/" + savedGraph.name + "Tree" + ".asset");
                     CreateTreeAsset(root, root.behaviorNode);
-                }
+                }*/
 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
             else
             {
-                ErrorMessage("The node editor window is lost, reopen it. Then try reloading the graph. ");
+                ErrorMessage("The node editor window is lost, reopen it. Then try reloading the graph.");
             }
         }
         else
         {
-            ErrorMessage("The selected asset can't be loaded as a Node Graph. ");
+            ErrorMessage("The selected asset can't be loaded as a Node Graph.");
         }
     }
 
@@ -213,17 +176,17 @@ public static class NodeUtilities
         NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
         if (currentWindow != null)
         {
-            if (EditorUtility.DisplayDialog("Clear Graph", "Are you sure you want to clear current graph? ", "yes", "no"))
+            if (EditorUtility.DisplayDialog("Clear Graph", "Are you sure you want to clear the current graph?", "Yes", "No"))
             {
                 currentWindow.currentGraph.nodes = new List<NodeBase>();
-                CreateNode(currentWindow.currentGraph, typeof(NodeRoot), null, new Vector2(30, 50));
+                CreateNode(typeof(NodeRoot), null, currentWindow.currentGraph, new Vector2(30, 50));
             }
         }
     }
 
     public static void DeleteGraph()
     {
-        if (EditorUtility.DisplayDialog("Delete Graph", "Are you sure you want to delete current graph? ", "yes", "no"))
+        if (EditorUtility.DisplayDialog("Delete Graph", "Are you sure you want to delete the current graph?", "Yes", "No"))
         {
             AssetDatabase.DeleteAsset(currentGraphPath);
             AssetDatabase.SaveAssets();
@@ -231,23 +194,22 @@ public static class NodeUtilities
         }
     }
 
-    public static void CreateNode(NodeGraph graph, Type nodeType, Type nodeSubType, Vector2 position)
+    public static void CreateNode(Type nodeType, BehaviorComponent behaviorComponent, NodeGraph graph, Vector2 position)
     {
         if(graph == null) { return; }
 
         NodeBase currentNode;
         string name;
-        if (nodeSubType == null)
+        currentNode = NodeBase.CreateNode(nodeType);
+        currentNode.behaviorComponent = behaviorComponent;
+
+        if (behaviorComponent == null)
         {
-            currentNode = ScriptableObject.CreateInstance(nodeType) as NodeBase;
-            name = nodeType.ToString();
-            name = name.Substring(4);
+            name = currentNode.name;
         }
         else
         {
-            currentNode = Activator.CreateInstance(nodeType, new object[] { nodeSubType }) as NodeBase;
-            name = nodeSubType.ToString();
-            name = name.Substring(8);
+            name = behaviorComponent.name;
         }
         currentNode.title = name;
         currentNode.name = name;
@@ -264,8 +226,6 @@ public static class NodeUtilities
             AssetDatabase.AddObjectToAsset(currentNode, graph);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-
-            
         }
     }
 #endif
