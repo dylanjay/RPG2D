@@ -8,6 +8,7 @@ using System;
 /// Reprocesses child behavior until the child returns failure and subsequently returns success
 /// </summary>
 
+[ShowInNodeEditor("Repeat Until Fail", true)]
 public class BehaviorRepeatUntilFail : BehaviorDecorator
 {
     bool failure = false;

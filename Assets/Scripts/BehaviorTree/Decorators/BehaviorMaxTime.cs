@@ -6,10 +6,11 @@ using System;
 /// Max Time limits the maximum time its child can be running
 /// If the child does not complete its execution before the maximum time, the child task is terminated and a failure is returned
 /// </summary>
-
+[ShowInNodeEditor("Max Time", true)]
 public class BehaviorMaxTime : BehaviorDecorator
 {
     float time = 0.0f;
+    [SerializeField]
     float maxTime = 1.0f;
 
     public override BehaviorState Behave()

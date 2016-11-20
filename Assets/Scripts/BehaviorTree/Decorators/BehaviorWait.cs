@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+[ShowInNodeEditor("Wait", true)]
 public class BehaviorWait : BehaviorDecorator
 {
     float time = 0.0f;

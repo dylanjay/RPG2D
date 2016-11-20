@@ -9,6 +9,7 @@ using System;
 /// Returns Success if and only if each child has returned success.
 /// </summary>
 
+[ShowInNodeEditor("Random Sequence", true)]
 public class BehaviorRandomSequence : BehaviorComposite
 {
     /// <summary>

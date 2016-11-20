@@ -7,7 +7,7 @@ using System;
 /// 
 /// Always returns Failure regardless of child's return value
 /// </summary>
-
+[ShowInNodeEditor("Failer", true)]
 public class BehaviorFailer : BehaviorDecorator
 {
     public override BehaviorState Behave()

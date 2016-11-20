@@ -3,10 +3,12 @@ using System.Collections;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Wait", menuName = "Actions/Wait", order = 0)]
-[ShowInNodeEditor(false)]
+[ShowInNodeEditor("Wait For Seconds", false)]
 public class ActionWait : BehaviorLeaf
 {
+    [SerializeField]
     float time = 0.0f;
+    [SerializeField]
     float maxTime = 1.0f;
     Hostile hostile;
     

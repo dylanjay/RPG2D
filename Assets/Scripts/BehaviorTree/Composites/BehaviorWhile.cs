@@ -9,6 +9,7 @@ using System;
 /// Returns Success if and only if each child has returned success.
 /// </summary>
 
+[ShowInNodeEditor("While", true)]
 public class BehaviorWhile : BehaviorComposite
 {
     private const int CONDTION_BEHAVIOR = 0;

@@ -8,6 +8,7 @@ using System;
 /// Always returns Success regardless of child's return value
 /// </summary>
 
+[ShowInNodeEditor("Succeeder", true)]
 public class BehaviorSucceeder : BehaviorDecorator
 {
     public override BehaviorState Behave()

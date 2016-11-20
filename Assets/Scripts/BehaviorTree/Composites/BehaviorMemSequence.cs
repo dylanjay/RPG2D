@@ -13,6 +13,7 @@ using System;
 /// Returns Success if and only if each child has returned success.
 /// </summary>
 
+[ShowInNodeEditor("Memory Sequence", true)]
 public class BehaviorMemSequence : BehaviorComposite
 {
     /// <summary>

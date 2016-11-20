@@ -8,6 +8,7 @@ using System;
 /// Always returns Running regardless of child's return value
 /// </summary>
 
+[ShowInNodeEditor("Runner", true)]
 public class BehaviorRunner : BehaviorDecorator
 {
     public override BehaviorState Behave()

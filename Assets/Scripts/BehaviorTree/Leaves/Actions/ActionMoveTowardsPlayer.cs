@@ -2,28 +2,15 @@
 using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "New Action Move Towards Player", menuName = "Actions/MoveTowardsPlayer", order = 2)]
-[ShowInNodeEditor(false)]
+[ShowInNodeEditor("Move Towards Player", false)]
 public class ActionMoveTowardsPlayer : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
 
-    public override void Init(List<ObjectReference> objs)
+    public override void Init(GameObject treeHandler)
     {
-        base.Init(objs);
-        foreach (ObjectReference objRef in objs)
-        {
-            switch (objRef.name)
-            {
-                case "player":
-                    player = (Player)objRef.obj;
-                    break;
-
-                case "hostile":
-                    hostile = (Hostile)objRef.obj;
-                    break;
-            }
-        }
+        base.Init(treeHandler);
     }
 
     public override void Start()

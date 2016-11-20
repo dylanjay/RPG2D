@@ -44,7 +44,15 @@ public abstract class BehaviorComponent : ScriptableObject{
         if (name == "")
         {
             //Gets the name of the type and removes the word "Behavior" from the beginning of the string.
-            this.name = GetType().ToString().Substring(8);
+            object[] attributeArray = GetType().GetCustomAttributes(typeof(ShowInNodeEditorAttribute), false);
+            if (attributeArray.Length > 0)
+            {
+                this.name = ((ShowInNodeEditorAttribute[])attributeArray)[0].displayName;
+            }
+            else
+            {
+                this.name = GetType().ToString();
+            }
         }
         else
         {

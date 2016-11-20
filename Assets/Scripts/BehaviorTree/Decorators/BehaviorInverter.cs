@@ -10,6 +10,7 @@ using System;
 /// Returns Running if child returns Running.
 /// </summary>
 
+[ShowInNodeEditor("Inverter", true)]
 public class BehaviorInverter : BehaviorDecorator
 {
     public override BehaviorState Behave()

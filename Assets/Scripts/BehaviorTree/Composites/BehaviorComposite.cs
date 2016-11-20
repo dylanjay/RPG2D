@@ -4,19 +4,8 @@ using UnityEngine;
 [System.Serializable]
 public abstract class BehaviorComposite : BehaviorComponent
 {
+    [HideInInspector]
     public BehaviorComponent[] childBehaviors;
-
-    public static BehaviorComposite CreateInstance<T>(string name = "", BehaviorComponent[] childBehaviors = null) where T : BehaviorComposite
-    {
-        BehaviorComposite behaviorComposite = ScriptableObject.CreateInstance<T>();
-        if(name == "")
-        {
-            //Gets the name of the type and removes the word "Behavior" from the beginning of the string.
-            behaviorComposite.GetType().ToString().Substring(8);
-        }
-        behaviorComposite.Initialize(name, childBehaviors);
-        return behaviorComposite;
-    }
 
     protected override void Initialize(string name)
     {
@@ -29,14 +18,20 @@ public abstract class BehaviorComposite : BehaviorComponent
         this.childBehaviors = childBehaviors;
     }
 
+    //TODO: This function is currently being called during the editor.
+    //We should probably move the shuffle into an in-game Initialize(),
+    //rather than an in-editor Initialize().
     public void Shuffle()
     {
-        for (int i = 0; i < childBehaviors.Length; i++)
+        if(childBehaviors != null)
         {
-            BehaviorComponent temp = childBehaviors[i];
-            int rand = UnityEngine.Random.Range(i, childBehaviors.Length);
-            childBehaviors[i] = childBehaviors[rand];
-            childBehaviors[rand] = temp;
+            for (int i = 0; i < childBehaviors.Length; i++)
+            {
+                BehaviorComponent temp = childBehaviors[i];
+                int rand = UnityEngine.Random.Range(i, childBehaviors.Length);
+                childBehaviors[i] = childBehaviors[rand];
+                childBehaviors[rand] = temp;
+            }
         }
     }
 }

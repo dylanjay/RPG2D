@@ -8,8 +8,10 @@ using System;
 /// Reprocesses child behavior n times, or it returns error, and subsequently always returns success
 /// </summary>
 
+[ShowInNodeEditor("Repeater", true)]
 public class BehaviorRepeater : BehaviorDecorator
 {
+    [SerializeField]
     int maxRepetitions = 1;
     int repetition = 0;
     

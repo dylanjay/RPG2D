@@ -9,12 +9,16 @@ using System.Linq;
 public class ShowInNodeEditorAttribute : Attribute
 {
     public readonly bool showInToolbar;
+    public readonly string displayName;
 
-    public ShowInNodeEditorAttribute(bool showInToolbar)
+    public ShowInNodeEditorAttribute(string displayName, bool showInToolbar)
     {
         this.showInToolbar = showInToolbar;
+        this.displayName = displayName;
     }    
 }
+
+public enum NodeType { Composite, Decorator, Leaf }
 
 public static class NodeEditorTags
 {
@@ -25,69 +29,61 @@ public static class NodeEditorTags
     {
         public Type classType;
         public bool showInToolbar;
-        public SineInfo(Type classType, bool showInToolbar)
+        public string displayName;
+        public SineInfo(Type classType, string displayName, bool showInToolbar)
         {
             this.classType = classType;
             this.showInToolbar = showInToolbar;
+            this.displayName = displayName;
         }
     }
-    static GUIContent[] _allComposites = new GUIContent[0];
-    static GUIContent[] _allDecorators = new GUIContent[0];
-    static GUIContent[] _allLeaves     = new GUIContent[0];
-    static List<Type> _allCompositeTypes = new List<Type>();
-    static List<Type> _allDecoratorTypes = new List<Type>();
-    static List<Type> _allLeafTypes = new List<Type>();
+    static GUIContent[] _allComposites, _allDecorators, _allLeaves;
+    static List<Type> _allCompositeTypes, _allDecoratorTypes, _allLeafTypes;
 
-    static GUIContent[] _toolbarComposites = new GUIContent[0];
-    static GUIContent[] _toolbarDecorators = new GUIContent[0];
-    static GUIContent[] _toolbarLeaves     = new GUIContent[0];
-    static List<Type> _toolbarCompositeTypes = new List<Type>();
-    static List<Type> _toolbarDecoratorTypes = new List<Type>();
-    static List<Type> _toolbarLeafTypes = new List<Type>();
-
-    public static GUIContent[] allComposites { get { if (!initialized) { Initialize(); } return (GUIContent[])_allComposites.Clone(); } }
-    public static GUIContent[] allDecorators { get { if (!initialized) { Initialize(); } return (GUIContent[])_allDecorators.Clone(); } }
-    public static GUIContent[] allLeaves     { get { if (!initialized) { Initialize(); } return (GUIContent[])_allLeaves.Clone();     } }
-    public static ReadOnlyCollection<Type> allCompositeTypes { get { if (!initialized) { Initialize(); } return _allCompositeTypes.AsReadOnly(); } }
-    public static ReadOnlyCollection<Type> allDecoratorTypes { get { if (!initialized) { Initialize(); } return _allDecoratorTypes.AsReadOnly(); } }
-    public static ReadOnlyCollection<Type> allLeafTypes      { get { if (!initialized) { Initialize(); } return _allLeafTypes.AsReadOnly();      } }
-
-    public static GUIContent[] toolbarComposites { get { if (!initialized) { Initialize(); } return (GUIContent[])_toolbarComposites.Clone(); } }
-    public static GUIContent[] toolbarDecorators { get { if (!initialized) { Initialize(); } return (GUIContent[])_toolbarDecorators.Clone(); } }
-    public static GUIContent[] toolbarLeaves     { get { if (!initialized) { Initialize(); } return (GUIContent[])_toolbarLeaves.Clone();     } }
-    public static ReadOnlyCollection<Type> toolbarCompositeTypes { get { if (!initialized) { Initialize(); } return _toolbarCompositeTypes.AsReadOnly(); } }
-    public static ReadOnlyCollection<Type> toolbarDecoratorTypes { get { if (!initialized) { Initialize(); } return _toolbarDecoratorTypes.AsReadOnly(); } }
-    public static ReadOnlyCollection<Type> toolbarLeafTypes      { get { if (!initialized) { Initialize(); } return _toolbarLeafTypes.AsReadOnly();      } }
+    static GUIContent[] _toolbarComposites, _toolbarDecorators,  _toolbarLeaves;
+    static List<Type> _toolbarCompositeTypes, _toolbarDecoratorTypes, _toolbarLeafTypes;
 
     private static bool initialized = false;
     private static void Initialize()
     {
         initialized = true;
         List<SineInfo> attributes = new List<SineInfo>();
-        { 
+        {
             Type[] allTypes = Assembly.GetExecutingAssembly().GetTypes();
             foreach (Type type in allTypes)
             {
                 object[] attrArray = type.GetCustomAttributes(typeof(ShowInNodeEditorAttribute), true);
                 if (attrArray.Length > 0)
                 {
-                    attributes.Add(new SineInfo(type, ((ShowInNodeEditorAttribute[])attrArray)[0].showInToolbar));
+                    ShowInNodeEditorAttribute attribute = ((ShowInNodeEditorAttribute[])attrArray)[0];
+                    attributes.Add(new SineInfo(type, attribute.displayName, attribute.showInToolbar));
                     Debug.Assert
                     (
-                        typeof(BehaviorLeaf).IsAssignableFrom(type) && type != typeof(BehaviorLeaf),
-                        "Error: ShowInNodeEditor tags an object that is not derived from BehaviorLeaf"
+                        typeof(BehaviorComponent).IsAssignableFrom(type) && type != typeof(BehaviorComponent),
+                        "Error: ShowInNodeEditor tags an object that is not derived from BehaviorComponent"
                     );
                 }
             }
         }
 
+        List<string> duplicateDisplayNamePairs =
+            (from attr1 in attributes
+             from attr2 in attributes
+             where attr1.displayName == attr2.displayName && attr1 != attr2
+             select attr1.classType.ToString() + " and " + attr2.classType.ToString()).ToList();
+            //attributes.Where(p => attributes.Any(l => p.displayName == l.displayName)).ToList();
+        foreach(string duplicatePair in duplicateDisplayNamePairs)
+        {
+            Debug.LogError("Error: All ShowInNodeEditor display names must be unique! " + duplicatePair + " share the same displayName");
+        } 
+
         _allComposites = (from attribute in attributes
                           where typeof(BehaviorComposite).IsAssignableFrom(attribute.classType)
-                          select new GUIContent(attribute.classType.ToString())).ToArray();
+                          select new GUIContent(attribute.displayName)).ToArray();
 
         _toolbarComposites = (from attribute in attributes
                               where typeof(BehaviorComposite).IsAssignableFrom(attribute.classType) && attribute.showInToolbar
-                              select new GUIContent(attribute.classType.ToString())).ToArray();
+                              select new GUIContent(attribute.displayName)).ToArray();
 
         _allCompositeTypes = (from attribute in attributes
                               where typeof(BehaviorComposite).IsAssignableFrom(attribute.classType)
@@ -100,11 +96,11 @@ public static class NodeEditorTags
 
         _allDecorators = (from attribute in attributes
                           where typeof(BehaviorDecorator).IsAssignableFrom(attribute.classType)
-                          select new GUIContent(attribute.classType.ToString())).ToArray();
+                          select new GUIContent(attribute.displayName)).ToArray();
 
         _toolbarDecorators = (from attribute in attributes
                               where typeof(BehaviorDecorator).IsAssignableFrom(attribute.classType) && attribute.showInToolbar
-                              select new GUIContent(attribute.classType.ToString())).ToArray();
+                              select new GUIContent(attribute.displayName)).ToArray();
 
         _allDecoratorTypes = (from attribute in attributes
                               where typeof(BehaviorDecorator).IsAssignableFrom(attribute.classType)
@@ -113,14 +109,14 @@ public static class NodeEditorTags
         _toolbarDecoratorTypes = (from attribute in attributes
                                   where typeof(BehaviorDecorator).IsAssignableFrom(attribute.classType) && attribute.showInToolbar
                                   select attribute.classType).ToList();
-        
+
         _allLeaves = (from attribute in attributes
-                          where typeof(BehaviorLeaf).IsAssignableFrom(attribute.classType)
-                          select new GUIContent(attribute.classType.ToString())).ToArray();
+                      where typeof(BehaviorLeaf).IsAssignableFrom(attribute.classType)
+                      select new GUIContent(attribute.displayName)).ToArray();
 
         _toolbarLeaves = (from attribute in attributes
                           where typeof(BehaviorLeaf).IsAssignableFrom(attribute.classType) && attribute.showInToolbar
-                          select new GUIContent(attribute.classType.ToString())).ToArray();
+                          select new GUIContent(attribute.displayName)).ToArray();
 
         _allLeafTypes = (from attribute in attributes
                          where typeof(BehaviorLeaf).IsAssignableFrom(attribute.classType)
@@ -131,27 +127,71 @@ public static class NodeEditorTags
                              select attribute.classType).ToList();
     }
 
-    private static void SetupLists(SineInfo info, ref GUIContent[] allOfNodeType, ref GUIContent[] toolbarOfNodeType, List<Type> allTypeList, List<Type> toolbarTypeList)
+    public static GUIContent[] GetAllLabelsOfNodeType(NodeType nodeType)
     {
-        GUIContent[] prevAll = allOfNodeType;
-        allOfNodeType = new GUIContent[allOfNodeType.Length + 1];
-        for (int i = 0; i < prevAll.Length; i++)
+        if (!initialized) { Initialize(); }
+        switch (nodeType)
         {
-            allOfNodeType[i] = prevAll[i];
+            case NodeType.Composite:
+                return (GUIContent[])_allComposites.Clone();
+            case NodeType.Decorator:
+                return (GUIContent[])_allDecorators.Clone();
+            case NodeType.Leaf:
+                return (GUIContent[])_allLeaves.Clone();
+            default:
+                Debug.LogError("Error: Unknown NodeType " + nodeType + ".");
+                return new GUIContent[0];
         }
-        allOfNodeType[prevAll.Length] = new GUIContent(info.classType.ToString());
-        allTypeList.Add(info.classType);
-
-        if (info.showInToolbar)
+    }
+    
+    public static ReadOnlyCollection<Type> GetAllTypesOfNodeType(NodeType nodeType)
+    {
+        if (!initialized) { Initialize(); }
+        switch (nodeType)
         {
-            GUIContent[] prevToolbar = toolbarOfNodeType;
-            toolbarOfNodeType = new GUIContent[allOfNodeType.Length + 1];
-            for (int i = 0; i < prevToolbar.Length; i++)
-            {
-                toolbarOfNodeType[i] = prevToolbar[i];
-            }
-            toolbarOfNodeType[prevToolbar.Length] = new GUIContent(info.classType.ToString());
-            toolbarTypeList.Add(info.classType);
+            case NodeType.Composite:
+                return _allCompositeTypes.AsReadOnly();
+            case NodeType.Decorator:
+                return _allDecoratorTypes.AsReadOnly();
+            case NodeType.Leaf:
+                return _allLeafTypes.AsReadOnly();
+            default:
+                Debug.LogError("Error: Unknown NodeType " + nodeType + ".");
+                return new ReadOnlyCollection<Type>(new List<Type>());
+        }
+    }
+
+    public static GUIContent[] GetToolbarLabelsOfNodeType(NodeType nodeType)
+    {
+        if (!initialized) { Initialize(); }
+        switch (nodeType)
+        {
+            case NodeType.Composite:
+                return (GUIContent[])_toolbarComposites.Clone();
+            case NodeType.Decorator:
+                return (GUIContent[])_toolbarDecorators.Clone();
+            case NodeType.Leaf:
+                return (GUIContent[])_toolbarLeaves.Clone();
+            default:
+                Debug.LogError("Error: Unknown NodeType " + nodeType + ".");
+                return new GUIContent[0];
+        }
+    }
+
+    public static ReadOnlyCollection<Type> GetToolbarTypesOfNodeType(NodeType nodeType)
+    {
+        if (!initialized) { Initialize(); }
+        switch (nodeType)
+        {
+            case NodeType.Composite:
+                return _toolbarCompositeTypes.AsReadOnly();
+            case NodeType.Decorator:
+                return _toolbarDecoratorTypes.AsReadOnly();
+            case NodeType.Leaf:
+                return _toolbarLeafTypes.AsReadOnly();
+            default:
+                Debug.LogError("Error: Unknown NodeType " + nodeType + ".");
+                return new ReadOnlyCollection<Type>(new List<Type>());
         }
     }
 }

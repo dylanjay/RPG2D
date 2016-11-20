@@ -12,7 +12,7 @@ using System;
 /// Iterates through children and returns success on first success
 /// Returns failure if and only if all children have returned failure
 /// </summary>
-
+[ShowInNodeEditor("Memory Selector", true)]
 public class BehaviorMemSelector : BehaviorComposite
 {
     /// <summary>

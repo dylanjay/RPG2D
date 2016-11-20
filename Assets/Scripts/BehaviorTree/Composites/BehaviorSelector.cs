@@ -9,6 +9,7 @@ using System;
 /// Returns failure if and only if all children have returned failure
 /// </summary>
 
+[ShowInNodeEditor("Selector", true)]
 public class BehaviorSelector : BehaviorComposite
 {
     /// <summary>

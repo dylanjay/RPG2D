@@ -9,9 +9,11 @@ using System;
 /// Subsequently returns Failure
 /// </summary>
 
+[ShowInNodeEditor("Limiter", true)]
 public class BehaviorLimiter : BehaviorDecorator
 {
     int iteration = 0;
+    [SerializeField]
     int maxIterations = 1;
 
     public override BehaviorState Behave()

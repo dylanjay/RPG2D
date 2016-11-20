@@ -1,11 +1,18 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System;
+using System.Collections.ObjectModel;
 
 public class NodeRoot : NodeBase
 {
-    public NodeRoot()
+    public override GUIContent[] GetAllBehaviorOptions()
     {
-        output = new NodeOutput(); 
+        return new GUIContent[0];
+    }
+
+    public override ReadOnlyCollection<Type> GetAllBehaviorTypes()
+    {
+        return new ReadOnlyCollection<Type>(new System.Collections.Generic.List<Type>());
     }
 
     public override void Initialize()
@@ -30,7 +37,8 @@ public class NodeRoot : NodeBase
 #if UNITY_EDITOR
     public override void DrawNodeProperties()
     {
-        base.DrawNodeProperties();
+        //Currently preventing the DrawNodeProperties from showing up.
+        //base.DrawNodeProperties();
     }
 #endif
 }

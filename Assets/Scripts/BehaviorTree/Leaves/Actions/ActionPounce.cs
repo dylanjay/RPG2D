@@ -3,11 +3,12 @@ using System.Collections;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Pounce", menuName = "Actions/Pounce", order = 3)]
-[ShowInNodeEditor(false)]
+[ShowInNodeEditor("Pounce", false)]
 public class ActionPounce : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
+    [SerializeField]
     float force = 3.0f;
     Vector2 startPos;
 

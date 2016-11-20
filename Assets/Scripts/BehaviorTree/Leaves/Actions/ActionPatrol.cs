@@ -3,34 +3,19 @@ using System.Collections.Generic;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Patrol", menuName = "Actions/Patrol", order = 1)]
-[ShowInNodeEditor(false)]
+[ShowInNodeEditor("Patrol", false)]
 public class ActionPatrol : BehaviorLeaf
 {
+    [SerializeField]
     Vector2 waypoint1;
+    [SerializeField]
     Vector2 waypoint2;
     Hostile hostile;
     bool towardsFirstWaypoint = true;
 
-    public override void Init(List<ObjectReference> objs)
+    public override void Init(GameObject treeHandler)
     {
-        base.Init(objs);
-        foreach (ObjectReference objRef in objs)
-        {
-            switch (objRef.name)
-            {
-                case "waypoint1":
-                    waypoint1 = ((Vector2)objRef.obj);
-                    break;
-
-                case "waypoint2":
-                    waypoint2 = ((Vector2)objRef.obj);
-                    break;
-
-                case "hostile":
-                    hostile = (Hostile)objRef.obj;
-                    break;
-            }
-        }
+        base.Init(treeHandler);
     }
 
     public override void Start()

@@ -8,7 +8,7 @@ using System;
 /// Iterates through children and returns success on first success
 /// Returns failure if and only if all children have returned failure
 /// </summary>
-
+[ShowInNodeEditor("Random Selector", true)]
 public class BehaviorRandomSelector : BehaviorComposite
 {
     /// <summary>

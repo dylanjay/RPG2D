@@ -12,14 +12,9 @@ public class TestNodeTree : MonoBehaviour
     private Player playerReference;
     private Hostile hostileReference;
 
-    private List<ObjectReference> objectRefs = new List<ObjectReference>();
-
-    void InitializeLeaf(ref BehaviorComponent leaf)
+    void InitializeLeaf(BehaviorLeaf leaf)
     {
-        if(leaf.GetType() == typeof(ActionMoveTowardsPlayer))
-        {
-            ((ActionMoveTowardsPlayer)leaf).Init(objectRefs);
-        }
+        leaf.Init(gameObject);
     }
 
     void InitializeTree(ref BehaviorComponent node)
@@ -36,7 +31,7 @@ public class TestNodeTree : MonoBehaviour
         }
         else if (node.GetType().IsSubclassOf(typeof(BehaviorLeaf)))
         {
-            InitializeLeaf(ref node);
+            InitializeLeaf((BehaviorLeaf)node);
         }
     }
 
@@ -45,8 +40,6 @@ public class TestNodeTree : MonoBehaviour
         tree = AssetDatabase.LoadAssetAtPath<BehaviorComponent>(AssetDatabase.GetAssetPath(treeReference.GetInstanceID()));
         playerReference = Player.instance;
         hostileReference = GetComponent<Hostile>();
-        objectRefs.Add(new ObjectReference(playerReference, "player"));
-        objectRefs.Add(new ObjectReference(hostileReference, "hostile"));
         InitializeTree(ref tree);
     }
 

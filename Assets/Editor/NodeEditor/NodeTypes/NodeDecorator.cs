@@ -1,10 +1,38 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System;
+using System.Collections.ObjectModel;
 
 [Serializable]
 public class NodeDecorator : NodeBase
 {
+    private static GUIContent[] _allDecoratorOptions = null;
+    private static ReadOnlyCollection<Type> _allDecoratorTypes = null;
+
+    public override GUIContent[] GetAllBehaviorOptions()
+    {
+        if (_allDecoratorOptions == null)
+        {
+            GUIContent[] tmp = NodeEditorTags.GetAllLabelsOfNodeType(NodeType.Decorator);
+            _allDecoratorOptions = new GUIContent[tmp.Length + 1];
+            _allDecoratorOptions[0] = new GUIContent("None");
+            for (int i = 0; i < tmp.Length; i++)
+            {
+                _allDecoratorOptions[i + 1] = tmp[i];
+            }
+        }
+        return _allDecoratorOptions;
+    }
+
+    public override ReadOnlyCollection<Type> GetAllBehaviorTypes()
+    {
+        if (_allDecoratorTypes == null)
+        {
+            _allDecoratorTypes = NodeEditorTags.GetAllTypesOfNodeType(NodeType.Decorator); 
+        }
+        return _allDecoratorTypes;
+    }
+
     public NodeDecorator(Type nodeType)
     {
         input = new NodeInput();

@@ -16,6 +16,7 @@ public static class NodeUtilities
         {
             currentGraph.graphName = graphName;
             currentGraph.Initialize();
+            //TODO: Prevent characters that cannot be in a file name from being typed in.
             AssetDatabase.CreateAsset(currentGraph, @"Assets/Resources/BehaviorTrees/" + graphName + ".asset");
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
