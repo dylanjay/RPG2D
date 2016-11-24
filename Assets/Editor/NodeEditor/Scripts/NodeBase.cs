@@ -70,7 +70,20 @@ public abstract class NodeBase : ScriptableObject
         {
             GetEditorSkin();
         }
-        GUI.Box(nodeRect, name, isSelected ? nodeSkin.GetStyle("NodeSelected") : nodeSkin.GetStyle("NodeDefault"));
+        GUIStyle nodeStyle;
+        if(isSelected)
+        {
+            nodeStyle = nodeSkin.GetStyle("NodeSelected");
+        }
+        else if(parentGraph.rootNode == this)
+        {
+            nodeStyle = nodeSkin.GetStyle("NodeRoot");
+        }
+        else
+        {
+            nodeStyle = nodeSkin.GetStyle("NodeDefault");
+        }
+        GUI.Box(nodeRect, name, nodeStyle);
 
         if(output != null)
         {
@@ -228,30 +241,48 @@ public abstract class NodeBase : ScriptableObject
 
     public virtual void ProcessEvents(Event e, Rect viewRect)
     {
-        if(isSelected && e.button == 0)
+        if (viewRect.Contains(e.mousePosition))
         {
-            if(viewRect.Contains(e.mousePosition))
+            if (isSelected && e.button == 0)
             {
-                if(e.type == EventType.MouseDrag)
+                if (e.type == EventType.MouseDrag)
                 {
                     nodeRect.x += e.delta.x;
                     nodeRect.y += e.delta.y;
                 }
             }
-        }
-        else
-        {
-            if(viewRect.Contains(e.mousePosition))
+            else if (e.type == EventType.MouseDown && e.button == 1 && nodeRect.Contains(e.mousePosition))
             {
-                if(e.type == EventType.MouseDrag && e.button == 2)
+                ProcessContextMenu(e);
+            }
+            else
+            {
+                if (e.type == EventType.MouseDrag && e.button == 2)
                 {
-                    foreach(NodeBase node in parentGraph.nodes)
+                    foreach (NodeBase node in parentGraph.nodes)
                     {
                         nodeRect.x += e.delta.x / parentGraph.nodes.Count;
                         nodeRect.y += e.delta.y / parentGraph.nodes.Count;
                     }
                 }
             }
+        }
+    }
+
+    void ProcessContextMenu(Event e)
+    {
+        GenericMenu menu = new GenericMenu();
+        menu.AddItem(new GUIContent("Set as Root"), false, ContextCallback, this);
+        menu.ShowAsContext();
+    }
+
+    void ContextCallback(object obj)
+    {
+        if(obj is NodeBase)
+        {
+            NodeBase node = obj as NodeBase;
+            node.parentGraph.rootNode = node;
+            Debug.Log(node.parentGraph.rootNode.title);
         }
     }
 

@@ -17,6 +17,7 @@ public class NodeGraph : ScriptableObject
     private NodeBase disconnectNode;
     [HideInInspector]
     public bool showProperties;
+    public NodeBase rootNode;
 
     void OnEnable()
     {
@@ -131,7 +132,7 @@ public class NodeGraph : ScriptableObject
                                 if (node.inputRect.Contains(e.mousePosition))
                                 {
                                     hitNode = true;
-                                    if (node != connectionNode && !isConnected(connectionNode, node))
+                                    if (node != connectionNode)
                                     {
                                         DeselectAllNodes();
                                         selectedNode = null;
@@ -141,7 +142,7 @@ public class NodeGraph : ScriptableObject
                                             DisconnectNodes(connectionNode, disconnectNode);
                                         }
 
-                                        if (connectionNode.GetType() == typeof(NodeRoot) && connectionNode.output.childNodes.Any())
+                                        if (connectionNode.GetType() == typeof(NodeDecorator) && connectionNode.output.childNodes.Any())
                                         {
                                             DisconnectNodes(connectionNode, connectionNode.output.childNodes[0]);
                                         }
@@ -168,7 +169,7 @@ public class NodeGraph : ScriptableObject
             }
         }
 
-        if(e.keyCode == KeyCode.Delete && selectedNode != null && selectedNode.GetType() != typeof(NodeRoot))
+        if(e.keyCode == KeyCode.Delete && selectedNode != null)
         {
             DeleteNode(selectedNode);
             selectedNode = null;

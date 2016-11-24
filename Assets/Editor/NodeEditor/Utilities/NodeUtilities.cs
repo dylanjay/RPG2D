@@ -26,7 +26,6 @@ public static class NodeUtilities
                 AskSaveGraph(currentWindow);
                 currentGraphPath = "Assets/Resources/BehaviorTrees/" + graphName + ".asset";
                 currentWindow.currentGraph = currentGraph;
-                CreateNode(typeof(NodeRoot), null, currentGraph, new Vector2(30, 50));
             }
         }
         return currentGraph;
@@ -136,15 +135,9 @@ public static class NodeUtilities
             if(currentWindow != null)
             {
                 savedGraph = currentWindow.currentGraph;
-                NodeBase root = null;
 
                 foreach (NodeBase node in savedGraph.nodes)
                 {
-                    if (node.GetType() == typeof(NodeRoot))
-                    {
-                        root = node;
-                    }
-
                     if (node.GetType() == typeof(NodeLeaf))
                     {
                         ((NodeLeaf)node).SaveBehavior();
@@ -180,7 +173,6 @@ public static class NodeUtilities
             if (EditorUtility.DisplayDialog("Clear Graph", "Are you sure you want to clear the current graph?", "Yes", "No"))
             {
                 currentWindow.currentGraph.nodes = new List<NodeBase>();
-                CreateNode(typeof(NodeRoot), null, currentWindow.currentGraph, new Vector2(30, 50));
             }
         }
     }
@@ -223,7 +215,6 @@ public static class NodeUtilities
             currentNode.parentGraph = graph;
             graph.nodes.Add(currentNode);
             
-            //if want always save on new node
             AssetDatabase.AddObjectToAsset(currentNode, graph);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

@@ -3,7 +3,7 @@ using System.Linq;
 using System;
 using System.Collections.ObjectModel;
 
-public class NodeRoot : NodeBase
+/*public class NodeRoot : NodeBase
 {
     public override GUIContent[] GetAllBehaviorOptions()
     {
@@ -41,4 +41,4 @@ public class NodeRoot : NodeBase
         //base.DrawNodeProperties();
     }
 #endif
-}
+}*/

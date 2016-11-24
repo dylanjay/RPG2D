@@ -53,13 +53,7 @@ public class NodeLeaf : NodeBase
     {
         if (behaviorComponent != null)
         {
-            string pathToTree = @"Assets/Resources/BehaviorTrees/" + "ConcreteTree" + ".asset";
-            AssetDatabase.AddObjectToAsset(behaviorComponent, pathToTree);
-            /*for(int i = 1;  i < constructor.GetParameters().Length; i++)
-            {
-                UnityEngine.Object obj = constructorValues[i] as UnityEngine.Object;
-                AssetDatabase.AddObjectToAsset(obj, pathToBehavior);
-            }*/
+            AssetDatabase.AddObjectToAsset(behaviorComponent, parentGraph);
         }
     }
 

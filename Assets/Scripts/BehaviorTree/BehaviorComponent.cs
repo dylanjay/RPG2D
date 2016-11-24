@@ -11,7 +11,6 @@ public enum BehaviorState
 
 public delegate BehaviorState Behavior();
 
-[System.Serializable]
 public abstract class BehaviorComponent : ScriptableObject{
     
     protected BehaviorState _returnState = BehaviorState.None;
