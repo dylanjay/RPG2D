@@ -1,19 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 
 [CreateAssetMenu(fileName = "New Condition Is Alert", menuName = "Conditions/IsAlert", order = 0)]
+[ShowInNodeEditor("IsAlert", false)]
 public class IsAlert : BehaviorLeaf
 {
     Player player;
     Hostile hostile;
-    float distance = 1.0f;
+    [SerializeField]
+    float alertRadius = 1.0f;
 
-
-    public void Init(Player player, Hostile hostile, float distance)
+    public override void Init(Dictionary<string, GameObject> referenceDict)
     {
-        this.player = player;
-        this.hostile = hostile;
-        this.distance = distance;
+        base.Init(referenceDict);
+        player = referenceDict[MemberInfoGetting.GetMemberName(() => player) + "Reference"].GetComponent<Player>();
+        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
     }
 
     public override void Start()
@@ -23,7 +24,7 @@ public class IsAlert : BehaviorLeaf
 
     public override BehaviorState Update()
     {
-        if (Vector2.Distance(hostile.transform.position, player.transform.position) <= distance)
+        if (Vector2.Distance(hostile.transform.position, player.transform.position) <= alertRadius)
         {
             return BehaviorState.Success;
         }

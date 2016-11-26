@@ -39,6 +39,11 @@ public class NodeToolbarView : ViewBase
                         NodeUtilities.ClearGraph();
                     }
 
+                    if (GUILayout.Button("UnLoad", viewSkin.GetStyle("UnLoadGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                    {
+                        NodeUtilities.UnLoadGraph();
+                    }
+
                     if (GUILayout.Button("Delete", viewSkin.GetStyle("DeleteGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
                     {
                         NodeUtilities.DeleteGraph();

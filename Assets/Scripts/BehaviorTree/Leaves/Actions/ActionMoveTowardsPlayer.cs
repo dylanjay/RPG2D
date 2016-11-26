@@ -8,9 +8,11 @@ public class ActionMoveTowardsPlayer : BehaviorLeaf
     Player player;
     Hostile hostile;
 
-    public override void Init(GameObject treeHandler)
+    public override void Init(Dictionary<string, GameObject> referenceDict)
     {
-        base.Init(treeHandler);
+        base.Init(referenceDict);
+        player = referenceDict[MemberInfoGetting.GetMemberName(() => player) + "Reference"].GetComponent<Player>();
+        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
     }
 
     public override void Start()

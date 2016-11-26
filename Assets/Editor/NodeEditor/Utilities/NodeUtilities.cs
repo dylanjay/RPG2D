@@ -53,11 +53,10 @@ public static class NodeUtilities
         int appPathLen = Application.dataPath.Length;
         string finalPath = path.Substring(appPathLen - 6);
         NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
-        Debug.Log(currentGraphPath);
-        Debug.Log(path);
         if (currentGraphPath != path)
         {
             currentGraph = AssetDatabase.LoadAssetAtPath(finalPath, typeof(NodeGraph)) as NodeGraph;
+            currentGraph.Reset();
 
             if (currentGraph != null)
             {
@@ -79,51 +78,38 @@ public static class NodeUtilities
         }
     }
 
-    /*static bool CreateTree(NodeBase node)
+    static void TreeIsValid(bool valid, NodeBase node)
     {
-        bool valid = true;
-        if (node.output != null)
+        if(node == null)
         {
-            if (node.output.childNodes.Any())
-            {
-                foreach (NodeBase child in node.output.childNodes)
-                {
-                    valid = CreateTree(child);
-                }
-            }
-        }
-
-        if (valid)
-        {
-            valid = node.CreateTree();
-        }
-        else
-        {
-            node.CreateTree();
             valid = false;
+            Debug.LogError("Root has not been set");
+            return;
         }
-        EditorUtility.SetDirty(node.behaviorNode);
-        return valid;
-    }*/
 
-    static void CreateTreeAsset(NodeBase node, BehaviorComponent root)
-    {   
-        if(node.behaviorComponent != root)
+        if(node.behaviorComponent == null)
         {
-            EditorUtility.SetDirty(node.behaviorComponent);
-            AssetDatabase.AddObjectToAsset(node.behaviorComponent, root);
+            valid = false;
+            Debug.LogError(node.title + " has a Null Behavior");
+            return;
         }
 
+        if (!valid)
+        {
+            return;
+        }
+        node.BuildTree();
         if (node.output != null)
         {
             if (node.output.childNodes.Any())
             {
                 foreach (NodeBase child in node.output.childNodes)
                 {
-                    CreateTreeAsset(child, root);
+                    TreeIsValid(valid, child);
                 }
             }
         }
+        node.SaveBehavior();
     }
 
     public static void SaveGraph()
@@ -136,20 +122,20 @@ public static class NodeUtilities
             {
                 savedGraph = currentWindow.currentGraph;
 
-                foreach (NodeBase node in savedGraph.nodes)
+                bool validTree = true;
+                TreeIsValid(validTree, savedGraph.rootNode);
+                if (validTree)
                 {
-                    if (node.GetType() == typeof(NodeLeaf))
+                    if (savedGraph.rootNode.behaviorComponent != null && !AssetDatabase.Contains(savedGraph.rootNode.behaviorComponent))
                     {
-                        ((NodeLeaf)node).SaveBehavior();
+                        AssetDatabase.AddObjectToAsset(savedGraph.rootNode.behaviorComponent, savedGraph);
                     }
+                    Debug.Log("Tree successfully created with root as " + savedGraph.rootNode.title);
                 }
-
-                //TODO: Actually Serialize.
-                /*if (CreateTree(root))
+                else
                 {
-                    AssetDatabase.CreateAsset(root.behaviorNode, @"Assets/Resources/BehaviorTrees/" + savedGraph.name + "Tree" + ".asset");
-                    CreateTreeAsset(root, root.behaviorNode);
-                }*/
+                    Debug.Log("Tree not created");
+                }
 
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
@@ -172,7 +158,21 @@ public static class NodeUtilities
         {
             if (EditorUtility.DisplayDialog("Clear Graph", "Are you sure you want to clear the current graph?", "Yes", "No"))
             {
-                currentWindow.currentGraph.nodes = new List<NodeBase>();
+                string graphName = currentWindow.currentGraph.graphName;
+                AssetDatabase.DeleteAsset(currentGraphPath);
+                CreateNodeGraph(graphName);
+            }
+        }
+    }
+
+    public static void UnLoadGraph()
+    {
+        NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
+        if (currentWindow != null)
+        {
+            if (EditorUtility.DisplayDialog("Un-Load Graph", "Are you sure you want to un-load the current graph?", "Yes", "No"))
+            {
+                currentWindow.currentGraph = null;
             }
         }
     }
@@ -206,7 +206,7 @@ public static class NodeUtilities
         }
         currentNode.title = name;
         currentNode.name = name;
-
+        
         if (currentNode != null)
         {
             currentNode.Initialize();
@@ -214,10 +214,15 @@ public static class NodeUtilities
             currentNode.nodeRect.y = position.y;
             currentNode.parentGraph = graph;
             graph.nodes.Add(currentNode);
-            
+
             AssetDatabase.AddObjectToAsset(currentNode, graph);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
+            /*if(currentNode.GetType() == typeof(NodeLeaf))
+            {
+                ((NodeLeaf)currentNode).Reset();
+            }*/
         }
     }
 #endif

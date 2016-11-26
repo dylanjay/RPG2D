@@ -12,7 +12,7 @@ public abstract class BehaviorComposite : BehaviorComponent
         Initialize(name, null);
     }
 
-    protected virtual void Initialize(string name, BehaviorComponent[] childBehaviors = null)
+    public virtual void Initialize(string name, BehaviorComponent[] childBehaviors = null)
     {
         base.Initialize(name);
         this.childBehaviors = childBehaviors;

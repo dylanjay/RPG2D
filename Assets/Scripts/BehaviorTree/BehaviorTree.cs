@@ -1,17 +1,44 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
+using UnityEditor;
 
-public class BehaviorTree : MonoBehaviour {
+public abstract class BehaviorTree : MonoBehaviour
+{
+    [SerializeField]
+    protected BehaviorComponent tree;
 
-    public BehaviorComponent root;
+    protected Dictionary<string, GameObject> referenceDict = new Dictionary<string, GameObject>();
 
-	// Use this for initialization
-	void Start () {
+    void InitializeLeaf(BehaviorLeaf leaf)
+    {
+        leaf.Init(referenceDict);
+    }
+
+    void InitializeTree(BehaviorComponent node)
+    {
+        EditorUtility.SetDirty(node);
+        if (node.GetType().IsSubclassOf(typeof(BehaviorComposite)) || node.GetType().IsSubclassOf(typeof(BehaviorDecorator)))
+        {
+            BehaviorComposite composite = (BehaviorComposite)node;
+
+            for (int i = 0; i < composite.childBehaviors.Length; i++)
+            {
+                InitializeTree(composite.childBehaviors[i]);
+            }
+        }
+        else if (node.GetType().IsSubclassOf(typeof(BehaviorLeaf)))
+        {
+            InitializeLeaf((BehaviorLeaf)node);
+        }
+    }
+
+    public virtual void Start ()
+    {
+        InitializeTree(tree);
+    }
 	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	void Update ()
+    {
+        tree.Behave();
 	}
 }

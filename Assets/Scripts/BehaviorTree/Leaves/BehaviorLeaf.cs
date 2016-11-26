@@ -6,7 +6,7 @@ public abstract class BehaviorLeaf : BehaviorComponent
 {
     private float lastTime = float.MinValue;
 
-    public virtual void Init(GameObject treeHandler)
+    public virtual void Init(Dictionary<string, GameObject> referenceDict)
     {
 
     }

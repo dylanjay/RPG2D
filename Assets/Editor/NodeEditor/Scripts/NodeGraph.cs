@@ -137,6 +137,11 @@ public class NodeGraph : ScriptableObject
                                         DeselectAllNodes();
                                         selectedNode = null;
 
+                                        if(node.input.parentNode == connectionNode)
+                                        {
+                                            DisconnectNodes(connectionNode, node);
+                                        }
+
                                         if (disconnectNode != null)
                                         {
                                             DisconnectNodes(connectionNode, disconnectNode);
@@ -150,7 +155,7 @@ public class NodeGraph : ScriptableObject
                                         node.input.parentNode = connectionNode;
                                         node.input.isOccupied = node.input.parentNode != null;
                                         connectionNode.output.childNodes.Add(node);
-                                        node.input.connectedOutput = connectionNode.output;
+                                        node.input.parentNode.output = connectionNode.output;
                                         break;
                                     }
                                 }
@@ -175,11 +180,19 @@ public class NodeGraph : ScriptableObject
             selectedNode = null;
         }
     }
+
+    public void Reset()
+    {
+        selectedNode = null;
+        wantsConnection = false;
+        connectionNode = null;
+        disconnectNode = null;
+        showProperties = false;
+}
     
     void DisconnectNodes(NodeBase male, NodeBase female)
     {
         male.output.childNodes.Remove(female);
-        female.input.connectedOutput = null;
         female.input.parentNode = null;
         female.input.isOccupied = false;
     }
@@ -214,19 +227,30 @@ public class NodeGraph : ScriptableObject
 
     public void DeleteNode(NodeBase node)
     {
+        if(rootNode == node)
+        {
+            rootNode = null;
+        }
+
         if(node.output != null)
         {
             foreach(NodeBase child in node.output.childNodes)
             {
                 if(child.input.parentNode == node)
                 {
-                    child.input.connectedOutput = null;
                     child.input.parentNode = null;
                     child.input.isOccupied = false;
+                    node.output.childNodes.Remove(child);
                 }
             }
         }
         nodes.Remove(node);
+        if(node.behaviorComponent != null)
+        {
+            DestroyImmediate(node.behaviorComponent, true);
+        }
+        DestroyImmediate(node, true);
+        AssetDatabase.Refresh();
     }
 #endif
 

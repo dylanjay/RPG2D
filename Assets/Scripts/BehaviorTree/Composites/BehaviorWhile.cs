@@ -18,7 +18,7 @@ public class BehaviorWhile : BehaviorComposite
     private BehaviorComponent condition { get { return childBehaviors[CONDTION_BEHAVIOR]; } }
     private BehaviorComponent action { get { return childBehaviors[ACTION_BEHAVIOR]; } }
 
-    protected override void Initialize(string name, BehaviorComponent[] childBehaviors = null)
+    public override void Initialize(string name, BehaviorComponent[] childBehaviors = null)
     {
         if (childBehaviors != null)
         {

@@ -13,9 +13,10 @@ public class ActionPatrol : BehaviorLeaf
     Hostile hostile;
     bool towardsFirstWaypoint = true;
 
-    public override void Init(GameObject treeHandler)
+    public override void Init(Dictionary<string, GameObject> referenceDict)
     {
-        base.Init(treeHandler);
+        base.Init(referenceDict);
+        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
     }
 
     public override void Start()

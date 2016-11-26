@@ -1,22 +1,20 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Wait", menuName = "Actions/Wait", order = 0)]
 [ShowInNodeEditor("Wait For Seconds", false)]
 public class ActionWait : BehaviorLeaf
 {
-    [SerializeField]
     float time = 0.0f;
     [SerializeField]
     float maxTime = 1.0f;
     Hostile hostile;
-    
 
-    public void Init(float maxTime, Hostile hostile)
+    public override void Init(Dictionary<string, GameObject> referenceDict)
     {
-        this.maxTime = maxTime;
-        this.hostile = hostile;
+        base.Init(referenceDict);
+        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
     }
 
     void Reset()

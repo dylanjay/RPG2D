@@ -10,6 +10,7 @@ public class ShowInNodeEditorAttribute : Attribute
 {
     public readonly bool showInToolbar;
     public readonly string displayName;
+    public readonly bool generic;
 
     public ShowInNodeEditorAttribute(string displayName, bool showInToolbar)
     {

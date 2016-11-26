@@ -17,7 +17,7 @@ public class BehaviorRandomSequence : BehaviorComposite
     /// </summary>
     int currentChild = 0;
 
-    protected override void Initialize(string name, BehaviorComponent[] childBehaviors = null)
+    public override void Initialize(string name, BehaviorComponent[] childBehaviors = null)
     {
         base.Initialize(name, childBehaviors);
         Shuffle();

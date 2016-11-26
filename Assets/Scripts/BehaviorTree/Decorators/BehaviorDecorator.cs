@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
-public abstract class BehaviorDecorator : BehaviorComponent {
-
+public abstract class BehaviorDecorator : BehaviorComponent
+{
     [HideInInspector]
     public BehaviorComponent childBehavior;
     
@@ -10,7 +10,7 @@ public abstract class BehaviorDecorator : BehaviorComponent {
         Initialize(name, null);
     }
 
-    protected virtual void Initialize(string name, BehaviorComponent childBehavior = null)
+    public virtual void Initialize(string name, BehaviorComponent childBehavior = null)
     {
         base.Initialize(name);
         this.childBehavior = childBehavior;

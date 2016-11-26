@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System.Collections.Generic;
 using System;
 
 [CreateAssetMenu(fileName = "New Action Pounce", menuName = "Actions/Pounce", order = 3)]
@@ -12,10 +12,11 @@ public class ActionPounce : BehaviorLeaf
     float force = 3.0f;
     Vector2 startPos;
 
-    public void Init(Player player, Hostile hostile)
+    public override void Init(Dictionary<string, GameObject> referenceDict)
     {
-        this.player = player;
-        this.hostile = hostile;
+        base.Init(referenceDict);
+        player = referenceDict[MemberInfoGetting.GetMemberName(() => player) + "Reference"].GetComponent<Player>();
+        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
     }
 
     public override void Start()

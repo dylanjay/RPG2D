@@ -14,9 +14,7 @@ public abstract class NodeBase : ScriptableObject
     public NodeGraph parentGraph;
     [HideInInspector]
     public bool isSelected = false;
-    [HideInInspector]
     public NodeOutput output;
-    [HideInInspector]
     public NodeInput input;
     [HideInInspector]
     public Rect outputRect;
@@ -41,6 +39,47 @@ public abstract class NodeBase : ScriptableObject
         return (NodeBase)this.MemberwiseClone();
     }
 
+    public void BuildTree()
+    {
+        if(behaviorComponent.GetType().BaseType == typeof(BehaviorComposite))
+        {
+            BehaviorComposite composite = behaviorComponent as BehaviorComposite;
+            BehaviorComponent[] childComponents = new BehaviorComponent[output.childNodes.Count];
+            for(int i = 0; i < output.childNodes.Count; i++)
+            {
+                childComponents[i] = output.childNodes[i].behaviorComponent;
+            }
+            composite.Initialize(title, childComponents);
+        }
+        else if(behaviorComponent.GetType().BaseType == typeof(BehaviorDecorator))
+        {
+            BehaviorDecorator decorator = behaviorComponent as BehaviorDecorator;
+            decorator.Initialize(title, output.childNodes[0].behaviorComponent);
+        }
+    }
+
+    public virtual void Reset()
+    {
+        if (parentGraph != null)
+        {
+            if (parentGraph.rootNode != null)
+            {
+                if (parentGraph.rootNode == this)
+                {
+                    input = null;
+                }
+            }
+        }
+    }
+
+    public void SaveBehavior()
+    {
+        if (behaviorComponent != null && !AssetDatabase.Contains(behaviorComponent))
+        {
+            AssetDatabase.AddObjectToAsset(behaviorComponent, parentGraph);
+        }
+    }
+
     public virtual void Initialize()
     {
         GetEditorSkin();
@@ -53,7 +92,7 @@ public abstract class NodeBase : ScriptableObject
         {
             inputRect = new Rect(nodeRect.x + nodeRect.width / 2 - 8, nodeRect.y - 18, 24, 18);
         }
-        hideFlags = HideFlags.HideInHierarchy;
+        //hideFlags = HideFlags.HideInHierarchy;
     }
 
     public abstract GUIContent[] GetAllBehaviorOptions();
@@ -65,6 +104,11 @@ public abstract class NodeBase : ScriptableObject
 #if UNITY_EDITOR
     public virtual void UpdateNodeGUI(Event e, Rect viewRect)
     {
+        //TODO : switch to reset function
+        if(parentGraph.rootNode == this)
+        {
+            input = null;
+        }
         this.viewRect = viewRect;
         if(nodeSkin == null)
         {
@@ -109,7 +153,7 @@ public abstract class NodeBase : ScriptableObject
         if(input == null) { return; }
         if(input.parentNode == null) { return; }
 
-        Vector3 start = input.connectedOutput.position;
+        Vector3 start = input.parentNode.output.position;
         Vector3 end = input.position;
         Vector2 startTangent = new Vector2();
         Vector2 endTangent = new Vector2();
@@ -177,58 +221,6 @@ public abstract class NodeBase : ScriptableObject
             }
 
             EditorGUILayout.Space();
-
-            if (behaviorComponent != null)
-            {
-                EditorGUILayout.LabelField("Parameters");
-                foreach (FieldInfo fieldInfo in behaviorComponent.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                {
-                    if ((fieldInfo.GetCustomAttributes(typeof(HideInInspector), true).Length > 0) ||
-                       (!fieldInfo.IsPublic && fieldInfo.GetCustomAttributes(typeof(SerializeField), true).Length == 0))
-                    {
-                        continue;
-                    }
-
-                    if (fieldInfo.FieldType == typeof(int))
-                    {
-                        int value = (int)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.IntField(fieldInfo.Name, value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(float))
-                    {
-                        float value = (float)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.FloatField(fieldInfo.Name, value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(string))
-                    {
-                        string value = (string)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.TextField(fieldInfo.Name, value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(Vector2))
-                    {
-                        Vector2 value = (Vector2)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.Vector2Field(fieldInfo.Name, value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(Vector3))
-                    {
-                        Vector3 value = (Vector3)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.Vector3Field(fieldInfo.Name, value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because
-                    //fieldInfo.FieldType will point to a derived class, making the comparison false.
-                    else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldInfo.FieldType))
-                    {
-                        UnityEngine.Object value = (UnityEngine.Object)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.ObjectField(fieldInfo.Name, value, fieldInfo.FieldType, false);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                }
-            }
         }
         EditorGUILayout.EndVertical();
     }
@@ -272,7 +264,14 @@ public abstract class NodeBase : ScriptableObject
     void ProcessContextMenu(Event e)
     {
         GenericMenu menu = new GenericMenu();
-        menu.AddItem(new GUIContent("Set as Root"), false, ContextCallback, this);
+        if (parentGraph.rootNode == this)
+        {
+            menu.AddItem(new GUIContent("Un-set as Root"), false, ContextCallback, this);
+        }
+        else
+        {
+            menu.AddItem(new GUIContent("Set as Root"), false, ContextCallback, this);
+        }
         menu.ShowAsContext();
     }
 
@@ -281,8 +280,20 @@ public abstract class NodeBase : ScriptableObject
         if(obj is NodeBase)
         {
             NodeBase node = obj as NodeBase;
-            node.parentGraph.rootNode = node;
-            Debug.Log(node.parentGraph.rootNode.title);
+            if (parentGraph.rootNode == node)
+            {
+                parentGraph.rootNode = null;
+                node.input = new NodeInput();
+            }
+            else
+            {
+                if(node.input.parentNode != null)
+                {
+                    node.input.parentNode.output.childNodes.Remove(node);
+                }
+                node.parentGraph.rootNode = node;
+                //TODO : call reset here
+            }
         }
     }
 
