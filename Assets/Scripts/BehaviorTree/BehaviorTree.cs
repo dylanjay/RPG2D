@@ -4,14 +4,17 @@ using UnityEditor;
 
 public abstract class BehaviorTree : MonoBehaviour
 {
-    [SerializeField]
     protected BehaviorComponent tree;
 
-    protected Dictionary<string, GameObject> referenceDict = new Dictionary<string, GameObject>();
+    protected Dictionary<string, object> sharedVarDict = new Dictionary<string, object>();
 
     void InitializeLeaf(BehaviorLeaf leaf)
     {
-        leaf.Init(referenceDict);
+        foreach(SerializableDictionaryPair dictPair in leaf.sharedVarDictPairs)
+        {
+            sharedVarDict.Add(dictPair.pair.Key, dictPair.pair.Value);
+        }
+        leaf.Init(sharedVarDict);
     }
 
     void InitializeTree(BehaviorComponent node)

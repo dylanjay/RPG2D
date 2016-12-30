@@ -9,12 +9,11 @@ public class ActionWait : BehaviorLeaf
     float time = 0.0f;
     [SerializeField]
     float maxTime = 1.0f;
-    Hostile hostile;
+    SharedHostile This;
 
-    public override void Init(Dictionary<string, GameObject> referenceDict)
+    public override void Init(Dictionary<string, object> sharedVarDict)
     {
-        base.Init(referenceDict);
-        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
+        This.Value = ((GameObject)sharedVarDict[This.name]).GetComponent<Hostile>();
     }
 
     void Reset()
@@ -24,7 +23,7 @@ public class ActionWait : BehaviorLeaf
 
     public override void Start()
     {
-        hostile.anim.SetTrigger(Hostile.AnimParams.Idle);
+        This.Value.anim.SetTrigger(Hostile.AnimParams.Idle);
     }
 
     public override BehaviorState Update()

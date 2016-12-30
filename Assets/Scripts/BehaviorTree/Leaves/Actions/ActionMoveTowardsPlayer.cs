@@ -5,24 +5,24 @@ using System.Collections.Generic;
 [ShowInNodeEditor("Move Towards Player", false)]
 public class ActionMoveTowardsPlayer : BehaviorLeaf
 {
-    Player player;
-    Hostile hostile;
+    [SerializeField]
+    private SharedTransform player;
+    private SharedHostile This;
 
-    public override void Init(Dictionary<string, GameObject> referenceDict)
+    public override void Init(Dictionary<string, object> sharedVarDict)
     {
-        base.Init(referenceDict);
-        player = referenceDict[MemberInfoGetting.GetMemberName(() => player) + "Reference"].GetComponent<Player>();
-        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
+        player.Value = (Transform)sharedVarDict[player.name];
+        This.Value = ((GameObject)sharedVarDict[This.name]).GetComponent<Hostile>();
     }
 
     public override void Start()
     {
-        hostile.anim.SetTrigger(Hostile.AnimParams.Alert);
+        This.Value.anim.SetTrigger(Hostile.AnimParams.Alert);
     }
 
     public override BehaviorState Update()
     {
-        hostile.transform.position = Vector2.MoveTowards(hostile.transform.position, player.transform.position, hostile.moveSpeed.value * Time.deltaTime);
+        This.Value.transform.position = Vector2.MoveTowards(This.Value.transform.position, player.Value.position, This.Value.moveSpeed.value * Time.deltaTime);
 
         return BehaviorState.Running;
     }

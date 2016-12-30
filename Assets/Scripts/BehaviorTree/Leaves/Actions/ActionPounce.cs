@@ -6,35 +6,35 @@ using System;
 [ShowInNodeEditor("Pounce", false)]
 public class ActionPounce : BehaviorLeaf
 {
-    Player player;
-    Hostile hostile;
     [SerializeField]
-    float force = 3.0f;
-    Vector2 startPos;
+    private SharedTransform target;
+    private SharedHostile This;
+    [SerializeField]
+    private float force = 3.0f;
+    private Vector2 startPos;
 
-    public override void Init(Dictionary<string, GameObject> referenceDict)
+    public override void Init(Dictionary<string, object> sharedVarDict)
     {
-        base.Init(referenceDict);
-        player = referenceDict[MemberInfoGetting.GetMemberName(() => player) + "Reference"].GetComponent<Player>();
-        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
+        target = (SharedTransform)sharedVarDict[target.name];
+        This = ((SharedHostile)sharedVarDict[This.name]);
     }
 
     public override void Start()
     {
-        hostile.anim.SetTrigger(Hostile.AnimParams.Pounce);
-        startPos = hostile.transform.position;
+        This.Value.anim.SetTrigger(Hostile.AnimParams.Pounce);
+        startPos = This.Value.transform.position;
     }
 
     public override BehaviorState Update()
     {
-        Vector2 curPos = hostile.transform.position;
+        Vector2 curPos = This.Value.transform.position;
 
-        hostile.transform.position = Vector2.MoveTowards(curPos, player.transform.position, hostile.moveSpeed.value * force * Time.deltaTime);
+        This.Value.transform.position = Vector2.MoveTowards(curPos, target.Value.transform.position, This.Value.moveSpeed.value * force * Time.deltaTime);
 
-        if(hostile.hitPlayer)
+        if(This.Value.hitPlayer)
         {
-            hostile.hitPlayer = false;
-            hostile.transform.position = startPos;
+            This.Value.hitPlayer = false;
+            This.Value.transform.position = startPos;
             return BehaviorState.Success;
         }
 

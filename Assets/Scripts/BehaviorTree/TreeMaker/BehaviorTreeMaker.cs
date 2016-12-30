@@ -179,8 +179,8 @@ public class BehaviorTreeMaker : MonoBehaviour {
 
 
 
-        BehaviorComponent parentBehavior = parent.GetComponent<BehaviorSlot>().behaviorComponent;
-        /*if(parentBehavior is BehaviorComposite)
+        /*BehaviorComponent parentBehavior = parent.GetComponent<BehaviorSlot>().behaviorComponent;
+        if(parentBehavior is BehaviorComposite)
         {
             ((BehaviorComposite)parentBehavior).childBehaviors.Add(childNode.GetComponent<BehaviorSlot>().behaviorComponent);
         }

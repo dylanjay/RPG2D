@@ -113,8 +113,13 @@ public class NodeLeaf : NodeBase
                 EditorGUILayout.LabelField("Parameters");
                 foreach (FieldInfo fieldInfo in behaviorComponent.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    if ((fieldInfo.GetCustomAttributes(typeof(HideInInspector), true).Length > 0) ||
+                    /*if ((fieldInfo.GetCustomAttributes(typeof(HideInInspector), true).Length > 0) ||
                        (!fieldInfo.IsPublic && fieldInfo.GetCustomAttributes(typeof(SerializeField), true).Length == 0))
+                    {
+                        continue;
+                    }*/
+                    if ((fieldInfo.GetCustomAttributes(typeof(HideInInspector), true).Length > 0) ||
+                        (fieldInfo.GetCustomAttributes(typeof(SerializeField), true).Length == 0))
                     {
                         continue;
                     }
@@ -147,6 +152,12 @@ public class NodeLeaf : NodeBase
                     {
                         Vector3 value = (Vector3)fieldInfo.GetValue(behaviorComponent);
                         value = EditorGUILayout.Vector3Field(fieldInfo.Name, value);
+                        fieldInfo.SetValue(behaviorComponent, value);
+                    }
+                    else if (fieldInfo.FieldType == typeof(SharedGameObject))
+                    {
+                        SharedGameObject value = (SharedGameObject)fieldInfo.GetValue(behaviorComponent);
+                        value.name = EditorGUILayout.TextField(fieldInfo.Name, value.name);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                     //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because

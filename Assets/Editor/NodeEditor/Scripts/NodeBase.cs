@@ -188,6 +188,11 @@ public abstract class NodeBase : ScriptableObject
         {
             title = EditorGUILayout.TextField("Title", title);
             description = EditorGUILayout.TextField("Description", description);
+
+            if(this == parentGraph.rootNode)
+            {
+
+            }
         }
         GUILayout.EndVertical();
         EditorGUILayout.BeginVertical();

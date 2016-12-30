@@ -105,7 +105,6 @@ public class AbilityBarIcon : MonoBehaviour, IPointerDownHandler, IPointerEnterH
     void AssignSlot()
     {
         SkillTreeNode node = skillTree.GetNode(skillTree.selectedSkillSlot);
-        string skillName = node.skillName;
         Ability ability = node.ability;
         if (!abilityManager.isEquipped(node.skillName))
         {

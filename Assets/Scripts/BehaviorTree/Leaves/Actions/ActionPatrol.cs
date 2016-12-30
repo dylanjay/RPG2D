@@ -7,29 +7,28 @@ using System;
 public class ActionPatrol : BehaviorLeaf
 {
     [SerializeField]
-    Vector2 waypoint1;
+    private Vector2 waypoint1;
     [SerializeField]
-    Vector2 waypoint2;
-    Hostile hostile;
-    bool towardsFirstWaypoint = true;
+    private Vector2 waypoint2;
+    private SharedHostile This;
+    private bool towardsFirstWaypoint = true;
 
-    public override void Init(Dictionary<string, GameObject> referenceDict)
+    public override void Init(Dictionary<string, object> sharedVarDict)
     {
-        base.Init(referenceDict);
-        hostile = referenceDict[MemberInfoGetting.GetMemberName(() => hostile) + "Reference"].GetComponent<Hostile>();
+        This.Value = ((GameObject)sharedVarDict[This.name]).GetComponent<Hostile>();
     }
 
     public override void Start()
     {
-        hostile.anim.SetTrigger(Hostile.AnimParams.Patrol);
+        This.Value.anim.SetTrigger(Hostile.AnimParams.Patrol);
     }
 
     public override BehaviorState Update()
     {
-        Vector2 curPos = hostile.transform.position;
+        Vector2 curPos = This.Value.transform.position;
         if (towardsFirstWaypoint)
         {
-            hostile.transform.position = Vector2.MoveTowards(curPos, waypoint1, hostile.moveSpeed.value * Time.deltaTime);
+            This.Value.transform.position = Vector2.MoveTowards(curPos, waypoint1, This.Value.moveSpeed.value * Time.deltaTime);
             if (curPos == waypoint1)
             {
                 towardsFirstWaypoint = false;
@@ -38,7 +37,7 @@ public class ActionPatrol : BehaviorLeaf
 
         else
         {
-            hostile.transform.position = Vector2.MoveTowards(curPos, waypoint2, hostile.moveSpeed.value * Time.deltaTime);
+            This.Value.transform.position = Vector2.MoveTowards(curPos, waypoint2, This.Value.moveSpeed.value * Time.deltaTime);
             if (curPos == waypoint2)
             {
                 towardsFirstWaypoint = true;

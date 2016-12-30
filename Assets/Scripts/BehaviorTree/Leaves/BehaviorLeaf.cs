@@ -5,8 +5,9 @@ using System.Collections.Generic;
 public abstract class BehaviorLeaf : BehaviorComponent
 {
     private float lastTime = float.MinValue;
+    public List<SerializableDictionaryPair> sharedVarDictPairs = new List<SerializableDictionaryPair>();
 
-    public virtual void Init(Dictionary<string, GameObject> referenceDict)
+    public virtual void Init(Dictionary<string, object> sharedVarDict)
     {
 
     }
