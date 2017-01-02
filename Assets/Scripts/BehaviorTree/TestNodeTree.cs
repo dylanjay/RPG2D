@@ -7,8 +7,8 @@ public class TestNodeTree : BehaviorTree
     [SerializeField]
     private GameObject playerReference;
 
-    public override void Start()
+    public override void Awake()
     {
-        base.Start();
+        base.Awake();
     }
 }

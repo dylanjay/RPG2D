@@ -7,24 +7,18 @@ using System;
 public class InAttackRange : BehaviorLeaf
 {
     SharedTransform target;
-    SharedHostile hostile;
+
     [SerializeField]
     float attackRadius = 1.0f;
-
-    public override void Init(Dictionary<string, object> sharedVarDict)
-    {
-        target.Value = (Transform)sharedVarDict[target.name];
-        hostile.Value = ((GameObject)sharedVarDict[hostile.name]).GetComponent<Hostile>();
-    }
-
-    public override void Start()
+    
+    public override void OnStart()
     {
         
     }
 
     public override BehaviorState Update()
     {
-        if (Vector2.Distance(hostile.Value.transform.position, target.Value.transform.position) <= attackRadius)
+        if (Vector2.Distance(transform.position, target.value.position) <= attackRadius)
         {
             return BehaviorState.Success;
         }

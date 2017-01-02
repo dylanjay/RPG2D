@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public enum BehaviorState
 {
@@ -11,8 +12,8 @@ public enum BehaviorState
 
 public delegate BehaviorState Behavior();
 
-public abstract class BehaviorComponent : ScriptableObject{
-    
+public abstract class BehaviorComponent : ScriptableObject
+{    
     protected BehaviorState _returnState = BehaviorState.None;
 
     /// <summary>
@@ -25,7 +26,7 @@ public abstract class BehaviorComponent : ScriptableObject{
     public static BehaviorComponent CreateComponent(System.Type componentType, string name = "")
     {
         BehaviorComponent behaviorComponent = (BehaviorComponent)ScriptableObject.CreateInstance(componentType);
-        behaviorComponent.Initialize(name);
+        behaviorComponent.Instantiate(name);
         return behaviorComponent;
     }
 
@@ -38,7 +39,7 @@ public abstract class BehaviorComponent : ScriptableObject{
         protected set { _returnState = value; }
     }
 
-    protected virtual void Initialize(string name)
+    protected virtual void Instantiate(string name)
     {
         if (name == "")
         {
@@ -64,4 +65,10 @@ public abstract class BehaviorComponent : ScriptableObject{
     /// </summary>
     public abstract BehaviorState Behave();
 
+    public virtual IEnumerator<BehaviorComponent> GetChildren()
+    {
+        yield break;
+    }
+
+    public virtual void OnAwake() { }
 }

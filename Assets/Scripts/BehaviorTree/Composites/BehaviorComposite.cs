@@ -4,17 +4,17 @@ using UnityEngine;
 [System.Serializable]
 public abstract class BehaviorComposite : BehaviorComponent
 {
-    [HideInInspector]
-    public BehaviorComponent[] childBehaviors;
+    [SerializeField]
+    protected BehaviorComponent[] childBehaviors;
 
-    protected override void Initialize(string name)
+    protected override void Instantiate(string name)
     {
         Initialize(name, null);
     }
 
     public virtual void Initialize(string name, BehaviorComponent[] childBehaviors = null)
     {
-        base.Initialize(name);
+        base.Instantiate(name);
         this.childBehaviors = childBehaviors;
     }
 
@@ -32,6 +32,14 @@ public abstract class BehaviorComposite : BehaviorComponent
                 childBehaviors[i] = childBehaviors[rand];
                 childBehaviors[rand] = temp;
             }
+        }
+    }
+
+    public override IEnumerator<BehaviorComponent> GetChildren()
+    {
+        foreach(BehaviorComponent childBehavior in childBehaviors)
+        {
+            yield return childBehavior;
         }
     }
 }

@@ -80,7 +80,7 @@ public class NodeLeaf : NodeBase
             EditorGUILayout.Space();
 
             int prevOptionNumber = behaviorComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(behaviorComponent.GetType()) + 1;
-            BehaviorComponent tempComponent = EditorGUILayout.ObjectField("Type", behaviorComponent, typeof(BehaviorComponent), false) as BehaviorComponent;
+            BehaviorComponent tempComponent = EditorGUILayout.ObjectField("Type", behaviorComponent, typeof(BehaviorLeaf), false) as BehaviorComponent;
             int optionNumber = tempComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(tempComponent.GetType()) + 1;
 
             if (optionNumber != prevOptionNumber)
@@ -159,6 +159,14 @@ public class NodeLeaf : NodeBase
                         SharedGameObject value = (SharedGameObject)fieldInfo.GetValue(behaviorComponent);
                         value.name = EditorGUILayout.TextField(fieldInfo.Name, value.name);
                         fieldInfo.SetValue(behaviorComponent, value);
+                    }
+                    else if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
+                    {
+                        Type type = (Type)fieldInfo.FieldType.GetProperty("SharedType").GetGetMethod().Invoke(fieldInfo.GetValue(behaviorComponent), new object[]{});
+                        //fieldInfo.GetValue(behaviorComponent)
+                        /*SharedGameObject value = (SharedGameObject)fieldInfo.GetValue(behaviorComponent);
+                        value.name = EditorGUILayout.TextField(fieldInfo.Name, value.name);
+                        fieldInfo.SetValue(behaviorComponent, value);*/
                     }
                     //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because
                     //fieldInfo.FieldType will point to a derived class, making the comparison false.

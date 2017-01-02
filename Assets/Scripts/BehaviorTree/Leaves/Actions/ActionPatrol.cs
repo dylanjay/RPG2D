@@ -10,25 +10,19 @@ public class ActionPatrol : BehaviorLeaf
     private Vector2 waypoint1;
     [SerializeField]
     private Vector2 waypoint2;
-    private SharedHostile This;
     private bool towardsFirstWaypoint = true;
-
-    public override void Init(Dictionary<string, object> sharedVarDict)
+    
+    public override void OnStart()
     {
-        This.Value = ((GameObject)sharedVarDict[This.name]).GetComponent<Hostile>();
-    }
-
-    public override void Start()
-    {
-        This.Value.anim.SetTrigger(Hostile.AnimParams.Patrol);
+        entity.anim.SetTrigger(Hostile.AnimParams.Patrol);
     }
 
     public override BehaviorState Update()
     {
-        Vector2 curPos = This.Value.transform.position;
+        Vector2 curPos = entity.transform.position;
         if (towardsFirstWaypoint)
         {
-            This.Value.transform.position = Vector2.MoveTowards(curPos, waypoint1, This.Value.moveSpeed.value * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(curPos, waypoint1, entity.moveSpeed.value * Time.deltaTime);
             if (curPos == waypoint1)
             {
                 towardsFirstWaypoint = false;
@@ -37,7 +31,7 @@ public class ActionPatrol : BehaviorLeaf
 
         else
         {
-            This.Value.transform.position = Vector2.MoveTowards(curPos, waypoint2, This.Value.moveSpeed.value * Time.deltaTime);
+            transform.position = Vector2.MoveTowards(curPos, waypoint2, entity.moveSpeed.value * Time.deltaTime);
             if (curPos == waypoint2)
             {
                 towardsFirstWaypoint = true;

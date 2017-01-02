@@ -8,22 +8,15 @@ public class ActionMoveTowards : BehaviorLeaf
 {
     [SerializeField]
     private SharedTransform target;
-    private SharedHostile This;
 
-    public override void Init(Dictionary<string, object> sharedVarDict)
+    public override void OnStart()
     {
-        target = (SharedTransform)sharedVarDict[target.name];
-        //This = (SharedHostile)sharedVarDict["This"]);
-    }
-
-    public override void Start()
-    {
-        This.Value.anim.SetTrigger(Hostile.AnimParams.Alert);
+        entity.anim.SetTrigger(Hostile.AnimParams.Alert);
     }
 
     public override BehaviorState Update()
     {
-        This.Value.transform.position = Vector2.MoveTowards(This.Value.transform.position, target.Value.position, This.Value.moveSpeed.value * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, target.value.position, entity.moveSpeed.value * Time.deltaTime);
 
         return BehaviorState.Running;
     }

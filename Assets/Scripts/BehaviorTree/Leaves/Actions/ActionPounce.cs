@@ -8,33 +8,26 @@ public class ActionPounce : BehaviorLeaf
 {
     [SerializeField]
     private SharedTransform target;
-    private SharedHostile This;
     [SerializeField]
     private float force = 3.0f;
     private Vector2 startPos;
-
-    public override void Init(Dictionary<string, object> sharedVarDict)
+    
+    public override void OnStart()
     {
-        target = (SharedTransform)sharedVarDict[target.name];
-        This = ((SharedHostile)sharedVarDict[This.name]);
-    }
-
-    public override void Start()
-    {
-        This.Value.anim.SetTrigger(Hostile.AnimParams.Pounce);
-        startPos = This.Value.transform.position;
+        entity.anim.SetTrigger(Hostile.AnimParams.Pounce);
+        startPos = transform.position;
     }
 
     public override BehaviorState Update()
     {
-        Vector2 curPos = This.Value.transform.position;
+        Vector2 curPos = transform.position;
 
-        This.Value.transform.position = Vector2.MoveTowards(curPos, target.Value.transform.position, This.Value.moveSpeed.value * force * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(curPos, target.value.transform.position, entity.moveSpeed.value * force * Time.deltaTime);
 
-        if(This.Value.hitPlayer)
+        if(entity.hitPlayer)
         {
-            This.Value.hitPlayer = false;
-            This.Value.transform.position = startPos;
+            entity.hitPlayer = false;
+            entity.transform.position = startPos;
             return BehaviorState.Success;
         }
 

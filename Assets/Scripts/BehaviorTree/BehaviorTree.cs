@@ -1,46 +1,29 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEditor;
 
 public abstract class BehaviorTree : MonoBehaviour
 {
     protected BehaviorComponent tree;
 
     protected Dictionary<string, object> sharedVarDict = new Dictionary<string, object>();
-
-    void InitializeLeaf(BehaviorLeaf leaf)
-    {
-        foreach(SerializableDictionaryPair dictPair in leaf.sharedVarDictPairs)
-        {
-            sharedVarDict.Add(dictPair.pair.Key, dictPair.pair.Value);
-        }
-        leaf.Init(sharedVarDict);
-    }
+    protected Dictionary<System.Type, List<string>> names = new Dictionary<System.Type, List<string>>();
 
     void InitializeTree(BehaviorComponent node)
     {
-        EditorUtility.SetDirty(node);
-        if (node.GetType().IsSubclassOf(typeof(BehaviorComposite)) || node.GetType().IsSubclassOf(typeof(BehaviorDecorator)))
+        node.OnAwake();
+        IEnumerator<BehaviorComponent> children = node.GetChildren();
+        while(children.MoveNext())
         {
-            BehaviorComposite composite = (BehaviorComposite)node;
-
-            for (int i = 0; i < composite.childBehaviors.Length; i++)
-            {
-                InitializeTree(composite.childBehaviors[i]);
-            }
-        }
-        else if (node.GetType().IsSubclassOf(typeof(BehaviorLeaf)))
-        {
-            InitializeLeaf((BehaviorLeaf)node);
+            InitializeTree(children.Current);
         }
     }
 
-    public virtual void Start ()
+    public virtual void Awake()
     {
         InitializeTree(tree);
     }
 	
-	void Update ()
+	void Update()
     {
         tree.Behave();
 	}

@@ -5,6 +5,8 @@ using System.Collections;
 public class BehaviorWait : BehaviorDecorator
 {
     float time = 0.0f;
+
+    [SerializeField]
     float maxTime;
 
     void Reset()

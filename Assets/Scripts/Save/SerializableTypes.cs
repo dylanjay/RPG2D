@@ -7,12 +7,6 @@ public class SerializableDictionaryPair
     public string key;
     public object value;
     
-    public void Fill(KeyValuePair<string, object> pair)
-    {
-        key = pair.Key;
-        value = pair.Value;
-    }
-
     public KeyValuePair<string, object> pair { get { return new KeyValuePair<string, object>(key, value); } }
 }
 

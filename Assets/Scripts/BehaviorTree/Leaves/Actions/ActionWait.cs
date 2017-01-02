@@ -9,32 +9,20 @@ public class ActionWait : BehaviorLeaf
     float time = 0.0f;
     [SerializeField]
     float maxTime = 1.0f;
-    SharedHostile This;
-
-    public override void Init(Dictionary<string, object> sharedVarDict)
+    
+    public override void OnStart()
     {
-        This.Value = ((GameObject)sharedVarDict[This.name]).GetComponent<Hostile>();
-    }
-
-    void Reset()
-    {
+        entity.anim.SetTrigger(Hostile.AnimParams.Idle);
         time = 0.0f;
-    }
-
-    public override void Start()
-    {
-        This.Value.anim.SetTrigger(Hostile.AnimParams.Idle);
     }
 
     public override BehaviorState Update()
     {
-        if(time >= maxTime)
+        time += Time.deltaTime;
+        if (time >= maxTime)
         {
-            Reset();
             return BehaviorState.Success;
         }
-
-        time += Time.deltaTime;
 
         return BehaviorState.Running;
     }

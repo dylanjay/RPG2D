@@ -7,7 +7,13 @@ using System.Linq;
 public class NodeGraph : ScriptableObject
 {
     public string graphName = "New Graph";
+
     public List<NodeBase> nodes;
+
+    protected Dictionary<string, object> nameToSharedVariable = new Dictionary<string, object>();
+    protected Dictionary<System.Type, List<string>> sharedTypeToNames = new Dictionary<System.Type, List<string>>();
+
+
     [HideInInspector]
     public NodeBase selectedNode;
     [HideInInspector]
@@ -52,7 +58,10 @@ public class NodeGraph : ScriptableObject
 
         if (nodes.Any())
         {
-            foreach(NodeBase node in nodes)
+            //If somehow a node becomes null, remove it.
+            nodes.RemoveAll(n => n == null);
+
+            foreach (NodeBase node in nodes)
             {
                 node.UpdateNode(e);
             }
@@ -254,7 +263,7 @@ public class NodeGraph : ScriptableObject
     }
 #endif
 
-    bool isConnected(NodeBase first, NodeBase second)
+    bool IsConnected(NodeBase first, NodeBase second)
     {
         if (first.output != null)
         {
