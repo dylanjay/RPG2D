@@ -8,6 +8,8 @@ using System.Collections.ObjectModel;
 
 public class NodeLeaf : NodeBase
 {
+    protected Dictionary<FieldInfo, int> choices = new Dictionary<FieldInfo, int>();
+
     private static GUIContent[] _allLeafOptions = null;
     private static ReadOnlyCollection<Type> _allLeafTypes = null;
 
@@ -35,7 +37,6 @@ public class NodeLeaf : NodeBase
         return _allLeafTypes;
     }
 
-    private int optionNumber = 0;
 
     public NodeLeaf()
     {
@@ -45,7 +46,7 @@ public class NodeLeaf : NodeBase
     public override void Reset()
     {
         base.Reset();
-        if(output != null)
+        if (output != null)
         {
             output = null;
         }
@@ -61,7 +62,7 @@ public class NodeLeaf : NodeBase
     {
         base.UpdateNodeGUI(e, viewRect);
         //TODO switch to reset function
-        if(output != null)
+        if (output != null)
         {
             output = null;
         }
@@ -86,6 +87,12 @@ public class NodeLeaf : NodeBase
             if (optionNumber != prevOptionNumber)
             {
                 bool changeName = (behaviorComponent == null) ? title == name : title == behaviorComponent.name;
+
+                if (prevOptionNumber != 0)
+                {
+                    parentGraph.RemoveBehavior(this);
+                }
+
                 DestroyImmediate(behaviorComponent, true);
                 //Option 0 is "None", a null behaviorComponent
                 if (optionNumber == 0)
@@ -104,6 +111,20 @@ public class NodeLeaf : NodeBase
                         title = behaviorComponent.name;
                     }
                 }
+                parentGraph.AddBehavior(this);
+
+                foreach (FieldInfo fieldInfo in behaviorComponent.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                {
+                    if (((((Attribute[])fieldInfo.GetCustomAttributes(typeof(HideInInspector), true)).Length > 0) ||
+                        (fieldInfo.IsPrivate && (((Attribute[])fieldInfo.GetCustomAttributes(typeof(SerializeField), true)).Length == 0))))
+                    {
+                        continue;
+                    }
+                    if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
+                    {
+                        choices[fieldInfo] = 0;
+                    }
+                }
             }
 
             EditorGUILayout.Space();
@@ -113,13 +134,8 @@ public class NodeLeaf : NodeBase
                 EditorGUILayout.LabelField("Parameters");
                 foreach (FieldInfo fieldInfo in behaviorComponent.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                 {
-                    /*if ((fieldInfo.GetCustomAttributes(typeof(HideInInspector), true).Length > 0) ||
-                       (!fieldInfo.IsPublic && fieldInfo.GetCustomAttributes(typeof(SerializeField), true).Length == 0))
-                    {
-                        continue;
-                    }*/
-                    if ((fieldInfo.GetCustomAttributes(typeof(HideInInspector), true).Length > 0) ||
-                        (fieldInfo.GetCustomAttributes(typeof(SerializeField), true).Length == 0))
+                    if ((((Attribute[])fieldInfo.GetCustomAttributes(typeof(HideInInspector), true)).Length > 0) ||
+                        (fieldInfo.IsPrivate && (((Attribute[])fieldInfo.GetCustomAttributes(typeof(SerializeField), true)).Length == 0)))
                     {
                         continue;
                     }
@@ -127,53 +143,51 @@ public class NodeLeaf : NodeBase
                     if (fieldInfo.FieldType == typeof(int))
                     {
                         int value = (int)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.IntField(fieldInfo.Name, value);
+                        value = EditorGUILayout.IntField(EditorUtilities.FixName(fieldInfo.Name), value);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                     else if (fieldInfo.FieldType == typeof(float))
                     {
                         float value = (float)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.FloatField(fieldInfo.Name, value);
+                        value = EditorGUILayout.FloatField(EditorUtilities.FixName(fieldInfo.Name), value);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                     else if (fieldInfo.FieldType == typeof(string))
                     {
                         string value = (string)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.TextField(fieldInfo.Name, value);
+                        value = EditorGUILayout.TextField(EditorUtilities.FixName(fieldInfo.Name), value);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                     else if (fieldInfo.FieldType == typeof(Vector2))
                     {
                         Vector2 value = (Vector2)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.Vector2Field(fieldInfo.Name, value);
+                        value = EditorGUILayout.Vector2Field(EditorUtilities.FixName(fieldInfo.Name), value);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                     else if (fieldInfo.FieldType == typeof(Vector3))
                     {
                         Vector3 value = (Vector3)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.Vector3Field(fieldInfo.Name, value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(SharedGameObject))
-                    {
-                        SharedGameObject value = (SharedGameObject)fieldInfo.GetValue(behaviorComponent);
-                        value.name = EditorGUILayout.TextField(fieldInfo.Name, value.name);
+                        value = EditorGUILayout.Vector3Field(EditorUtilities.FixName(fieldInfo.Name), value);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                     else if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
                     {
-                        Type type = (Type)fieldInfo.FieldType.GetProperty("SharedType").GetGetMethod().Invoke(fieldInfo.GetValue(behaviorComponent), new object[]{});
-                        //fieldInfo.GetValue(behaviorComponent)
-                        /*SharedGameObject value = (SharedGameObject)fieldInfo.GetValue(behaviorComponent);
-                        value.name = EditorGUILayout.TextField(fieldInfo.Name, value.name);
-                        fieldInfo.SetValue(behaviorComponent, value);*/
+                        Type type = (Type)fieldInfo.FieldType.GetProperty("SharedType").GetGetMethod().Invoke(Activator.CreateInstance(fieldInfo.FieldType), new object[] { });
+                        GUIContent[] options = parentGraph.GetDropdownOptions(type);
+                        int prevChoice = choices[fieldInfo];
+                        int currentChoice = EditorGUILayout.Popup(new GUIContent(EditorUtilities.FixName(fieldInfo.Name)), prevChoice, options);
+                        if (currentChoice != prevChoice)
+                        {
+                            choices[fieldInfo] = currentChoice;
+                            parentGraph.SetReference(this, fieldInfo.Name, options[prevChoice]);
+                        }
                     }
                     //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because
                     //fieldInfo.FieldType will point to a derived class, making the comparison false.
                     else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldInfo.FieldType))
                     {
                         UnityEngine.Object value = (UnityEngine.Object)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.ObjectField(fieldInfo.Name, value, fieldInfo.FieldType, false);
+                        value = EditorGUILayout.ObjectField(EditorUtilities.FixName(fieldInfo.Name), value, fieldInfo.FieldType, false);
                         fieldInfo.SetValue(behaviorComponent, value);
                     }
                 }

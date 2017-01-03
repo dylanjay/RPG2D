@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class SharedVariable<T>
 {
+    public T value;
+    public string name;
+
     protected SharedVariable()
     {
 
@@ -28,9 +31,6 @@ public class SharedVariable<T>
     {
         get { return typeof(T); }
     }
-
-    public T value;
-    public string name;
 }
 
 [System.Serializable]

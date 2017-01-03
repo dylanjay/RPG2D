@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+
+using Type = System.Type;
 
 public class NodeGraph : ScriptableObject
 {
@@ -10,9 +11,8 @@ public class NodeGraph : ScriptableObject
 
     public List<NodeBase> nodes;
 
-    protected Dictionary<string, object> nameToSharedVariable = new Dictionary<string, object>();
-    protected Dictionary<System.Type, List<string>> sharedTypeToNames = new Dictionary<System.Type, List<string>>();
-
+    [SerializeField]
+    protected SharedVariableCollection sharedVariableCollection = new SharedVariableCollection();
 
     [HideInInspector]
     public NodeBase selectedNode;
@@ -27,7 +27,7 @@ public class NodeGraph : ScriptableObject
 
     void OnEnable()
     {
-        if(nodes == null)
+        if (nodes == null)
         {
             nodes = new List<NodeBase>();
         }
@@ -37,7 +37,7 @@ public class NodeGraph : ScriptableObject
     {
         if (nodes.Any())
         {
-            foreach(NodeBase node in nodes)
+            foreach (NodeBase node in nodes)
             {
                 node.Initialize();
             }
@@ -71,18 +71,18 @@ public class NodeGraph : ScriptableObject
 #if UNITY_EDITOR
     public void UpdateGraphGUI(Event e, Rect viewRect)
     {
-        if(nodes.Any())
+        if (nodes.Any())
         {
             ProcessEvents(e, viewRect);
-            foreach(NodeBase node in nodes)
+            foreach (NodeBase node in nodes)
             {
                 node.UpdateNodeGUI(e, viewRect);
             }
         }
 
-        if(wantsConnection)
+        if (wantsConnection)
         {
-            if(connectionNode != null)
+            if (connectionNode != null)
             {
                 DrawConnectionToMouse(e.mousePosition);
             }
@@ -101,14 +101,14 @@ public class NodeGraph : ScriptableObject
                     selectedNode = null;
                     foreach (NodeBase node in nodes)
                     {
-                        if(node.nodeRect.Contains(e.mousePosition))
+                        if (node.nodeRect.Contains(e.mousePosition))
                         {
                             selectedNode = node;
                             node.isSelected = true;
                             break;
                         }
 
-                        else if(node.output != null)
+                        else if (node.output != null)
                         {
                             if (node.outputRect.Contains(e.mousePosition))
                             {
@@ -116,7 +116,7 @@ public class NodeGraph : ScriptableObject
                                 wantsConnection = true;
                             }
 
-                            foreach(NodeBase childNode in node.output.childNodes)
+                            foreach (NodeBase childNode in node.output.childNodes)
                             {
                                 if (childNode.inputRect.Contains(e.mousePosition))
                                 {
@@ -129,7 +129,7 @@ public class NodeGraph : ScriptableObject
                     }
                 }
 
-                else if(e.type == EventType.MouseUp)
+                else if (e.type == EventType.MouseUp)
                 {
                     bool hitNode = false;
                     if (wantsConnection)
@@ -146,7 +146,7 @@ public class NodeGraph : ScriptableObject
                                         DeselectAllNodes();
                                         selectedNode = null;
 
-                                        if(node.input.parentNode == connectionNode)
+                                        if (node.input.parentNode == connectionNode)
                                         {
                                             DisconnectNodes(connectionNode, node);
                                         }
@@ -183,7 +183,7 @@ public class NodeGraph : ScriptableObject
             }
         }
 
-        if(e.keyCode == KeyCode.Delete && selectedNode != null)
+        if (e.keyCode == KeyCode.Delete && selectedNode != null)
         {
             DeleteNode(selectedNode);
             selectedNode = null;
@@ -197,8 +197,8 @@ public class NodeGraph : ScriptableObject
         connectionNode = null;
         disconnectNode = null;
         showProperties = false;
-}
-    
+    }
+
     void DisconnectNodes(NodeBase male, NodeBase female)
     {
         male.output.childNodes.Remove(female);
@@ -236,16 +236,16 @@ public class NodeGraph : ScriptableObject
 
     public void DeleteNode(NodeBase node)
     {
-        if(rootNode == node)
+        if (rootNode == node)
         {
             rootNode = null;
         }
 
-        if(node.output != null)
+        if (node.output != null)
         {
-            foreach(NodeBase child in node.output.childNodes)
+            foreach (NodeBase child in node.output.childNodes)
             {
-                if(child.input.parentNode == node)
+                if (child.input.parentNode == node)
                 {
                     child.input.parentNode = null;
                     child.input.isOccupied = false;
@@ -254,7 +254,7 @@ public class NodeGraph : ScriptableObject
             }
         }
         nodes.Remove(node);
-        if(node.behaviorComponent != null)
+        if (node.behaviorComponent != null)
         {
             DestroyImmediate(node.behaviorComponent, true);
         }
@@ -291,10 +291,35 @@ public class NodeGraph : ScriptableObject
 
     void DeselectAllNodes()
     {
-        foreach(NodeBase node in nodes)
+        foreach (NodeBase node in nodes)
         {
             node.isSelected = false;
         }
         selectedNode = null;
+    }
+
+    public void AddBehavior(NodeBase node)
+    {
+        sharedVariableCollection.AddBehavior(node);
+    }
+
+    public void RemoveBehavior(NodeBase node)
+    {
+        sharedVariableCollection.RemoveBehavior(node);
+    }
+
+    public GUIContent[] GetDropdownOptions(Type type)
+    {
+        return sharedVariableCollection.GetDropdownOptions(type);
+    }
+
+    public void SetReference(NodeBase node, string fieldName, GUIContent option)
+    {
+        sharedVariableCollection.SetReference(node, fieldName, option);
+    }
+
+    public void RemoveReference(NodeBase node, string fieldName, GUIContent option)
+    {
+        sharedVariableCollection.RemoveReference(node, fieldName, option);
     }
 }
