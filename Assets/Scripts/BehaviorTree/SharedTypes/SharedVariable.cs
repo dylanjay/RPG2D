@@ -27,7 +27,7 @@ public class SharedVariable<T>
         return new SharedVariable<T>(value);
     }
 
-    public System.Type SharedType
+    public System.Type sharedType
     {
         get { return typeof(T); }
     }

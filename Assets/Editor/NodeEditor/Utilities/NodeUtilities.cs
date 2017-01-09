@@ -225,6 +225,47 @@ public static class NodeUtilities
             }*/
         }
     }
+
+    public static Type[] validTypes;
+    public static GUIContent[] validTypeOptions;
+    public static void InitializeValidTypes()
+    {
+        if(validTypeOptions == null)
+        {
+            validTypes =
+                (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                from type in assembly.GetTypes()
+                where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
+                select type.BaseType.GetGenericArguments()[0]).ToArray();
+            validTypeOptions =
+                (from type in validTypes
+                select new GUIContent(type.Name)).ToArray();
+        }
+        IEnumerable<Type> subclasses =
+            from assembly in AppDomain.CurrentDomain.GetAssemblies()
+            from type in assembly.GetTypes()
+            where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
+            select type.BaseType.GetGenericArguments()[0];
+    }
+
+    public static GUIContent[] GetValidTypeOptions()
+    {
+        if(validTypes == null)
+        {
+            InitializeValidTypes();
+        }
+        return validTypeOptions;
+    }
+
+    public static Type[] GetValidTypes()
+    {
+        if (validTypes == null)
+        {
+            InitializeValidTypes();
+        }
+        return validTypes;
+    }
+
 #endif
 
     static void ErrorMessage(string body)

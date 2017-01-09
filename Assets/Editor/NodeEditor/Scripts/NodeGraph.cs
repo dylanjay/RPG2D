@@ -8,6 +8,7 @@ using Type = System.Type;
 public class NodeGraph : ScriptableObject
 {
     public string graphName = "New Graph";
+    public string description = "";
 
     public List<NodeBase> nodes;
 
@@ -24,6 +25,9 @@ public class NodeGraph : ScriptableObject
     [HideInInspector]
     public bool showProperties;
     public NodeBase rootNode;
+
+    private int newSharedVariableTypeIndex;
+    private string newSharedVariableName;
 
     void OnEnable()
     {
@@ -91,19 +95,24 @@ public class NodeGraph : ScriptableObject
 
     void ProcessEvents(Event e, Rect viewRect)
     {
-        if (viewRect.Contains(e.mousePosition))
+        if (e.isMouse && viewRect.Contains(e.mousePosition))
         {
             if (e.button == 0)
             {
                 if (e.type == EventType.MouseDown)
                 {
-                    DeselectAllNodes();
+                    Object selection = this;
+                    if(selectedNode != null)
+                    {
+                        selectedNode.isSelected = false;
+                    }
                     selectedNode = null;
                     foreach (NodeBase node in nodes)
                     {
                         if (node.nodeRect.Contains(e.mousePosition))
                         {
                             selectedNode = node;
+                            selection = node;
                             node.isSelected = true;
                             break;
                         }
@@ -127,8 +136,8 @@ public class NodeGraph : ScriptableObject
                             }
                         }
                     }
+                    Selection.activeObject = selection;
                 }
-
                 else if (e.type == EventType.MouseUp)
                 {
                     bool hitNode = false;
@@ -143,7 +152,10 @@ public class NodeGraph : ScriptableObject
                                     hitNode = true;
                                     if (node != connectionNode)
                                     {
-                                        DeselectAllNodes();
+                                        if(selectedNode != null)
+                                        {
+                                            selectedNode.isSelected = false;
+                                        }
                                         selectedNode = null;
 
                                         if (node.input.parentNode == connectionNode)
@@ -289,15 +301,6 @@ public class NodeGraph : ScriptableObject
         return false;
     }
 
-    void DeselectAllNodes()
-    {
-        foreach (NodeBase node in nodes)
-        {
-            node.isSelected = false;
-        }
-        selectedNode = null;
-    }
-
     public void AddBehavior(NodeBase node)
     {
         sharedVariableCollection.AddBehavior(node);
@@ -313,13 +316,111 @@ public class NodeGraph : ScriptableObject
         return sharedVariableCollection.GetDropdownOptions(type);
     }
 
-    public void SetReference(NodeBase node, string fieldName, GUIContent option)
+    public void SetReference(NodeBase node, string fieldName, GUIContent prevOption, GUIContent currentOption)
     {
-        sharedVariableCollection.SetReference(node, fieldName, option);
+        sharedVariableCollection.SetReference(node, fieldName, prevOption, currentOption);
     }
 
     public void RemoveReference(NodeBase node, string fieldName, GUIContent option)
     {
         sharedVariableCollection.RemoveReference(node, fieldName, option);
     }
+
+    public void DrawSharedVariableEditor()
+    {
+        GUILayout.BeginVertical();
+        {
+            graphName = EditorGUILayout.DelayedTextField("Tree Name", graphName);
+            description = EditorGUILayout.DelayedTextField("Description", description);
+        }
+        GUILayout.EndVertical();
+        EditorGUILayout.BeginVertical();
+        {
+            EditorGUILayout.Space();
+
+            IDictionary<GUIContent, object> sharedVariables = sharedVariableCollection.GetValues();
+            GUIContent removeMe = null;
+
+            foreach (GUIContent guiContent in sharedVariables.Keys)
+            {
+                if (guiContent.text == "None") { continue; }
+                object sharedVariable = sharedVariables[guiContent];
+                Type sharedVarType = (Type)sharedVariable.GetType().GetProperty("sharedType").GetGetMethod().Invoke(sharedVariable, new object[0] { });
+
+                Rect rect = EditorGUILayout.BeginHorizontal();
+
+                string name = guiContent.text;
+                string newName = EditorGUILayout.DelayedTextField(GUIContent.none, name);
+
+                if (newName != name)
+                {
+                    guiContent.text = newName;
+                }
+
+                ShowValueEditor(sharedVarType, sharedVariable, guiContent);
+
+                if (GUILayout.Button(new GUIContent("X", "Remove Variable"))) { removeMe = guiContent; };
+                EditorGUILayout.EndHorizontal();
+            }
+            if(removeMe != null)
+            {
+                sharedVariables.Remove(removeMe);
+            }
+            EditorGUILayout.Space();
+            newSharedVariableTypeIndex = EditorGUILayout.Popup(newSharedVariableTypeIndex, NodeUtilities.GetValidTypeOptions());
+            newSharedVariableName = EditorGUILayout.TextField(newSharedVariableName);
+            if (GUILayout.Button(new GUIContent("+", "Add Variable")))
+            {
+                Debug.Log("Adding Variable");
+                sharedVariableCollection.AddVariable(newSharedVariableName, NodeUtilities.GetValidTypes()[newSharedVariableTypeIndex]);
+            }
+        }
+        EditorGUILayout.EndVertical();
+    }
+
+    private static void ShowValueEditor(Type type, object sharedVariable, GUIContent guiContent)
+    {
+        object value = sharedVariable.GetType().GetField("value").GetValue(sharedVariable);
+        System.Func<object, object> func;
+        if (_Fields.TryGetValue(type, out func))
+        {
+            object newValue = func.Invoke(value);
+
+            if (!value.Equals(newValue))
+            {
+                Debug.Log("HEre");
+                sharedVariable.GetType().GetField("value").SetValue(sharedVariable, newValue);
+            }
+        }
+        else if (typeof(Object).IsAssignableFrom(type))
+        {
+            func = _Fields[typeof(Object)];
+            object newValue = func.Invoke(value);
+
+            if (!value.Equals(newValue))
+            {
+                sharedVariable.GetType().GetField("value").SetValue(sharedVariable, newValue);
+            }
+        }
+        else
+        {
+            EditorGUILayout.LabelField("Type " + type + " is unsupported.");
+        }
+    }
+
+    private static readonly Dictionary<Type, System.Func<object, object>> _Fields =
+        new Dictionary<Type, System.Func<object, object>>()
+        {
+            { typeof(int),      value => EditorGUILayout.DelayedIntField((int)value)},
+            { typeof(float),    value => EditorGUILayout.DelayedFloatField((float)value) },
+            { typeof(double),   value => EditorGUILayout.DelayedDoubleField((float)value) },
+            { typeof(string),   value => EditorGUILayout.DelayedTextField((string)value) },
+            { typeof(bool),     value => EditorGUILayout.Toggle((bool)value) },
+            { typeof(Vector2),  value => EditorGUILayout.Vector2Field(GUIContent.none, (Vector2)value) },
+            { typeof(Vector3),  value => EditorGUILayout.Vector3Field(GUIContent.none, (Vector3)value) },
+            { typeof(Vector4),  value => EditorGUILayout.Vector4Field(GUIContent.none, (Vector3)value) },
+            { typeof(Bounds),   value => EditorGUILayout.BoundsField((Bounds)value) },
+            { typeof(Rect),     value => EditorGUILayout.RectField((Rect)value) },
+            { typeof(Object),   value => EditorGUILayout.ObjectField(GUIContent.none, (Object)value, value.GetType(), false)},
+        };
 }

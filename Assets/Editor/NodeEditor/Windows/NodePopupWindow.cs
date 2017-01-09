@@ -50,6 +50,5 @@ public class NodePopupWindow : EditorWindow
         }
         GUILayout.EndHorizontal();
         GUILayout.Space(20);
-        Repaint();
     }
 }

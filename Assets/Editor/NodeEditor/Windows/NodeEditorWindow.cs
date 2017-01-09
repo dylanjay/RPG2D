@@ -54,16 +54,15 @@ public class NodeEditorWindow : EditorWindow
                             new Rect(barSize, barSize, viewHorizontalPercentage - barSize, 1),
                             e, currentGraph);
 
-        propertiesView.UpdateView(new Rect(position.width, position.height, position.width, position.height),
+        /*propertiesView.UpdateView(new Rect(position.width, position.height, position.width, position.height),
                             new Rect(viewHorizontalPercentage, barSize, 1 - viewHorizontalPercentage, viewVerticalPercentage),
                             e, currentGraph);
 
         descriptionView.UpdateView(new Rect(position.width, position.height, position.width, position.height),
                             new Rect(viewHorizontalPercentage, viewVerticalPercentage + barSize, 1 - viewHorizontalPercentage, 1 - viewVerticalPercentage),
-                            e, currentGraph);
+                            e, currentGraph);*/
 
         ProcessEvents(e);
-        Repaint();
     }
 
     void InitializeWindow()

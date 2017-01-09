@@ -22,7 +22,6 @@ public abstract class NodeBase : ScriptableObject
     public Rect inputRect;
     [HideInInspector]
     public GUISkin nodeSkin;
-    Rect viewRect;
 
     public BehaviorComponent behaviorComponent;
 
@@ -34,7 +33,7 @@ public abstract class NodeBase : ScriptableObject
         return nodeBase;
     }
 
-    public NodeBase clone()
+    public NodeBase Clone()
     {
         return (NodeBase)this.MemberwiseClone();
     }
@@ -92,7 +91,7 @@ public abstract class NodeBase : ScriptableObject
         {
             inputRect = new Rect(nodeRect.x + nodeRect.width / 2 - 8, nodeRect.y - 18, 24, 18);
         }
-        //hideFlags = HideFlags.HideInHierarchy;
+        hideFlags = HideFlags.HideInHierarchy;
     }
 
     public abstract GUIContent[] GetAllBehaviorOptions();
@@ -109,7 +108,6 @@ public abstract class NodeBase : ScriptableObject
         {
             input = null;
         }
-        this.viewRect = viewRect;
         if(nodeSkin == null)
         {
             GetEditorSkin();
@@ -247,6 +245,7 @@ public abstract class NodeBase : ScriptableObject
                     nodeRect.x += e.delta.x;
                     nodeRect.y += e.delta.y;
                 }
+                NodeEditorWindow.instance.Repaint();
             }
             else if (e.type == EventType.MouseDown && e.button == 1 && nodeRect.Contains(e.mousePosition))
             {
@@ -261,6 +260,7 @@ public abstract class NodeBase : ScriptableObject
                         nodeRect.x += e.delta.x / parentGraph.nodes.Count;
                         nodeRect.y += e.delta.y / parentGraph.nodes.Count;
                     }
+                    NodeEditorWindow.instance.Repaint();
                 }
             }
         }

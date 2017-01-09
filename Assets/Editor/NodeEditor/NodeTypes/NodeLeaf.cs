@@ -5,10 +5,19 @@ using System.Collections;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 public class NodeLeaf : NodeBase
 {
-    protected Dictionary<FieldInfo, int> choices = new Dictionary<FieldInfo, int>();
+    //TODO: Make option number unique, so both renaming and deleting a variable will not cause issues.
+    [Serializable]
+    protected class ChoiceDictionary : SerializableDictionary<string, GUIContent> { }
+    /// <summary>
+    /// Key: The name of the field
+    /// Value: The option number from the dropdown. Currently deleting a variable in the tree changes the choice.
+    /// </summary>
+    [SerializeField]
+    protected ChoiceDictionary choices = new ChoiceDictionary();
 
     private static GUIContent[] _allLeafOptions = null;
     private static ReadOnlyCollection<Type> _allLeafTypes = null;
@@ -122,7 +131,7 @@ public class NodeLeaf : NodeBase
                     }
                     if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
                     {
-                        choices[fieldInfo] = 0;
+                        choices[fieldInfo.Name] = GUIContent.none;
                     }
                 }
             }
@@ -172,14 +181,14 @@ public class NodeLeaf : NodeBase
                     }
                     else if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
                     {
-                        Type type = (Type)fieldInfo.FieldType.GetProperty("SharedType").GetGetMethod().Invoke(Activator.CreateInstance(fieldInfo.FieldType), new object[] { });
+                        Type type = (Type)fieldInfo.FieldType.GetProperty("sharedType").GetGetMethod().Invoke(Activator.CreateInstance(fieldInfo.FieldType), new object[] { });
                         GUIContent[] options = parentGraph.GetDropdownOptions(type);
-                        int prevChoice = choices[fieldInfo];
+                        int prevChoice = GetGUIIndex(options, choices[fieldInfo.Name]);
                         int currentChoice = EditorGUILayout.Popup(new GUIContent(EditorUtilities.FixName(fieldInfo.Name)), prevChoice, options);
                         if (currentChoice != prevChoice)
                         {
-                            choices[fieldInfo] = currentChoice;
-                            parentGraph.SetReference(this, fieldInfo.Name, options[prevChoice]);
+                            choices[fieldInfo.Name] = options[currentChoice];
+                            parentGraph.SetReference(this, fieldInfo.Name, options[prevChoice], options[currentChoice]);
                         }
                     }
                     //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because
@@ -193,6 +202,18 @@ public class NodeLeaf : NodeBase
                 }
             }
         }
+    }
+
+    private int GetGUIIndex(GUIContent[] array, GUIContent findMe)
+    {
+        for (int i = 0; i < array.Length; i++)
+        {
+            if(array[i] == findMe)
+            {
+                return i;
+            }
+        }
+        return 0;
     }
 
     public override void DrawNodeHelp()
