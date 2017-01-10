@@ -17,9 +17,9 @@ public class SharedVariable<T>
         this.value = value;
     }
 
-    public static implicit operator T (SharedVariable<T> sharedVar)
+    public static implicit operator T (SharedVariable<T> sharedVariable)
     {
-        return sharedVar.value;
+        return sharedVariable.value;
     }
 
     public static implicit operator SharedVariable<T>(T value)

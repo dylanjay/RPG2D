@@ -226,8 +226,10 @@ public static class NodeUtilities
         }
     }
 
-    public static Type[] validTypes;
-    public static GUIContent[] validTypeOptions;
+    private static Type[] validTypes;
+    private static Type[] sharedVariableDerivedTypes;
+    private static GUIContent[] validTypeOptions;
+
     public static void InitializeValidTypes()
     {
         if(validTypeOptions == null)
@@ -237,15 +239,17 @@ public static class NodeUtilities
                 from type in assembly.GetTypes()
                 where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
                 select type.BaseType.GetGenericArguments()[0]).ToArray();
+
             validTypeOptions =
                 (from type in validTypes
                 select new GUIContent(type.Name)).ToArray();
+            sharedVariableDerivedTypes =
+                (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                from type in assembly.GetTypes()
+                where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
+                select type).ToArray();
         }
-        IEnumerable<Type> subclasses =
-            from assembly in AppDomain.CurrentDomain.GetAssemblies()
-            from type in assembly.GetTypes()
-            where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
-            select type.BaseType.GetGenericArguments()[0];
+        
     }
 
     public static GUIContent[] GetValidTypeOptions()
@@ -264,6 +268,15 @@ public static class NodeUtilities
             InitializeValidTypes();
         }
         return validTypes;
+    }
+
+    public static Type[] GetSharedVariableDerivedTypes()
+    {
+        if (validTypes == null)
+        {
+            InitializeValidTypes();
+        }
+        return sharedVariableDerivedTypes;
     }
 
 #endif

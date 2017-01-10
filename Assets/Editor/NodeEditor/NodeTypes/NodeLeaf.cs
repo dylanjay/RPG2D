@@ -9,16 +9,6 @@ using System.Linq;
 
 public class NodeLeaf : NodeBase
 {
-    //TODO: Make option number unique, so both renaming and deleting a variable will not cause issues.
-    [Serializable]
-    protected class ChoiceDictionary : SerializableDictionary<string, GUIContent> { }
-    /// <summary>
-    /// Key: The name of the field
-    /// Value: The option number from the dropdown. Currently deleting a variable in the tree changes the choice.
-    /// </summary>
-    [SerializeField]
-    protected ChoiceDictionary choices = new ChoiceDictionary();
-
     private static GUIContent[] _allLeafOptions = null;
     private static ReadOnlyCollection<Type> _allLeafTypes = null;
 
@@ -137,83 +127,7 @@ public class NodeLeaf : NodeBase
             }
 
             EditorGUILayout.Space();
-
-            if (behaviorComponent != null)
-            {
-                EditorGUILayout.LabelField("Parameters");
-                foreach (FieldInfo fieldInfo in behaviorComponent.GetType().GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                {
-                    if ((((Attribute[])fieldInfo.GetCustomAttributes(typeof(HideInInspector), true)).Length > 0) ||
-                        (fieldInfo.IsPrivate && (((Attribute[])fieldInfo.GetCustomAttributes(typeof(SerializeField), true)).Length == 0)))
-                    {
-                        continue;
-                    }
-
-                    if (fieldInfo.FieldType == typeof(int))
-                    {
-                        int value = (int)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.IntField(EditorUtilities.FixName(fieldInfo.Name), value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(float))
-                    {
-                        float value = (float)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.FloatField(EditorUtilities.FixName(fieldInfo.Name), value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(string))
-                    {
-                        string value = (string)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.TextField(EditorUtilities.FixName(fieldInfo.Name), value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(Vector2))
-                    {
-                        Vector2 value = (Vector2)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.Vector2Field(EditorUtilities.FixName(fieldInfo.Name), value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType == typeof(Vector3))
-                    {
-                        Vector3 value = (Vector3)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.Vector3Field(EditorUtilities.FixName(fieldInfo.Name), value);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                    else if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
-                    {
-                        Type type = (Type)fieldInfo.FieldType.GetProperty("sharedType").GetGetMethod().Invoke(Activator.CreateInstance(fieldInfo.FieldType), new object[] { });
-                        GUIContent[] options = parentGraph.GetDropdownOptions(type);
-                        int prevChoice = GetGUIIndex(options, choices[fieldInfo.Name]);
-                        int currentChoice = EditorGUILayout.Popup(new GUIContent(EditorUtilities.FixName(fieldInfo.Name)), prevChoice, options);
-                        if (currentChoice != prevChoice)
-                        {
-                            choices[fieldInfo.Name] = options[currentChoice];
-                            parentGraph.SetReference(this, fieldInfo.Name, options[prevChoice], options[currentChoice]);
-                        }
-                    }
-                    //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because
-                    //fieldInfo.FieldType will point to a derived class, making the comparison false.
-                    else if (typeof(UnityEngine.Object).IsAssignableFrom(fieldInfo.FieldType))
-                    {
-                        UnityEngine.Object value = (UnityEngine.Object)fieldInfo.GetValue(behaviorComponent);
-                        value = EditorGUILayout.ObjectField(EditorUtilities.FixName(fieldInfo.Name), value, fieldInfo.FieldType, false);
-                        fieldInfo.SetValue(behaviorComponent, value);
-                    }
-                }
-            }
         }
-    }
-
-    private int GetGUIIndex(GUIContent[] array, GUIContent findMe)
-    {
-        for (int i = 0; i < array.Length; i++)
-        {
-            if(array[i] == findMe)
-            {
-                return i;
-            }
-        }
-        return 0;
     }
 
     public override void DrawNodeHelp()

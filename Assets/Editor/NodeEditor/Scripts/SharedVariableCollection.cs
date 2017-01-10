@@ -26,24 +26,30 @@ public class SharedVariableCollection
 
     //This pattern is the only way to properly serialize these variables, since Unity/C#
     //cannot serialize Generic objects by default.
+    [System.Serializable]
     protected class DropdownDictionary : SerializableDictionary<Type, List<GUIContent>> { }
     /// <summary>
     /// All possible dropdowns. The key is the type of the object, the value is the list of GUIContent options.
     /// </summary>
+    [SerializeField]
     protected DropdownDictionary dropdowns = new DropdownDictionary();
 
+    [System.Serializable]
     protected class ReferenceDictionary : SerializableDictionary<GUIContent, HashSet<NodeFieldPair>> { }
     /// <summary>
     /// A dictionary of all references found within the tree. The key is the GUIContent option from the dropdown,
     /// The value is a hashset of Node/FieldName pairs that correspond to that variable.
     /// </summary>
+    [SerializeField]
     protected ReferenceDictionary references = new ReferenceDictionary();
 
+    [System.Serializable]
     protected class ValuesDictionary : SerializableDictionary<GUIContent, object> { }
     /// <summary>
     /// A dictinary that holds all SharedVariable values. The key is the GUIContent option, the value is the object
     /// stored for that SharedVariable name.
     /// </summary>
+    [SerializeField]
     protected ValuesDictionary values = new ValuesDictionary();
 
     protected class NameHashSet : SerializableDictionary<string, Wildcard>
@@ -53,6 +59,7 @@ public class SharedVariableCollection
     /// <summary>
     /// A HashSet of all strings that are being used for a SharedVariable name in the corresponding tree.
     /// </summary>
+    [SerializeField]
     protected NameHashSet names = new NameHashSet();
 
     protected static GUIContent none = new GUIContent("None");
@@ -102,7 +109,15 @@ public class SharedVariableCollection
         }
 
         references.Add(dropdowns[type][dropdowns[type].Count - 1], new HashSet<NodeFieldPair>());
-        values.Add(dropdowns[type][dropdowns[type].Count - 1], System.Activator.CreateInstance(typeof(SharedVariable<>).MakeGenericType(type), true));
+        foreach(Type sharedVarType in NodeUtilities.GetSharedVariableDerivedTypes())
+        {
+            if(sharedVarType.BaseType.GetGenericArguments()[0] == type)
+            {
+                values.Add(dropdowns[type][dropdowns[type].Count - 1], System.Activator.CreateInstance(sharedVarType, true));
+                return;
+            }
+        }
+        Debug.LogError("Error: recieved a type that does not have an associated SharedVariable<> derived class. Type: " + type);
     }
 
     /// <summary>
@@ -134,10 +149,9 @@ public class SharedVariableCollection
                 unassigned.Add(reference);
             }
             references.Remove(match);
-            values.Remove(match);
         }
-
-        if(guiContents.Count == 1)
+        
+        if (guiContents.Count == 1)
         {
             dropdowns.Remove(type);
         }
@@ -147,6 +161,7 @@ public class SharedVariableCollection
         }
         
         names.Remove(name);
+        values.Remove(match);
     }
 
     /// <summary>
@@ -237,7 +252,9 @@ public class SharedVariableCollection
         references[currentOption].Add(sharedVarPair);
 
         Type nodeType = node.behaviorComponent.GetType();
-        nodeType.GetField(fieldName).SetValue(node.behaviorComponent, values[currentOption]);
+        FieldInfo fieldInfo =
+        nodeType.GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        fieldInfo.SetValue(node.behaviorComponent, values[currentOption]);
     }
 
     /// <summary>

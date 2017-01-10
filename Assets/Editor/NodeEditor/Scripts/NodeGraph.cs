@@ -13,7 +13,7 @@ public class NodeGraph : ScriptableObject
     public List<NodeBase> nodes;
 
     [SerializeField]
-    protected SharedVariableCollection sharedVariableCollection = new SharedVariableCollection();
+    public SharedVariableCollection sharedVariableCollection = new SharedVariableCollection();
 
     [HideInInspector]
     public NodeBase selectedNode;

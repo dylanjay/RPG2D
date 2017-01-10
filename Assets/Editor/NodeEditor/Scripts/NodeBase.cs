@@ -25,9 +25,19 @@ public abstract class NodeBase : ScriptableObject
 
     public BehaviorComponent behaviorComponent;
 
+    //TODO: Make option number unique, so both renaming and deleting a variable will not cause issues.
+    [System.Serializable]
+    protected class ChoiceDictionary : SerializableDictionary<string, GUIContent> { }
+    /// <summary>
+    /// Key: The name of the field
+    /// Value: The option number from the dropdown. Currently deleting a variable in the tree changes the choice.
+    /// </summary>
+    [SerializeField]
+    protected ChoiceDictionary choices = new ChoiceDictionary();
 
     public static NodeBase CreateNode(System.Type t)
     {
+
         NodeBase nodeBase = (NodeBase)ScriptableObject.CreateInstance(t);
         nodeBase.title = nodeBase.name = nodeBase.GetType().ToString().Substring(4);
         return nodeBase;
@@ -182,50 +192,7 @@ public abstract class NodeBase : ScriptableObject
 
     public virtual void DrawNodeProperties()
     {
-        GUILayout.BeginVertical();
-        {
-            title = EditorGUILayout.TextField("Title", title);
-            description = EditorGUILayout.TextField("Description", description);
-
-            if(this == parentGraph.rootNode)
-            {
-
-            }
-        }
-        GUILayout.EndVertical();
-        EditorGUILayout.BeginVertical();
-        {
-            EditorGUILayout.Space();
-
-            int prevOptionNumber = behaviorComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(behaviorComponent.GetType()) + 1;
-            int optionNumber = EditorGUILayout.Popup(prevOptionNumber, GetAllBehaviorOptions());
-
-            if (optionNumber != prevOptionNumber)
-            {
-                bool changeName = (behaviorComponent == null) ? title == name : title == behaviorComponent.name;
-                DestroyImmediate(behaviorComponent, true);
-                //Option 0 is "None", a null behaviorComponent
-                if (optionNumber == 0)
-                {
-                    behaviorComponent = null;
-                    if (changeName)
-                    {
-                        title = name;
-                    }
-                }
-                else
-                {
-                    behaviorComponent = BehaviorComponent.CreateComponent(GetAllBehaviorTypes()[optionNumber - 1]);
-                    if (changeName)
-                    {
-                        title = behaviorComponent.name;
-                    }
-                }
-            }
-
-            EditorGUILayout.Space();
-        }
-        EditorGUILayout.EndVertical();
+        
     }
 
     public virtual void DrawNodeHelp()
