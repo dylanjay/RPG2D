@@ -10,10 +10,16 @@ public class NodeGraph : ScriptableObject
     public string graphName = "New Graph";
     public string description = "";
 
-    public List<NodeBase> nodes;
 
     [SerializeField]
-    public SharedVariableCollection sharedVariableCollection = new SharedVariableCollection();
+    private List<NodeBase> nodeList = new List<NodeBase>();
+
+    public int NodeCount { get { return nodeList.Count; } }
+
+    public IEnumerable<NodeBase> nodes { get { return nodeList.AsEnumerable(); } }
+
+    [SerializeField]
+    public SharedVariableCollection sharedVariableCollection;
 
     [HideInInspector]
     public NodeBase selectedNode;
@@ -31,17 +37,18 @@ public class NodeGraph : ScriptableObject
 
     void OnEnable()
     {
-        if (nodes == null)
+        if (sharedVariableCollection == null)
         {
-            nodes = new List<NodeBase>();
+            sharedVariableCollection = new SharedVariableCollection(this);
         }
+        sharedVariableCollection.OnEnable();
     }
 
     public void Initialize()
     {
-        if (nodes.Any())
+        if (nodeList.Any())
         {
-            foreach (NodeBase node in nodes)
+            foreach (NodeBase node in nodeList)
             {
                 node.Initialize();
             }
@@ -60,12 +67,12 @@ public class NodeGraph : ScriptableObject
             showProperties = true;
         }
 
-        if (nodes.Any())
+        if (nodeList.Any())
         {
             //If somehow a node becomes null, remove it.
-            nodes.RemoveAll(n => n == null);
+            nodeList.RemoveAll(n => n == null);
 
-            foreach (NodeBase node in nodes)
+            foreach (NodeBase node in nodeList)
             {
                 node.UpdateNode(e);
             }
@@ -75,10 +82,10 @@ public class NodeGraph : ScriptableObject
 #if UNITY_EDITOR
     public void UpdateGraphGUI(Event e, Rect viewRect)
     {
-        if (nodes.Any())
+        ProcessEvents(e, viewRect);
+        if (nodeList.Any())
         {
-            ProcessEvents(e, viewRect);
-            foreach (NodeBase node in nodes)
+            foreach (NodeBase node in nodeList)
             {
                 node.UpdateNodeGUI(e, viewRect);
             }
@@ -102,12 +109,12 @@ public class NodeGraph : ScriptableObject
                 if (e.type == EventType.MouseDown)
                 {
                     Object selection = this;
-                    if(selectedNode != null)
+                    if (selectedNode != null)
                     {
                         selectedNode.isSelected = false;
                     }
                     selectedNode = null;
-                    foreach (NodeBase node in nodes)
+                    foreach (NodeBase node in nodeList)
                     {
                         if (node.nodeRect.Contains(e.mousePosition))
                         {
@@ -143,7 +150,7 @@ public class NodeGraph : ScriptableObject
                     bool hitNode = false;
                     if (wantsConnection)
                     {
-                        foreach (NodeBase node in nodes)
+                        foreach (NodeBase node in nodeList)
                         {
                             if (node.input != null)
                             {
@@ -152,7 +159,7 @@ public class NodeGraph : ScriptableObject
                                     hitNode = true;
                                     if (node != connectionNode)
                                     {
-                                        if(selectedNode != null)
+                                        if (selectedNode != null)
                                         {
                                             selectedNode.isSelected = false;
                                         }
@@ -265,7 +272,7 @@ public class NodeGraph : ScriptableObject
                 }
             }
         }
-        nodes.Remove(node);
+        nodeList.Remove(node);
         if (node.behaviorComponent != null)
         {
             DestroyImmediate(node.behaviorComponent, true);
@@ -301,6 +308,23 @@ public class NodeGraph : ScriptableObject
         return false;
     }
 
+    public void AddNode(NodeBase node)
+    {
+        if(nodeList.Contains(node))
+        {
+            Debug.Log("Already contains node " + node.name);
+        }
+        if(nodeList.Count == 0)
+        {
+            node.name = "Node " + default(int);
+        }
+        else
+        {
+            node.name = "Node " + int.Parse(nodeList[nodeList.Count].name.Substring(5)) + 1;
+        }
+        nodeList.Add(node);
+    }
+
     public void AddBehavior(NodeBase node)
     {
         sharedVariableCollection.AddBehavior(node);
@@ -316,68 +340,22 @@ public class NodeGraph : ScriptableObject
         return sharedVariableCollection.GetDropdownOptions(type);
     }
 
-    public void SetReference(NodeBase node, string fieldName, GUIContent prevOption, GUIContent currentOption)
+    public void SetReference(NodeBase node, string fieldName, string prevOption, string currentOption)
     {
         sharedVariableCollection.SetReference(node, fieldName, prevOption, currentOption);
     }
 
-    public void RemoveReference(NodeBase node, string fieldName, GUIContent option)
+    /// <summary>
+    /// Clears a reference that corresponds to the given parameters.
+    /// </summary>
+    /// <param name="node">The Node that is handling the behavior.</param>
+    /// <param name="fieldName">The name of the field being cleared within the behavior.</param>
+    /// <param name="sharedVariableName">The previous option (SharedVariable name) selected in the dropdown menu.</param>
+    public void RemoveReference(NodeBase node, string fieldName, string sharedVariableName)
     {
-        sharedVariableCollection.RemoveReference(node, fieldName, option);
+        sharedVariableCollection.RemoveReference(node, fieldName, sharedVariableName);
     }
-
-    public void DrawSharedVariableEditor()
-    {
-        GUILayout.BeginVertical();
-        {
-            graphName = EditorGUILayout.DelayedTextField("Tree Name", graphName);
-            description = EditorGUILayout.DelayedTextField("Description", description);
-        }
-        GUILayout.EndVertical();
-        EditorGUILayout.BeginVertical();
-        {
-            EditorGUILayout.Space();
-
-            IDictionary<GUIContent, object> sharedVariables = sharedVariableCollection.GetValues();
-            GUIContent removeMe = null;
-
-            foreach (GUIContent guiContent in sharedVariables.Keys)
-            {
-                if (guiContent.text == "None") { continue; }
-                object sharedVariable = sharedVariables[guiContent];
-                Type sharedVarType = (Type)sharedVariable.GetType().GetProperty("sharedType").GetGetMethod().Invoke(sharedVariable, new object[0] { });
-
-                Rect rect = EditorGUILayout.BeginHorizontal();
-
-                string name = guiContent.text;
-                string newName = EditorGUILayout.DelayedTextField(GUIContent.none, name);
-
-                if (newName != name)
-                {
-                    guiContent.text = newName;
-                }
-
-                ShowValueEditor(sharedVarType, sharedVariable, guiContent);
-
-                if (GUILayout.Button(new GUIContent("X", "Remove Variable"))) { removeMe = guiContent; };
-                EditorGUILayout.EndHorizontal();
-            }
-            if(removeMe != null)
-            {
-                sharedVariables.Remove(removeMe);
-            }
-            EditorGUILayout.Space();
-            newSharedVariableTypeIndex = EditorGUILayout.Popup(newSharedVariableTypeIndex, NodeUtilities.GetValidTypeOptions());
-            newSharedVariableName = EditorGUILayout.TextField(newSharedVariableName);
-            if (GUILayout.Button(new GUIContent("+", "Add Variable")))
-            {
-                Debug.Log("Adding Variable");
-                sharedVariableCollection.AddVariable(newSharedVariableName, NodeUtilities.GetValidTypes()[newSharedVariableTypeIndex]);
-            }
-        }
-        EditorGUILayout.EndVertical();
-    }
-
+    
     private static void ShowValueEditor(Type type, object sharedVariable, GUIContent guiContent)
     {
         object value = sharedVariable.GetType().GetField("value").GetValue(sharedVariable);
@@ -407,7 +385,7 @@ public class NodeGraph : ScriptableObject
             EditorGUILayout.LabelField("Type " + type + " is unsupported.");
         }
     }
-
+   
     private static readonly Dictionary<Type, System.Func<object, object>> _Fields =
         new Dictionary<Type, System.Func<object, object>>()
         {

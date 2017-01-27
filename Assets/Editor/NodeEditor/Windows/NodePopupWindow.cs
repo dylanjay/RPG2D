@@ -34,6 +34,7 @@ public class NodePopupWindow : EditorWindow
                 if(!string.IsNullOrEmpty(graphName) && !graphName.Equals("Enter a name..."))
                 {
                     NodeGraph newGraph = NodeUtilities.CreateNodeGraph(graphName);
+                    Selection.activeObject = newGraph;
                     instance.Close();
                 }
                 else

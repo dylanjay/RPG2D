@@ -8,7 +8,7 @@ using Type = System.Type;
 public class NodeGraphEditor : Editor
 {
     private int newSharedVariableTypeIndex;
-    private string newSharedVariableName;
+    private string newSharedVariableName = "";
 
     public override void OnInspectorGUI()
     {
@@ -23,32 +23,40 @@ public class NodeGraphEditor : Editor
         {
             EditorGUILayout.Space();
 
-            IDictionary<GUIContent, object> sharedVariables = graph.sharedVariableCollection.GetValues();
-            GUIContent removeMe = null;
+            IDictionary<string, Object> sharedVariables = graph.sharedVariableCollection.GetValues();
+            string removeMe = null;
+
             Type rmType = null;
-            
-            foreach (GUIContent guiContent in sharedVariables.Keys)
+
+            IEnumerator<KeyValuePair<string, Object>> enumerator = sharedVariables.GetEnumerator();
+
+            while(enumerator.MoveNext())
             {
-                Debug.Log(guiContent.text);
-                if (guiContent.text == "None") { continue; }
-                object sharedVariable = sharedVariables[guiContent];
+                string sharedVariableName = enumerator.Current.Key;
+                Object sharedVariable = enumerator.Current.Value;
+
+            //foreach (GUIContent guiContent in sharedVariables.Keys)
+            //{
+
+                if (sharedVariableName == "None") { continue; }
+                //Object sharedVariable = sharedVariables[guiContent];
                 Type sharedVarType = (Type)sharedVariable.GetType().GetProperty("sharedType").GetGetMethod().Invoke(sharedVariable, new object[0] { });
 
                 Rect rect = EditorGUILayout.BeginHorizontal();
+                
+                string newName = EditorGUILayout.DelayedTextField(GUIContent.none, sharedVariableName);
 
-                string name = guiContent.text;
-                string newName = EditorGUILayout.DelayedTextField(GUIContent.none, name);
-
-                if (newName != name)
+                if (newName != sharedVariableName)
                 {
-                    guiContent.text = newName;
+                    graph.sharedVariableCollection.RenameVariable(sharedVariableName, newName, sharedVarType);
+                    sharedVariables[sharedVariableName].name = newName;
                 }
 
-                ShowValueEditor(sharedVarType, sharedVariable, guiContent);
+                ShowValueEditor(sharedVarType, sharedVariable);
 
                 if (GUILayout.Button(new GUIContent("X", "Remove Variable")))
                 {
-                    removeMe = guiContent;
+                    removeMe = sharedVariableName;
                     rmType = sharedVarType;
                 }
 
@@ -57,22 +65,25 @@ public class NodeGraphEditor : Editor
 
             if (removeMe != null)
             {
-                graph.sharedVariableCollection.RemoveVariable(removeMe.text, rmType);
+                graph.sharedVariableCollection.RemoveVariable(removeMe, rmType);
                 Repaint();
             }
 
             EditorGUILayout.Space();
             newSharedVariableTypeIndex = EditorGUILayout.Popup(newSharedVariableTypeIndex, NodeUtilities.GetValidTypeOptions());
             newSharedVariableName = EditorGUILayout.TextField(newSharedVariableName);
-            if (GUILayout.Button(new GUIContent("+", "Add Variable")))
+            if (GUILayout.Button(new GUIContent("Add Variable", "Add Variable")))
             {
-                graph.sharedVariableCollection.AddVariable(newSharedVariableName, NodeUtilities.GetValidTypes()[newSharedVariableTypeIndex]);
+                if (newSharedVariableName != "")
+                {
+                    graph.sharedVariableCollection.AddVariable(newSharedVariableName, NodeUtilities.GetValidTypes()[newSharedVariableTypeIndex]);
+                }
             }
         }
         EditorGUILayout.EndVertical();
     }
 
-    private static void ShowValueEditor(Type type, object sharedVariable, GUIContent guiContent)
+    private static void ShowValueEditor(Type type, object sharedVariable)
     {
         object value = sharedVariable.GetType().GetField("value").GetValue(sharedVariable);
         System.Func<object, object> func;

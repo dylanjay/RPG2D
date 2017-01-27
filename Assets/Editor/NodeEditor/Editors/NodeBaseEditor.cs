@@ -8,6 +8,7 @@ using System;
 using Attribute = System.Attribute;
 using Type = System.Type;
 using Object = UnityEngine.Object;
+//using GUIContent = SGUIContent;
 
 [CustomEditor(typeof(NodeBase), true)]
 public class NodeBaseEditor : Editor
@@ -18,7 +19,7 @@ public class NodeBaseEditor : Editor
         FieldInfo choicesField = node.GetType().GetField("choices", BindingFlags.NonPublic | BindingFlags.Instance);
         BehaviorComponent behaviorComponent = node.behaviorComponent;
         bool behaviorWasEmpty = behaviorComponent == null;
-        SerializableDictionary<string, GUIContent> choices = (SerializableDictionary<string, GUIContent>)choicesField.GetValue(node);
+        SerializableDictionary<string, string> choices = (SerializableDictionary<string, string>)choicesField.GetValue(node);
 
         GUILayout.BeginVertical();
         {
@@ -31,7 +32,7 @@ public class NodeBaseEditor : Editor
         {
             EditorGUILayout.Space();
 
-            int prevOptionNumber = behaviorWasEmpty ? 0 : node.GetAllBehaviorTypes().IndexOf(behaviorComponent.GetType()) + 1;
+            int prevOptionNumber = behaviorWasEmpty ? 0 : 1 + node.GetAllBehaviorTypes().IndexOf(behaviorComponent.GetType());
             int optionNumber = EditorGUILayout.Popup(prevOptionNumber, node.GetAllBehaviorOptions());
 
             if (optionNumber != prevOptionNumber)
@@ -56,6 +57,10 @@ public class NodeBaseEditor : Editor
                 else
                 {
                     behaviorComponent = BehaviorComponent.CreateComponent(node.GetAllBehaviorTypes()[optionNumber - 1]);
+                    //behaviorComponent.hideFlags = HideFlags.HideInHierarchy;
+                    AssetDatabase.AddObjectToAsset(behaviorComponent, node.parentGraph);
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
                     if (changeName)
                     {
                         node.title = behaviorComponent.name;
@@ -73,7 +78,7 @@ public class NodeBaseEditor : Editor
                     }
                     if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
                     {
-                        choices[fieldInfo.Name] = GUIContent.none;
+                        choices[fieldInfo.Name] = SharedVariableCollection.none;
                     }
                 }
             }
@@ -124,12 +129,12 @@ public class NodeBaseEditor : Editor
                     {
                         Type sharedVarType = fieldInfo.FieldType.BaseType.GetGenericArguments()[0];
                         GUIContent[] options = node.parentGraph.GetDropdownOptions(sharedVarType);
-                        int prevChoice = GetGUIIndex(options, choices[fieldInfo.Name]);
+                        int prevChoice = Array.FindIndex(options, x => x.text == choices[fieldInfo.Name]);
                         int currentChoice = EditorGUILayout.Popup(new GUIContent(EditorUtilities.FixName(fieldInfo.Name)), prevChoice, options);
                         if (currentChoice != prevChoice)
                         {
-                            choices[fieldInfo.Name] = options[currentChoice];
-                            node.parentGraph.SetReference(node, fieldInfo.Name, options[prevChoice], options[currentChoice]);
+                            choices[fieldInfo.Name] = options[currentChoice].text;
+                            node.parentGraph.SetReference(node, fieldInfo.Name, options[prevChoice].text, options[currentChoice].text);
                         }
                     }
                     //Note: fieldInfo.FieldType == typeof(UnityEngine.Object) will result in false every time, because

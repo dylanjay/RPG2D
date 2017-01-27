@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
+//using GUIContent = SGUIContent;
+
 public class NodeLeaf : NodeBase
 {
     private static GUIContent[] _allLeafOptions = null;
@@ -79,9 +81,9 @@ public class NodeLeaf : NodeBase
         {
             EditorGUILayout.Space();
 
-            int prevOptionNumber = behaviorComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(behaviorComponent.GetType()) + 1;
+            int prevOptionNumber = behaviorComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(behaviorComponent.GetType());
             BehaviorComponent tempComponent = EditorGUILayout.ObjectField("Type", behaviorComponent, typeof(BehaviorLeaf), false) as BehaviorComponent;
-            int optionNumber = tempComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(tempComponent.GetType()) + 1;
+            int optionNumber = tempComponent == null ? 0 : GetAllBehaviorTypes().IndexOf(tempComponent.GetType());
 
             if (optionNumber != prevOptionNumber)
             {
@@ -104,7 +106,7 @@ public class NodeLeaf : NodeBase
                 }
                 else
                 {
-                    behaviorComponent = BehaviorComponent.CreateComponent(GetAllBehaviorTypes()[optionNumber - 1]);
+                    behaviorComponent = BehaviorComponent.CreateComponent(GetAllBehaviorTypes()[optionNumber]);
                     if (changeName)
                     {
                         title = behaviorComponent.name;
@@ -121,7 +123,7 @@ public class NodeLeaf : NodeBase
                     }
                     if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)))
                     {
-                        choices[fieldInfo.Name] = GUIContent.none;
+                        choices[fieldInfo.Name] = SharedVariableCollection.none;
                     }
                 }
             }

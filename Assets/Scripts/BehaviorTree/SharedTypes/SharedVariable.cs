@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SharedVariable<T>
+public class SharedVariable<T> : ScriptableObject
 {
+    [SerializeField, HideInInspector]
     public T value;
-    public string name;
 
     protected SharedVariable()
     {
-
+        
     }
 
     protected SharedVariable(T value)
@@ -33,8 +33,6 @@ public class SharedVariable<T>
     }
 }
 
-[System.Serializable]
-public class SharedBool : SharedVariable<bool> {}
 
 [System.Serializable]
 public class SharedColor : SharedVariable<Color> {}
@@ -77,9 +75,6 @@ public class SharedRect : SharedVariable<Rect> {}
 
 [System.Serializable]
 public class SharedString : SharedVariable<string> {}
-
-[System.Serializable]
-public class SharedTransform : SharedVariable<Transform> {}
 
 [System.Serializable]
 public class SharedTransformList : SharedVariable<List<Transform>> {}

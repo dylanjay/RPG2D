@@ -11,8 +11,8 @@ public class NodeBaseDrawer : PropertyDrawer
         //if(Event.current.type == EventType.Layout)
         {
             EditorGUI.BeginProperty(rect, label, property);
-            Debug.Log("Drawing NodeGraph " + property.displayName);
-            //EditorGUI.PropertyField(rect, property.FindPropertyRelative("description"));
+            //Debug.Log("Drawing NodeGraph " + property.displayName);
+            EditorGUI.PropertyField(rect, property.FindPropertyRelative("description"));
             EditorGUI.EndProperty();
         }
     }

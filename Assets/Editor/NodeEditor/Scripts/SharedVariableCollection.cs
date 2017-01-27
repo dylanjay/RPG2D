@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +6,8 @@ using System.Reflection;
 using Type = System.Type;
 using Attribute = System.Attribute;
 using Wildcard = System.SByte;
+using Object = UnityEngine.Object;
+using UnityEditor;
 
 [System.Serializable]
 public class SharedVariableCollection
@@ -14,7 +15,10 @@ public class SharedVariableCollection
     [System.Serializable]
     public struct NodeFieldPair
     {
+        [SerializeField]
         public NodeBase node;
+
+        [SerializeField]
         public string fieldName;
 
         public NodeFieldPair(NodeBase node, string fieldName)
@@ -24,27 +28,30 @@ public class SharedVariableCollection
         }
     }
 
+    [SerializeField]
+    protected NodeGraph nodeGraph;
+
     //This pattern is the only way to properly serialize these variables, since Unity/C#
     //cannot serialize Generic objects by default.
     [System.Serializable]
     protected class DropdownDictionary : SerializableDictionary<Type, List<GUIContent>> { }
     /// <summary>
-    /// All possible dropdowns. The key is the type of the object, the value is the list of GUIContent options.
+    /// All possible dropdowns. The key is the type of the object, the value is the list of GUIContent options (SharedVariables).
     /// </summary>
     [SerializeField]
     protected DropdownDictionary dropdowns = new DropdownDictionary();
 
     [System.Serializable]
-    protected class ReferenceDictionary : SerializableDictionary<GUIContent, HashSet<NodeFieldPair>> { }
+    protected class ReferenceDictionary : SerializableDictionary<Object, HashSet<NodeFieldPair>> { }
     /// <summary>
-    /// A dictionary of all references found within the tree. The key is the GUIContent option from the dropdown,
+    /// A dictionary of all references found within the tree. The key is the SharedVariable reference,
     /// The value is a hashset of Node/FieldName pairs that correspond to that variable.
     /// </summary>
     [SerializeField]
     protected ReferenceDictionary references = new ReferenceDictionary();
 
     [System.Serializable]
-    protected class ValuesDictionary : SerializableDictionary<GUIContent, object> { }
+    protected class ValuesDictionary : SerializableDictionary<string, Object> { }
     /// <summary>
     /// A dictinary that holds all SharedVariable values. The key is the GUIContent option, the value is the object
     /// stored for that SharedVariable name.
@@ -52,9 +59,11 @@ public class SharedVariableCollection
     [SerializeField]
     protected ValuesDictionary values = new ValuesDictionary();
 
+    [System.Serializable]
     protected class NameHashSet : SerializableDictionary<string, Wildcard>
     {
         public void Add(string name) { Add(name, default(Wildcard)); }
+
     }
     /// <summary>
     /// A HashSet of all strings that are being used for a SharedVariable name in the corresponding tree.
@@ -62,19 +71,19 @@ public class SharedVariableCollection
     [SerializeField]
     protected NameHashSet names = new NameHashSet();
 
-    protected static GUIContent none = new GUIContent("None");
+    public static string none = "None";
 
     protected HashSet<NodeFieldPair> unassigned
     {
-        get { return references[none]; }
-        set { references[none] = value; }
+        get { return references[nodeGraph]; }
     }
 
-    public SharedVariableCollection()
+    public SharedVariableCollection(NodeGraph nodeGraph)
     {
-        references.Add(none, new HashSet<NodeFieldPair>());
-        values.Add(none, null);
-        names.Add(none.text);
+        this.nodeGraph = nodeGraph;
+        names.Add(none);
+        values[none] = nodeGraph;
+        references.Add(nodeGraph, new HashSet<NodeFieldPair>());
     }
 
     /// <summary>
@@ -84,11 +93,23 @@ public class SharedVariableCollection
     /// <param name="type">The type of the new variable.</param>
     public void AddVariable(string name, Type type)
     {
+        if (!Application.isEditor) { throw new System.InvalidOperationException("You cannot add variables during runtime."); }
+        if (name == none)
+        {
+            Debug.LogError("For obvious confusion reasons with the GUI, naming your variable \"None\" has been disabled.");
+            return;
+        }
         if (names.ContainsKey(name))
         {
             Debug.LogError("Error: a SharedVariable already exists in this tree with the given name.");
             return;
         }
+        if (nodeGraph.name == name)
+        {
+            Debug.LogError("Error: a SharedVariable name cannot be the same as the graph's name.");
+            return;
+        }
+
         if (name.Length == 0)
         {
             Debug.LogError("Error: name must be at least one character long.");
@@ -108,18 +129,27 @@ public class SharedVariableCollection
             dropdowns[type] = new List<GUIContent>() { new GUIContent(name) };
         }
 
-        references.Add(dropdowns[type][dropdowns[type].Count - 1], new HashSet<NodeFieldPair>());
-        foreach(Type sharedVarType in NodeUtilities.GetSharedVariableDerivedTypes())
-        {
-            if(sharedVarType.BaseType.GetGenericArguments()[0] == type)
-            {
-                values.Add(dropdowns[type][dropdowns[type].Count - 1], System.Activator.CreateInstance(sharedVarType, true));
-                return;
-            }
-        }
-        Debug.LogError("Error: recieved a type that does not have an associated SharedVariable<> derived class. Type: " + type);
-    }
 
+        System.Predicate<Type> findSharedType = varType => varType.BaseType.GetGenericArguments()[0] == type;
+        Type sharedVarType = System.Array.Find(NodeUtilities.GetSharedVariableDerivedTypes(), findSharedType);
+
+        if (sharedVarType == null)
+        {
+            Debug.LogError("Error: recieved a type that does not have an associated SharedVariable<> derived class. Type: " + type);
+            return;
+        }
+
+        ScriptableObject sharedVar = ScriptableObject.CreateInstance(sharedVarType);
+        //sharedVar.hideFlags = HideFlags.HideInHierarchy;
+        sharedVar.name = name;
+        values.Add(name, sharedVar);
+        references.Add(sharedVar, new HashSet<NodeFieldPair>());
+        AssetDatabase.AddObjectToAsset(sharedVar, nodeGraph);
+        AssetDatabase.SaveAssets();
+        AssetDatabase.Refresh();
+        return;
+    }
+    
     /// <summary>
     /// Removes a variable from the collection of shared variables.
     /// Prints out an error upon failure.
@@ -128,29 +158,26 @@ public class SharedVariableCollection
     /// <param name="type"></param>
     public void RemoveVariable(string name, Type type)
     {
+        Object removedSharedVariable = values[name];
         if (!dropdowns.ContainsKey(type))
         {
             Debug.LogError("Error: tried to remove a value from a shared variable type that does not exist.");
         }
         List<GUIContent> guiContents = dropdowns[type];
         GUIContent match = guiContents.Find(x => x.text == name);
-        if(match == default(GUIContent))
-        {
-            Debug.LogError("Error: tried to remove a value that does not exist.");
-            return;
-        }
+        
 
-        if(references[match].Count != 0)
+        if (references[removedSharedVariable].Count != 0)
         {
             Debug.LogWarning(string.Format("There nodes that are still currently using SharedVariable \"{0}\". These references will be cleared."));
-            foreach(NodeFieldPair reference in references[match])
+            foreach (NodeFieldPair reference in references[removedSharedVariable])
             {
                 typeof(NodeBase).GetField(reference.fieldName).SetValue(reference.node.behaviorComponent, null);
                 unassigned.Add(reference);
             }
-            references.Remove(match);
+            references.Remove(removedSharedVariable);
         }
-        
+
         if (guiContents.Count == 1)
         {
             dropdowns.Remove(type);
@@ -159,9 +186,9 @@ public class SharedVariableCollection
         {
             dropdowns[type].Remove(match);
         }
-        
+
         names.Remove(name);
-        values.Remove(match);
+        values.Remove(name);
     }
 
     /// <summary>
@@ -225,16 +252,16 @@ public class SharedVariableCollection
     /// <returns>All SharedVariable names with the given type in the form of a GUIContent[].</returns>
     public GUIContent[] GetDropdownOptions(Type type)
     {
-        if(dropdowns.ContainsKey(type))
+        if (dropdowns.ContainsKey(type))
         {
-            List<GUIContent> list = new List<GUIContent> { none };
+            List<GUIContent> list = new List<GUIContent> { new GUIContent(none) };
             list.AddRange(dropdowns[type]);
             return list.ToArray();
         }
         else
         {
             //Debug.LogWarning(string.Format("Warning: No shared variables of type {0}.", type));
-            return new GUIContent[1]{none};
+            return new GUIContent[1] { new GUIContent(none) };
         }
     }
 
@@ -244,12 +271,12 @@ public class SharedVariableCollection
     /// <param name="node">The Node that is handling the behavior.</param>
     /// <param name="fieldName">The name of the field being set within the behavior.</param>
     /// <param name="option">The option selected in the dropdown menu. Must not be a copy.</param>
-    public void SetReference(NodeBase node, string fieldName, GUIContent prevOption, GUIContent currentOption)
+    public void SetReference(NodeBase node, string fieldName, string prevOption, string currentOption)
     {
         NodeFieldPair sharedVarPair = new NodeFieldPair(node, fieldName);
-
-        references[prevOption].Remove(sharedVarPair);
-        references[currentOption].Add(sharedVarPair);
+        
+        references[values[prevOption]].Remove(sharedVarPair);
+        references[values[currentOption]].Add(sharedVarPair);
 
         Type nodeType = node.behaviorComponent.GetType();
         FieldInfo fieldInfo =
@@ -262,11 +289,11 @@ public class SharedVariableCollection
     /// </summary>
     /// <param name="node">The Node that is handling the behavior.</param>
     /// <param name="fieldName">The name of the field being cleared within the behavior.</param>
-    /// <param name="option">The previous option selected in the dropdown menu. Must not be a copy.</param>
-    public void RemoveReference(NodeBase node, string fieldName, GUIContent option)
+    /// <param name="sharedVariableName">The previous option selected in the dropdown menu. Must not be a copy.</param>
+    public void RemoveReference(NodeBase node, string fieldName, string sharedVariableName)
     {
         NodeFieldPair sharedVarPair = new NodeFieldPair(node, fieldName);
-        references[option].Remove(sharedVarPair);
+        references[values[sharedVariableName]].Remove(sharedVarPair);
         unassigned.Add(sharedVarPair);
 
         Type nodeType = node.behaviorComponent.GetType();
@@ -300,10 +327,10 @@ public class SharedVariableCollection
     {
         Type behaviorType = node.behaviorComponent.GetType();
 
-        foreach(FieldInfo fieldInfo in behaviorType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+        foreach (FieldInfo fieldInfo in behaviorType.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
         {
             //If it is a shared variable and a SerializedField or isPublic
-            if(fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)) &&
+            if (fieldInfo.FieldType.IsSubClassOfGeneric(typeof(SharedVariable<>)) &&
                 (((Attribute[])fieldInfo.GetCustomAttributes(typeof(SerializeField), true)).Length > 0 && fieldInfo.IsPrivate ||
                 (((Attribute[])fieldInfo.GetCustomAttributes(typeof(HideInInspector), true)).Length != 0 && fieldInfo.IsPublic)))
             {
@@ -317,7 +344,7 @@ public class SharedVariableCollection
                     Type varType = (Type)sharedVar.GetType().GetProperty("sharedType").GetGetMethod().Invoke(sharedVar, new object[] { });
 
                     GUIContent guiContent = dropdowns[varType].ToList().Find(x => x.text == fieldInfo.Name);
-                    references[guiContent].Remove(new NodeFieldPair(node, fieldInfo.Name));
+                    references[values[guiContent.text]].Remove(new NodeFieldPair(node, fieldInfo.Name));
                 }
             }
         }
@@ -336,18 +363,18 @@ public class SharedVariableCollection
     /// <summary>
     /// Sets the value of the given SharedVariable option to the given value. Uses reflection.
     /// </summary>
-    /// <param name="namedOption">The option in the Popup dropdown menu.</param>
+    /// <param name="sharedVariableName">The option in the Popup dropdown menu.</param>
     /// <param name="value">The new value the SharedVariable should hold.</param>
-    public void SetValue(GUIContent namedOption, object value)
+    public void SetValue(string sharedVariableName, object value)
     {
-        values[namedOption].GetType().GetField("value").SetValue(values[namedOption], value);
+        values[sharedVariableName].GetType().GetField("value").SetValue(values[sharedVariableName], value);
     }
-    
+
     public IEnumerator<NodeFieldPair> GetAllUnAssigned()
     {
         HashSet<NodeFieldPair>.Enumerator enumerator = unassigned.GetEnumerator();
 
-        while(enumerator.MoveNext())
+        while (enumerator.MoveNext())
         {
             yield return enumerator.Current;
         }
@@ -358,7 +385,7 @@ public class SharedVariableCollection
         return unassigned.GetEnumerator();
     }
 
-    public IDictionary<GUIContent, object> GetValues()
+    public IDictionary<string, Object> GetValues()
     {
         return values;
     }
@@ -373,9 +400,32 @@ public class SharedVariableCollection
             return;
         }
 
-        foreach(GUIContent guiContent in values.Keys)
+        foreach (string sharedVariableName in values.Keys)
         {
-            values[guiContent].GetType().GetField("name").SetValue(values[guiContent], guiContent.text);
+            values[sharedVariableName].GetType().GetField("name").SetValue(values[sharedVariableName], sharedVariableName);
+        }
+    }
+
+    public void OnEnable()
+    {
+        if (dropdowns.Keys == null) { dropdowns = new DropdownDictionary(); Debug.Log("Rebuilding Dropdowns."); }
+        Object[] assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(nodeGraph));
+        foreach (Object asset in assets)
+        {
+            if (asset.GetType().IsSubClassOfGeneric(typeof(SharedVariable<>)))
+            {
+                GUIContent content = new GUIContent(asset.name);
+                Type sharedVarType = (Type)asset.GetType().GetProperty("sharedType").GetGetMethod().Invoke(asset, new object[0] { });
+                if (dropdowns.ContainsKey(sharedVarType))
+                {
+                    dropdowns[sharedVarType].Add(content);
+                }
+                else
+                {
+                    dropdowns[sharedVarType] = new List<GUIContent> { content };
+                }
+                //values.Add(asset.name, asset);
+            }
         }
     }
 }

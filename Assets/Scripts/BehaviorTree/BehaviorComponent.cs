@@ -26,6 +26,7 @@ public abstract class BehaviorComponent : ScriptableObject
     public static BehaviorComponent CreateComponent(System.Type componentType, string name = "")
     {
         BehaviorComponent behaviorComponent = (BehaviorComponent)ScriptableObject.CreateInstance(componentType);
+
         behaviorComponent.Instantiate(name);
         return behaviorComponent;
     }

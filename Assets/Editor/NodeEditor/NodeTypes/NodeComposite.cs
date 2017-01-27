@@ -3,6 +3,8 @@ using System.Linq;
 using System;
 using System.Collections.ObjectModel;
 
+//using GUIContent = SGUIContent;
+
 [Serializable]
 public class NodeComposite : NodeBase
 {

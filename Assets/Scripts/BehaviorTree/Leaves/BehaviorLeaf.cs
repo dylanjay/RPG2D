@@ -1,11 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-[System.Serializable]
 public abstract class BehaviorLeaf : BehaviorComponent
 {
-    public List<SerializableDictionaryPair> sharedVarDictPairs = new List<SerializableDictionaryPair>();
-
     private bool callOnStart = true;
 
     [SerializeField]

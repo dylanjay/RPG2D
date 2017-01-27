@@ -1,14 +1,13 @@
-﻿//From a forum post from Vexe found here: 
-//https://forum.unity3d.com/threads/finally-a-serializable-dictionary-for-unity-extracted-from-system-collections-generic.335797/
-
-using System;
+﻿using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
 using UnityEngine;
 
-[Serializable, DebuggerDisplay("Count = {Count}")]
+// From a forum post from Vexe found here: 
+// https://forum.unity3d.com/threads/finally-a-serializable-dictionary-for-unity-extracted-from-system-collections-generic.335797/
+[Serializable, System.Diagnostics.DebuggerDisplay("Count = {Count}")]
 public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 {
     [SerializeField, HideInInspector]
@@ -61,6 +60,10 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
             int index = FindIndex(key);
             if (index >= 0)
                 return _Values[index];
+            foreach (TKey value in Keys)
+            {
+                Debug.Log(value);
+            }
             throw new KeyNotFoundException(key.ToString());
         }
 
@@ -204,9 +207,10 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     public bool Remove(TKey key)
     {
+        
         if (key == null)
             throw new ArgumentNullException("key");
-
+        
         int hash = _Comparer.GetHashCode(key) & 2147483647;
         int index = hash % _Buckets.Length;
         int num = -1;
@@ -235,9 +239,10 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     private void Insert(TKey key, TValue value, bool add)
     {
+       
         if (key == null)
             throw new ArgumentNullException("key");
-
+        
         if (_Buckets == null)
             Initialize(0);
 
@@ -306,9 +311,10 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
 
     private int FindIndex(TKey key)
     {
+        
         if (key == null)
             throw new ArgumentNullException("key");
-
+        
         if (_Buckets != null)
         {
             int hash = _Comparer.GetHashCode(key) & 2147483647;
@@ -583,3 +589,49 @@ public class SerializableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
         }
     }
 }
+
+//[Serializable, System.Diagnostics.DebuggerDisplay("Count = {Count}")]
+//public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+//{
+//    [SerializeField]
+//    private List<TKey> _keys;
+//    [SerializeField]
+//    private List<TValue> _values;
+
+//    //Unity doesn't know how to serialize a Dictionary
+//    private Dictionary<TKey, TValue> _myDictionary = new Dictionary<TKey, TValue>();
+
+//    public void OnBeforeSerialize()
+//    {
+//        _keys.Clear();
+//        _values.Clear();
+
+//        foreach (var kvp in _myDictionary)
+//        {
+//            _keys.Add(kvp.Key);
+//            _values.Add(kvp.Value);
+//        }
+//    }
+
+//    public void OnAfterDeserialize()
+//    {
+//        _myDictionary = new Dictionary<TKey, TValue>();
+
+//        for (int i = 0; i != Math.Min(_keys.Count, _values.Count); i++)
+//            _myDictionary.Add(_keys[i], _values[i]);
+
+//        UnityEngine.Debug.Log("Deserializing");
+//        foreach (var kvp in _myDictionary)
+//        {
+//            GUILayout.Label("Key: " + kvp.Key + " value: " + kvp.Value);
+//        }
+//    }
+
+//    void OnGUI()
+//    {
+//        foreach (var kvp in _myDictionary)
+//        {
+//            GUILayout.Label("Key: " + kvp.Key + " value: " + kvp.Value);
+//        }
+//    }
+//}

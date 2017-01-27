@@ -85,6 +85,7 @@ public static class NodeUtilities
             valid = false;
             Debug.LogError("Root has not been set");
             return;
+
         }
 
         if(node.behaviorComponent == null)
@@ -192,37 +193,16 @@ public static class NodeUtilities
         if(graph == null) { return; }
 
         NodeBase currentNode;
-        string name;
-        currentNode = NodeBase.CreateNode(nodeType);
+        currentNode = NodeBase.CreateNode(nodeType, graph, position);
         currentNode.behaviorComponent = behaviorComponent;
 
         if (behaviorComponent == null)
         {
-            name = currentNode.name;
+            currentNode.title = currentNode.name;
         }
         else
         {
-            name = behaviorComponent.name;
-        }
-        currentNode.title = name;
-        currentNode.name = name;
-        
-        if (currentNode != null)
-        {
-            currentNode.Initialize();
-            currentNode.nodeRect.x = position.x;
-            currentNode.nodeRect.y = position.y;
-            currentNode.parentGraph = graph;
-            graph.nodes.Add(currentNode);
-
-            AssetDatabase.AddObjectToAsset(currentNode, graph);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            /*if(currentNode.GetType() == typeof(NodeLeaf))
-            {
-                ((NodeLeaf)currentNode).Reset();
-            }*/
+            currentNode.title = behaviorComponent.name;
         }
     }
 
@@ -238,16 +218,16 @@ public static class NodeUtilities
                 (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                 from type in assembly.GetTypes()
                 where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
-                select type.BaseType.GetGenericArguments()[0]).ToArray();
+                select type.BaseType.GetGenericArguments()[0]).OrderBy(x => x.Name).ToArray();
 
             validTypeOptions =
                 (from type in validTypes
-                select new GUIContent(type.Name)).ToArray();
+                select new GUIContent(type.Name)).OrderBy(x => x.text).ToArray();
             sharedVariableDerivedTypes =
                 (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                 from type in assembly.GetTypes()
                 where type.IsSubClassOfGeneric(typeof(SharedVariable<>))
-                select type).ToArray();
+                select type).OrderBy(x => x.Name).ToArray();
         }
         
     }
