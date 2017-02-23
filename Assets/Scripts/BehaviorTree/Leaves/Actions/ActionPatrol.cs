@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Benco.BehaviorTree;
+
 
 [CreateAssetMenu(fileName = "New Action Patrol", menuName = "Actions/Patrol", order = 1)]
 [ShowInNodeEditor("Patrol", false)]

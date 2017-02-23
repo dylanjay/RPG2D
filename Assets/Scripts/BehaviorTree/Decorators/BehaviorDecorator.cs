@@ -1,24 +1,27 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class BehaviorDecorator : BehaviorComponent
+namespace Benco.BehaviorTree
 {
-    [SerializeField]
-    protected BehaviorComponent childBehavior;
-    
-    protected override void Instantiate(string name)
+    public abstract class BehaviorDecorator : BehaviorComponent
     {
-        Initialize(name, null);
-    }
+        [SerializeField]
+        protected BehaviorComponent childBehavior;
 
-    public virtual void Initialize(string name, BehaviorComponent childBehavior = null)
-    {
-        base.Instantiate(name);
-        this.childBehavior = childBehavior;
-    }
+        protected override void Instantiate(string name)
+        {
+            Initialize(name, null);
+        }
 
-    public override IEnumerator<BehaviorComponent> GetChildren()
-    {
-        yield return childBehavior;
+        public virtual void Initialize(string name, BehaviorComponent childBehavior = null)
+        {
+            base.Instantiate(name);
+            this.childBehavior = childBehavior;
+        }
+
+        public override IEnumerator<BehaviorComponent> GetChildren()
+        {
+            yield return childBehavior;
+        }
     }
 }

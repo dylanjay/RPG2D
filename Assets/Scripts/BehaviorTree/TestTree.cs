@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using System.Collections;
+using Benco.BehaviorTree;
 
-public class TestTree : MonoBehaviour {
-
+public class TestTree : MonoBehaviour
+{
     // Use this for initialization
     BehaviorComponent tree;
     Player player;

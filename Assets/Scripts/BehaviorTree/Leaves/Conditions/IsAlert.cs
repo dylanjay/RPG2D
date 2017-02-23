@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Benco.BehaviorTree;
 
 [CreateAssetMenu(fileName = "New Condition Is Alert", menuName = "Conditions/IsAlert", order = 0)]
 [ShowInNodeEditor("IsAlert", false)]

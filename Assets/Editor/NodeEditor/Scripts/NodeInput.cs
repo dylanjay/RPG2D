@@ -1,10 +1,13 @@
 ﻿using UnityEngine;
 using System;
 
-[Serializable]
-public class NodeInput
+namespace Benco.BehaviorTree.TreeEditor
 {
-    public bool isOccupied = false;
-    public NodeBase parentNode;
-    public Vector2 position;
+    [Serializable]
+    public class NodeInput
+    {
+        public bool isOccupied = false;
+        public NodeBase parentNode;
+        public Vector2 position;
+    }
 }

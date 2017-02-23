@@ -1,36 +1,39 @@
 ﻿using UnityEngine;
 
-public class NodePropertiesView : ViewBase
+namespace Benco.BehaviorTree.TreeEditor
 {
-    public NodePropertiesView() : base("Properties View")
+    public class NodePropertiesView : ViewBase
     {
-
-    }
-
-    public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
-    {
-        /*base.UpdateView(editorRect, percentageRect, e, graph);
-        ProcessEvents(e);
-        GUI.Box(viewRect, "", viewSkin.GetStyle("PropertiesViewBackground"));
-        GUILayout.BeginArea(viewRect);
+        public NodePropertiesView() : base("Properties View")
         {
-            if (currentGraph != null)
+
+        }
+
+        public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        {
+            /*base.UpdateView(editorRect, percentageRect, e, graph);
+            ProcessEvents(e);
+            GUI.Box(viewRect, "", viewSkin.GetStyle("PropertiesViewBackground"));
+            GUILayout.BeginArea(viewRect);
             {
-                if (currentGraph.showProperties && currentGraph.selectedNode != null)
+                if (currentGraph != null)
                 {
-                    currentGraph.selectedNode.DrawNodeProperties();
-                }
-                else
-                {
-                    currentGraph.DrawSharedVariableEditor();
+                    if (currentGraph.showProperties && currentGraph.selectedNode != null)
+                    {
+                        currentGraph.selectedNode.DrawNodeProperties();
+                    }
+                    else
+                    {
+                        currentGraph.DrawSharedVariableEditor();
+                    }
                 }
             }
+            GUILayout.EndArea();*/
         }
-        GUILayout.EndArea();*/
-    }
 
-    public override void ProcessEvents(Event e)
-    {
-        base.ProcessEvents(e);
+        public override void ProcessEvents(Event e)
+        {
+            base.ProcessEvents(e);
+        }
     }
 }

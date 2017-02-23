@@ -3,63 +3,64 @@ using System.Linq;
 using System;
 using System.Collections.ObjectModel;
 
-//using GUIContent = SGUIContent;
-
-[Serializable]
-public class NodeDecorator : NodeBase
+namespace Benco.BehaviorTree.TreeEditor
 {
-    private static GUIContent[] _allDecoratorOptions = null;
-    private static ReadOnlyCollection<Type> _allDecoratorTypes = null;
-
-    public override GUIContent[] GetAllBehaviorOptions()
+    [Serializable]
+    public class NodeDecorator : NodeBase
     {
-        if (_allDecoratorOptions == null)
+        private static GUIContent[] _allDecoratorOptions = null;
+        private static ReadOnlyCollection<Type> _allDecoratorTypes = null;
+
+        public override GUIContent[] GetAllBehaviorOptions()
         {
-            GUIContent[] tmp = NodeEditorTags.GetAllLabelsOfNodeType(NodeType.Decorator);
-            _allDecoratorOptions = new GUIContent[tmp.Length + 1];
-            _allDecoratorOptions[0] = new GUIContent("None");
-            for (int i = 0; i < tmp.Length; i++)
+            if (_allDecoratorOptions == null)
             {
-                _allDecoratorOptions[i + 1] = tmp[i];
+                GUIContent[] tmp = NodeEditorTags.GetAllLabelsOfNodeType(NodeType.Decorator);
+                _allDecoratorOptions = new GUIContent[tmp.Length + 1];
+                _allDecoratorOptions[0] = new GUIContent("None");
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    _allDecoratorOptions[i + 1] = tmp[i];
+                }
             }
+            return _allDecoratorOptions;
         }
-        return _allDecoratorOptions;
-    }
 
-    public override ReadOnlyCollection<Type> GetAllBehaviorTypes()
-    {
-        if (_allDecoratorTypes == null)
+        public override ReadOnlyCollection<Type> GetAllBehaviorTypes()
         {
-            _allDecoratorTypes = NodeEditorTags.GetAllTypesOfNodeType(NodeType.Decorator); 
+            if (_allDecoratorTypes == null)
+            {
+                _allDecoratorTypes = NodeEditorTags.GetAllTypesOfNodeType(NodeType.Decorator);
+            }
+            return _allDecoratorTypes;
         }
-        return _allDecoratorTypes;
-    }
 
-    public NodeDecorator(Type nodeType)
-    {
-        input = new NodeInput();
-        output = new NodeOutput();
-    }
+        public NodeDecorator(Type nodeType)
+        {
+            input = new NodeInput();
+            output = new NodeOutput();
+        }
 
-    public override void Initialize()
-    {
-        base.Initialize();
-        nodeRect = new Rect(10, 10, 150, 35);
-    }
+        public override void Initialize()
+        {
+            base.Initialize();
+            nodeRect = new Rect(10, 10, 150, 35);
+        }
 
-    public override void UpdateNodeGUI(Event e, Rect viewRect)
-    {
-        base.UpdateNodeGUI(e, viewRect);
-    }
+        public override void UpdateNodeGUI(Event e, Rect viewRect)
+        {
+            base.UpdateNodeGUI(e, viewRect);
+        }
 #if UNITY_EDITOR
-    public override void DrawNodeProperties()
-    {
-        base.DrawNodeProperties();
-    }
+        public override void DrawNodeProperties()
+        {
+            base.DrawNodeProperties();
+        }
 
-    public override void DrawNodeHelp()
-    {
-        base.DrawNodeHelp();
-    }
+        public override void DrawNodeHelp()
+        {
+            base.DrawNodeHelp();
+        }
 #endif
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Benco.BehaviorTree;
 
 [CreateAssetMenu(fileName = "New Action Wait", menuName = "Actions/Wait", order = 0)]
 [ShowInNodeEditor("Wait For Seconds", false)]

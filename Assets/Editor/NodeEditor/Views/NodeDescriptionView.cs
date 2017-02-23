@@ -1,42 +1,48 @@
 ﻿using UnityEngine;
 
-public class NodeDescriptionView : ViewBase
+namespace Benco.BehaviorTree.TreeEditor
 {
-    public NodeDescriptionView() : base("Description View")
+    /// <remarks>
+    /// I'm not sure if this useful still.
+    /// </remarks>
+    public class NodeDescriptionView : ViewBase
     {
-
-    }
-
-    public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
-    {
-        base.UpdateView(editorRect, percentageRect, e, graph);
-        GUI.Box(viewRect, "", viewSkin.GetStyle("DescriptionViewBackground"));
-        GUILayout.BeginArea(viewRect);
+        public NodeDescriptionView() : base("Description View")
         {
-            if (currentGraph != null)
+
+        }
+
+        public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        {
+            base.UpdateView(editorRect, percentageRect, e, graph);
+            GUI.Box(viewRect, "", viewSkin.GetStyle("DescriptionViewBackground"));
+            GUILayout.BeginArea(viewRect);
             {
-                if (currentGraph.selectedNode != null)
+                if (currentGraph != null)
                 {
-                    currentGraph.selectedNode.DrawNodeHelp();
+                    if (currentGraph.selectedNode != null)
+                    {
+                        currentGraph.selectedNode.DrawNodeHelp();
+                    }
                 }
             }
+            GUILayout.EndArea();
+            ProcessEvents(e);
         }
-        GUILayout.EndArea();
-        ProcessEvents(e);
-    }
 
-    public override void ProcessEvents(Event e)
-    {
-        base.ProcessEvents(e);
-    }
+        public override void ProcessEvents(Event e)
+        {
+            base.ProcessEvents(e);
+        }
 
-    void ProcessContextMenu(Event e)
-    {
+        void ProcessContextMenu(Event e)
+        {
 
-    }
+        }
 
-    void ContextCallback(object obj)
-    {
+        void ContextCallback(object obj)
+        {
 
+        }
     }
 }

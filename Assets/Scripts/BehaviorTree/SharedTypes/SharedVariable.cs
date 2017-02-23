@@ -2,94 +2,94 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SharedVariable<T> : ScriptableObject
+namespace Benco.BehaviorTree
 {
-    [SerializeField, HideInInspector]
-    public T value;
-
-    protected SharedVariable()
+    /// <summary>
+    /// A base class to help with the typing in other scripts. Effectively an alias for ScriptableObject that only 
+    /// Scriptable Objects inherit from. Don't inherit from this unless you want to mess your codebase up.
+    /// </summary>
+    [System.Serializable]
+    public abstract class SharedVariable : ScriptableObject
     {
-        
+        public abstract System.Type sharedType { get; }
     }
 
-    protected SharedVariable(T value)
+    [System.Serializable]
+    public class NullSharedVariable : SharedVariable
     {
-        this.value = value;
+        public override System.Type sharedType { get { return typeof(void); } }
     }
 
-    public static implicit operator T (SharedVariable<T> sharedVariable)
+    [System.Serializable]
+    public class SharedVariable<T> : SharedVariable
     {
-        return sharedVariable.value;
+        [SerializeField, HideInInspector]
+        public T value;
+
+        protected SharedVariable()
+        {
+
+        }
+
+        protected SharedVariable(T value)
+        {
+            this.value = value;
+        }
+
+        public static implicit operator T(SharedVariable<T> sharedVariable)
+        {
+            return sharedVariable.value;
+        }
+
+        public static implicit operator SharedVariable<T>(T value)
+        {
+            SharedVariable<T> ret = ScriptableObject.CreateInstance<SharedVariable<T>>();
+            ret.value = value;
+            return ret;
+        }
+
+        public override System.Type sharedType
+        {
+            get { return typeof(T); }
+        }
     }
 
-    public static implicit operator SharedVariable<T>(T value)
-    {
-        return new SharedVariable<T>(value);
-    }
+    //public class SharedColor : SharedVariable<Color> { }
 
-    public System.Type sharedType
-    {
-        get { return typeof(T); }
-    }
+    //public class SharedFloat : SharedVariable<float> { }
+
+    //public class SharedGameObject : SharedVariable<GameObject> { }
+
+    //public class SharedGameObjectList : SharedVariable<List<GameObject>> { }
+
+    public class SharedHostile : SharedVariable<Hostile> { }
+
+    //public class SharedHostileList : SharedVariable<List<Hostile>> { }
+
+    //public class SharedInt : SharedVariable<int> { }
+
+    //public class SharedMaterial : SharedVariable<Material> { }
+
+    //public class SharedObject : SharedVariable<Object> { }
+
+    //public class SharedObjectList : SharedVariable<List<Object>> { }
+
+    public class SharedPlayer : SharedVariable<Player> { }
+
+    //public class SharedQuaternion : SharedVariable<Quaternion> { }
+
+    //public class SharedRect : SharedVariable<Rect> { }
+
+    //public class SharedString : SharedVariable<string> { }
+
+    public class SharedTransformList : SharedVariable<List<Transform>> { }
+
+    //public class SharedVector2 : SharedVariable<Vector2> { }
+
+    //public class SharedVector3 : SharedVariable<Vector3> { }
+
+    //public class SharedVector4 : SharedVariable<Vector4> { }
 }
-
-
-[System.Serializable]
-public class SharedColor : SharedVariable<Color> {}
-
-[System.Serializable]
-public class SharedFloat : SharedVariable<float> {}
-
-[System.Serializable]
-public class SharedGameObject : SharedVariable<GameObject> {}
-
-[System.Serializable]
-public class SharedGameObjectList : SharedVariable<List<GameObject>> {}
-
-[System.Serializable]
-public class SharedHostile : SharedVariable<Hostile> {}
-
-[System.Serializable]
-public class SharedHostileList : SharedVariable<List<Hostile>> {}
-
-[System.Serializable]
-public class SharedInt : SharedVariable<int> {}
-
-[System.Serializable]
-public class SharedMaterial : SharedVariable<Material> {}
-
-[System.Serializable]
-public class SharedObject : SharedVariable<Object> {}
-
-[System.Serializable]
-public class SharedObjectList : SharedVariable<List<Object>> {}
-
-[System.Serializable]
-public class SharedPlayer : SharedVariable<Player> {}
-
-[System.Serializable]
-public class SharedQuaternion : SharedVariable<Quaternion> {}
-
-[System.Serializable]
-public class SharedRect : SharedVariable<Rect> {}
-
-[System.Serializable]
-public class SharedString : SharedVariable<string> {}
-
-[System.Serializable]
-public class SharedTransformList : SharedVariable<List<Transform>> {}
-
-[System.Serializable]
-public class SharedVector2 : SharedVariable<Vector2> {}
-
-[System.Serializable]
-public class SharedVector3 : SharedVariable<Vector3> {}
-
-[System.Serializable]
-public class SharedVector4 : SharedVariable<Vector4> { }
-
-
-
 
 
 

@@ -1,55 +1,58 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-public class NodePopupWindow : EditorWindow
+namespace Benco.BehaviorTree.TreeEditor
 {
-    static NodePopupWindow instance;
-    string graphName = "Enter a name...";
-
-    public static void Init()
+    public class NodePopupWindow : EditorWindow
     {
-        instance = GetWindow<NodePopupWindow>();
-        instance.titleContent = new GUIContent("Graph Name");
-        instance.maxSize = new Vector2(300, 80);
-        instance.minSize = instance.maxSize;
-    }
+        static NodePopupWindow instance;
+        string graphName = "Enter a name...";
 
-    public void OnGUI()
-    {
-        GUILayout.Space(20);
-        GUILayout.BeginHorizontal();
+        public static void Init()
         {
-            GUILayout.Space(20);
-            EditorGUILayout.LabelField("New Graph", EditorStyles.boldLabel, GUILayout.Width(80));
-            graphName = EditorGUILayout.TextField(graphName);
-            GUILayout.Space(20);
+            instance = GetWindow<NodePopupWindow>();
+            instance.titleContent = new GUIContent("Graph Name");
+            instance.maxSize = new Vector2(300, 80);
+            instance.minSize = instance.maxSize;
         }
-        GUILayout.EndHorizontal();
-        GUILayout.Space(6);
-        GUILayout.BeginHorizontal();
+
+        public void OnGUI()
         {
             GUILayout.Space(20);
-            if(GUILayout.Button("Create"))
+            GUILayout.BeginHorizontal();
             {
-                if(!string.IsNullOrEmpty(graphName) && !graphName.Equals("Enter a name..."))
+                GUILayout.Space(20);
+                EditorGUILayout.LabelField("New Graph", EditorStyles.boldLabel, GUILayout.Width(80));
+                graphName = EditorGUILayout.TextField(graphName);
+                GUILayout.Space(20);
+            }
+            GUILayout.EndHorizontal();
+            GUILayout.Space(6);
+            GUILayout.BeginHorizontal();
+            {
+                GUILayout.Space(20);
+                if (GUILayout.Button("Create"))
                 {
-                    NodeGraph newGraph = NodeUtilities.CreateNodeGraph(graphName);
-                    Selection.activeObject = newGraph;
+                    if (!string.IsNullOrEmpty(graphName) && !graphName.Equals("Enter a name..."))
+                    {
+                        NodeGraph newGraph = NodeUtilities.CreateNodeGraph(graphName);
+                        Selection.activeObject = newGraph;
+                        instance.Close();
+                    }
+                    else
+                    {
+                        EditorUtility.DisplayDialog("Error", "Enter a valid name for the graph", "OK");
+                    }
+                }
+                GUILayout.Space(10);
+                if (GUILayout.Button("Cancel"))
+                {
                     instance.Close();
                 }
-                else
-                {
-                    EditorUtility.DisplayDialog("Error", "Enter a valid name for the graph", "OK");
-                }
+                GUILayout.Space(20);
             }
-            GUILayout.Space(10);
-            if(GUILayout.Button("Cancel"))
-            {
-                instance.Close();
-            }
+            GUILayout.EndHorizontal();
             GUILayout.Space(20);
         }
-        GUILayout.EndHorizontal();
-        GUILayout.Space(20);
     }
 }

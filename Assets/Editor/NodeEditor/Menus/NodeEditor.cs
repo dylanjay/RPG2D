@@ -2,11 +2,14 @@
 using UnityEditor;
 using System.Collections;
 
-public class NodeEditor
+namespace Benco.BehaviorTree.TreeEditor
 {
-    [MenuItem("Node Editor/Launch Editor")]
-    public static void InitNodeEditor()
+    public class NodeEditor
     {
-        NodeEditorWindow.Init();
+        [MenuItem("Node Editor/Launch Editor")]
+        public static void InitNodeEditor()
+        {
+            NodeEditorWindow.Init();
+        }
     }
 }

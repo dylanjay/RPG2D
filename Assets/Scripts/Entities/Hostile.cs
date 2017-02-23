@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using Benco.BehaviorTree;
 
-public class Hostile : Entity {
+public class Hostile : Entity
+{
 
     [SerializeField]
     bool isBoss;
@@ -17,7 +18,7 @@ public class Hostile : Entity {
     int expGiven = 1;
 
     List<CastableAbility> abilities;
-    
+
     GameObject healthBar;
 
     HealthBarManager healthBarManager;

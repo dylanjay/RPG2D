@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using Benco.BehaviorTree;
 
 public class BossTestTree : MonoBehaviour
 {

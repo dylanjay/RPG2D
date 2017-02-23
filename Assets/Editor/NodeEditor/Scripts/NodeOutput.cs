@@ -2,11 +2,14 @@
 using System;
 using System.Collections.Generic;
 
-[Serializable]
-public class NodeOutput
+namespace Benco.BehaviorTree.TreeEditor
 {
-    public List<NodeBase> childNodes = new List<NodeBase>();
-    private bool _multipleChildren = true;
-    public bool multipleChildren { get { return _multipleChildren; } }
-    public Vector2 position;
+    [Serializable]
+    public class NodeOutput
+    {
+        public List<NodeBase> childNodes = new List<NodeBase>();
+        private bool _multipleChildren = true;
+        public bool multipleChildren { get { return _multipleChildren; } }
+        public Vector2 position;
+    }
 }

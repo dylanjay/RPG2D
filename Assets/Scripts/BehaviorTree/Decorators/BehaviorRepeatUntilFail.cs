@@ -2,48 +2,51 @@
 using System.Collections;
 using System;
 
-/// <summary>
-/// A short circuiting repeater. Behaves like a conditional while statement:
-/// 
-/// Reprocesses child behavior until the child returns failure and subsequently returns success
-/// </summary>
-
-[ShowInNodeEditor("Repeat Until Fail", true)]
-public class BehaviorRepeatUntilFail : BehaviorDecorator
+namespace Benco.BehaviorTree
 {
-    bool failure = false;
-
-    public override BehaviorState Behave()
-    {
-        returnState = _Behave();
-        return returnState;
-    }
-
     /// <summary>
-    /// A helper function for the meat of the behavior
+    /// A short circuiting repeater. Behaves like a conditional while statement:
+    /// 
+    /// Reprocesses child behavior until the child returns failure and subsequently returns success
     /// </summary>
-    /// <returns></returns>
-    private BehaviorState _Behave()
+
+    [ShowInNodeEditor("Repeat Until Fail", true)]
+    public class BehaviorRepeatUntilFail : BehaviorDecorator
     {
-        if (failure)
+        bool failure = false;
+
+        public override BehaviorState Behave()
         {
-            return BehaviorState.Success;
+            returnState = _Behave();
+            return returnState;
         }
 
-        BehaviorState childState = childBehavior.Behave();
-        Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
-
-        switch(childState)
+        /// <summary>
+        /// A helper function for the meat of the behavior
+        /// </summary>
+        /// <returns></returns>
+        private BehaviorState _Behave()
         {
-            case BehaviorState.Failure:
-                failure = true;
+            if (failure)
+            {
                 return BehaviorState.Success;
+            }
 
-            case BehaviorState.Success:
-                return BehaviorState.Running;
+            BehaviorState childState = childBehavior.Behave();
+            Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
 
-            default:
-                return childState;
+            switch (childState)
+            {
+                case BehaviorState.Failure:
+                    failure = true;
+                    return BehaviorState.Success;
+
+                case BehaviorState.Success:
+                    return BehaviorState.Running;
+
+                default:
+                    return childState;
+            }
         }
     }
 }

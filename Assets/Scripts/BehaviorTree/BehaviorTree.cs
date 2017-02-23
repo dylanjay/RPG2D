@@ -1,30 +1,33 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class BehaviorTree : MonoBehaviour
+namespace Benco.BehaviorTree
 {
-    protected BehaviorComponent tree;
-
-    protected Dictionary<string, object> sharedVarDict = new Dictionary<string, object>();
-    protected Dictionary<System.Type, List<string>> names = new Dictionary<System.Type, List<string>>();
-
-    void InitializeTree(BehaviorComponent node)
+    public abstract class BehaviorTree : MonoBehaviour
     {
-        node.OnAwake();
-        IEnumerator<BehaviorComponent> children = node.GetChildren();
-        while(children.MoveNext())
+        protected BehaviorComponent tree;
+
+        protected Dictionary<string, object> sharedVarDict = new Dictionary<string, object>();
+        protected Dictionary<System.Type, List<string>> names = new Dictionary<System.Type, List<string>>();
+
+        void InitializeTree(BehaviorComponent node)
         {
-            InitializeTree(children.Current);
+            node.OnAwake();
+            IEnumerator<BehaviorComponent> children = node.GetChildren();
+            while (children.MoveNext())
+            {
+                InitializeTree(children.Current);
+            }
+        }
+
+        public virtual void Awake()
+        {
+            InitializeTree(tree);
+        }
+
+        void Update()
+        {
+            tree.Behave();
         }
     }
-
-    public virtual void Awake()
-    {
-        InitializeTree(tree);
-    }
-	
-	void Update()
-    {
-        tree.Behave();
-	}
 }

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Benco.BehaviorTree;
 
 [CreateAssetMenu(fileName = "New Action Pounce", menuName = "Actions/Pounce", order = 3)]
 [ShowInNodeEditor("Pounce", false)]

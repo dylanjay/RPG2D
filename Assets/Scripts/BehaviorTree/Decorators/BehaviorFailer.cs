@@ -2,29 +2,35 @@
 using System.Collections;
 using System;
 
-/// <summary>
-/// A short circuiting failer. Behaves like a conditional FALSE statement:
-/// 
-/// Always returns Failure regardless of child's return value
-/// </summary>
-[ShowInNodeEditor("Failer", true)]
-public class BehaviorFailer : BehaviorDecorator
+namespace Benco.BehaviorTree
 {
-    public override BehaviorState Behave()
-    {
-        returnState = _Behave();
-        return returnState;
-    }
-
     /// <summary>
-    /// A helper function for the meat of the behavior
+    /// A short circuiting failer. Behaves like a conditional FALSE statement:
+    /// 
+    /// Always returns Failure regardless of child's return value
     /// </summary>
-    /// <returns></returns>
-    private BehaviorState _Behave()
+    [ShowInNodeEditor("Failer", true)]
+    public class BehaviorFailer : BehaviorDecorator
     {
-        BehaviorState childState = childBehavior.Behave();
-        Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
+        public override BehaviorState Behave()
+        {
+            returnState = _Behave();
+            return returnState;
+        }
 
-        return BehaviorState.Failure;
+        /// <summary>
+        /// A helper function for the meat of the behavior
+        /// </summary>
+        /// <returns></returns>
+        private BehaviorState _Behave()
+        {
+            BehaviorState childState = childBehavior.Behave();
+            Debug.Assert(childState != BehaviorState.None, 
+                "Error: Child behavior \"" + childBehavior.name + 
+                "\" of behavior \"" + name + 
+                "\" has no defined behavior.");
+
+            return BehaviorState.Failure;
+        }
     }
 }

@@ -1,41 +1,43 @@
 ﻿using UnityEngine;
-using System.Collections;
 
-[ShowInNodeEditor("Wait", true)]
-public class BehaviorWait : BehaviorDecorator
+namespace Benco.BehaviorTree
 {
-    float time = 0.0f;
-
-    [SerializeField]
-    float maxTime;
-
-    void Reset()
+    [ShowInNodeEditor("Wait", true)]
+    public class BehaviorWait : BehaviorDecorator
     {
-        time = 0.0f;
-    }
+        float time = 0.0f;
 
-    public override BehaviorState Behave()
-    {
-        returnState = _Behave();
-        return returnState;
-    }
+        [SerializeField]
+        float maxTime;
 
-    private BehaviorState _Behave()
-    {
-        if (time >= maxTime)
+        void Reset()
         {
-            BehaviorState childState = childBehavior.Behave();
-            Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
-            if (childState == BehaviorState.Success)
-            {
-                Reset();
-            }
-            return childState;
-            //return BehaviorState.Success?
+            time = 0.0f;
         }
 
-        time += Time.deltaTime;
+        public override BehaviorState Behave()
+        {
+            returnState = _Behave();
+            return returnState;
+        }
 
-        return BehaviorState.Running;
+        private BehaviorState _Behave()
+        {
+            if (time >= maxTime)
+            {
+                BehaviorState childState = childBehavior.Behave();
+                Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
+                if (childState == BehaviorState.Success)
+                {
+                    Reset();
+                }
+                return childState;
+                //return BehaviorState.Success?
+            }
+
+            time += Time.deltaTime;
+
+            return BehaviorState.Running;
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+using Benco.BehaviorTree;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]

@@ -1,72 +1,75 @@
 ﻿using UnityEngine;
 
-public class NodeToolbarView : ViewBase
+namespace Benco.BehaviorTree.TreeEditor
 {
-    public NodeToolbarView() : base("Tools")
+    public class NodeToolbarView : ViewBase
     {
-
-    }
-
-    public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
-    {
-        base.UpdateView(editorRect, percentageRect, e, graph);
-        ProcessEvents(e);
-        GUI.Box(viewRect, "", viewSkin.GetStyle("ToolsViewBackground"));
-        GUILayout.BeginArea(viewRect);
+        public NodeToolbarView() : base("Tools")
         {
-            GUILayout.BeginHorizontal();
-            {
-                GUILayout.Box("", viewSkin.GetStyle("Separator"), GUILayout.Height(viewRect.height), GUILayout.Width(2));
-                if (GUILayout.Button("New", viewSkin.GetStyle("NewGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
-                {
-                    NodePopupWindow.Init();
-                }
 
-                if (GUILayout.Button("Load", viewSkin.GetStyle("LoadGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
-                {
-                    NodeUtilities.LoadGraph();
-                }
-                GUILayout.Box("", viewSkin.GetStyle("Separator"), GUILayout.Height(viewRect.height), GUILayout.Width(8));
-                if (currentGraph != null)
-                {
-                    if (GUILayout.Button("Save", viewSkin.GetStyle("SaveGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
-                    {
-                        NodeUtilities.SaveGraph();
-                    }
-
-                    if (GUILayout.Button("Clear", viewSkin.GetStyle("ClearGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
-                    {
-                        NodeUtilities.ClearGraph();
-                    }
-
-                    if (GUILayout.Button("UnLoad", viewSkin.GetStyle("UnLoadGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
-                    {
-                        NodeUtilities.UnLoadGraph();
-                    }
-
-                    if (GUILayout.Button("Delete", viewSkin.GetStyle("DeleteGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
-                    {
-                        NodeUtilities.DeleteGraph();
-                    }
-                }
-            }
-            GUILayout.EndHorizontal();
         }
-        GUILayout.EndArea();
-    }
 
-    public override void ProcessEvents(Event e)
-    {
-        base.ProcessEvents(e);
-    }
+        public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        {
+            base.UpdateView(editorRect, percentageRect, e, graph);
+            ProcessEvents(e);
+            GUI.Box(viewRect, "", viewSkin.GetStyle("ToolsViewBackground"));
+            GUILayout.BeginArea(viewRect);
+            {
+                GUILayout.BeginHorizontal();
+                {
+                    GUILayout.Box("", viewSkin.GetStyle("Separator"), GUILayout.Height(viewRect.height), GUILayout.Width(2));
+                    if (GUILayout.Button("New", viewSkin.GetStyle("NewGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                    {
+                        NodePopupWindow.Init();
+                    }
 
-    void ProcessContextMenu(Event e)
-    {
+                    if (GUILayout.Button("Load", viewSkin.GetStyle("LoadGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                    {
+                        NodeUtilities.LoadGraph();
+                    }
+                    GUILayout.Box("", viewSkin.GetStyle("Separator"), GUILayout.Height(viewRect.height), GUILayout.Width(8));
+                    if (currentGraph != null)
+                    {
+                        if (GUILayout.Button("Save", viewSkin.GetStyle("SaveGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                        {
+                            NodeUtilities.SaveGraph();
+                        }
 
-    }
+                        if (GUILayout.Button("Clear", viewSkin.GetStyle("ClearGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                        {
+                            NodeUtilities.ClearGraph();
+                        }
 
-    void ContextCallback(object obj)
-    {
+                        if (GUILayout.Button("UnLoad", viewSkin.GetStyle("UnLoadGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                        {
+                            NodeUtilities.UnLoadGraph();
+                        }
 
+                        if (GUILayout.Button("Delete", viewSkin.GetStyle("DeleteGraphButton"), GUILayout.Width(viewRect.height), GUILayout.Height(viewRect.height)))
+                        {
+                            NodeUtilities.DeleteGraph();
+                        }
+                    }
+                }
+                GUILayout.EndHorizontal();
+            }
+            GUILayout.EndArea();
+        }
+
+        public override void ProcessEvents(Event e)
+        {
+            base.ProcessEvents(e);
+        }
+
+        void ProcessContextMenu(Event e)
+        {
+
+        }
+
+        void ContextCallback(object obj)
+        {
+
+        }
     }
 }

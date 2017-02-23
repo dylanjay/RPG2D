@@ -1,22 +1,24 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
-[CreateAssetMenu(fileName = "New Action Move Towards Player", menuName = "Actions/MoveTowardsPlayer", order = 2)]
-[ShowInNodeEditor("Move Towards Player", false)]
-public class ActionMoveTowardsPlayer : BehaviorLeaf
+namespace Benco.BehaviorTree
 {
-    [SerializeField]
-    private SharedTransform player;
-
-    public override void OnStart()
+    [CreateAssetMenu(fileName = "New Action Move Towards Player", menuName = "Actions/MoveTowardsPlayer", order = 2)]
+    [ShowInNodeEditor("Move Towards Player", false)]
+    public class ActionMoveTowardsPlayer : BehaviorLeaf
     {
-        entity.anim.SetTrigger(Hostile.AnimParams.Alert);
-    }
+        [SerializeField]
+        private SharedTransform player;
 
-    public override BehaviorState Update()
-    {
-        entity.transform.position = Vector2.MoveTowards(transform.position, player.value.position, entity.moveSpeed.value * Time.deltaTime);
+        public override void OnStart()
+        {
+            entity.anim.SetTrigger(Hostile.AnimParams.Alert);
+        }
 
-        return BehaviorState.Running;
+        public override BehaviorState Update()
+        {
+            entity.transform.position = Vector2.MoveTowards(transform.position, player.value.position, entity.moveSpeed.value * Time.deltaTime);
+
+            return BehaviorState.Running;
+        }
     }
 }

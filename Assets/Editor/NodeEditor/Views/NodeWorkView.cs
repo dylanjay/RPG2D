@@ -1,52 +1,55 @@
 ﻿using UnityEngine;
 
-public class NodeWorkView : ViewBase
+namespace Benco.BehaviorTree.TreeEditor
 {
-    public NodeWorkView() : base("Work View")
+    public class NodeWorkView : ViewBase
     {
-
-    }
-
-    public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
-    {
-        base.UpdateView(editorRect, percentageRect, e, graph);
-        ProcessEvents(e);
-        if(currentGraph != null)
+        public NodeWorkView() : base("Work View")
         {
-            viewTitle = currentGraph.graphName;
-            string graphPath = NodeUtilities.currentGraphPath;
-            if (graphPath == null || graphPath != @"Assets/Resources/BehaviorTrees/" + currentGraph.graphName + ".asset")
+
+        }
+
+        public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        {
+            base.UpdateView(editorRect, percentageRect, e, graph);
+            ProcessEvents(e);
+            if (currentGraph != null)
             {
-                NodeUtilities.currentGraphPath = @"Assets/Resources/BehaviorTrees/" + currentGraph.graphName + ".asset";
+                viewTitle = currentGraph.graphName;
+                string graphPath = NodeUtilities.currentGraphPath;
+                if (graphPath == null || graphPath != @"Assets/Resources/BehaviorTrees/" + currentGraph.graphName + ".asset")
+                {
+                    NodeUtilities.currentGraphPath = @"Assets/Resources/BehaviorTrees/" + currentGraph.graphName + ".asset";
+                }
             }
-        }
-        else
-        {
-            viewTitle = "Work View";
-        }
-        GUI.Box(viewRect, "", viewSkin.GetStyle("WorkViewBackground"));
-        GUILayout.BeginArea(viewRect);
-        {
-            if(currentGraph != null)
+            else
             {
-                currentGraph.UpdateGraphGUI(e, viewRect);
+                viewTitle = "Work View";
             }
+            GUI.Box(viewRect, "", viewSkin.GetStyle("WorkViewBackground"));
+            GUILayout.BeginArea(viewRect);
+            {
+                if (currentGraph != null)
+                {
+                    currentGraph.UpdateGraphGUI(e, viewRect);
+                }
+            }
+            GUILayout.EndArea();
         }
-        GUILayout.EndArea();
-    }
 
-    public override void ProcessEvents(Event e)
-    {
-        base.ProcessEvents(e);
-    }
+        public override void ProcessEvents(Event e)
+        {
+            base.ProcessEvents(e);
+        }
 
-    void ProcessContextMenu(Event e)
-    {
+        void ProcessContextMenu(Event e)
+        {
 
-    }
+        }
 
-    void ContextCallback(object obj)
-    {
+        void ContextCallback(object obj)
+        {
 
+        }
     }
 }

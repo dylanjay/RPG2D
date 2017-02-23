@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Benco.BehaviorTree;
 
 [CreateAssetMenu(fileName = "New Condition In Attack Range", menuName = "Conditions/InAttackRange", order = 1)]
 [ShowInNodeEditor("InAttackRange", false)]

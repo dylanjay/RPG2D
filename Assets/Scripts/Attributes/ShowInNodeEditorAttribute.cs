@@ -1,22 +1,20 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using System;
-using System.Collections.ObjectModel;
-using System.Reflection;
-using System.Linq;
+﻿using System;
 
-[AttributeUsage(AttributeTargets.Class)]
-public class ShowInNodeEditorAttribute : Attribute
+namespace Benco.BehaviorTree
 {
-    public readonly bool showInToolbar;
-    public readonly string displayName;
-    public readonly bool generic;
-
-    public ShowInNodeEditorAttribute(string displayName, bool showInToolbar)
+    [AttributeUsage(AttributeTargets.Class)]
+    public class ShowInNodeEditorAttribute : Attribute
     {
-        this.showInToolbar = showInToolbar;
-        this.displayName = displayName;
-    }    
-}
+        public readonly bool showInToolbar;
+        public readonly string displayName;
+        public readonly bool generic;
 
-public enum NodeType { Composite, Decorator, Leaf }
+        public ShowInNodeEditorAttribute(string displayName, bool showInToolbar)
+        {
+            this.showInToolbar = showInToolbar;
+            this.displayName = displayName;
+        }
+    }
+
+    public enum NodeType { Composite, Decorator, Leaf }
+}

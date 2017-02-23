@@ -2,50 +2,53 @@
 using System.Collections;
 using System;
 
-/// <summary>
-/// A short circuiting repeater. Behaves like a for statement:
-/// 
-/// Reprocesses child behavior n times, or it returns error, and subsequently always returns success
-/// </summary>
-
-[ShowInNodeEditor("Repeater", true)]
-public class BehaviorRepeater : BehaviorDecorator
+namespace Benco.BehaviorTree
 {
-    [SerializeField]
-    int maxRepetitions = 1;
-    int repetition = 0;
-    
-    public override BehaviorState Behave()
-    {
-        returnState = _Behave();
-        return returnState;
-    }
-
     /// <summary>
-    /// A helper function for the meat of the behavior
+    /// A short circuiting repeater. Behaves like a for statement:
+    /// 
+    /// Reprocesses child behavior n times, or it returns error, and subsequently always returns success
     /// </summary>
-    /// <returns></returns>
-    private BehaviorState _Behave()
+
+    [ShowInNodeEditor("Repeater", true)]
+    public class BehaviorRepeater : BehaviorDecorator
     {
-        if(repetition >= maxRepetitions)
+        [SerializeField]
+        int maxRepetitions = 1;
+        int repetition = 0;
+
+        public override BehaviorState Behave()
         {
-            return BehaviorState.Success;
+            returnState = _Behave();
+            return returnState;
         }
 
-        BehaviorState childState = childBehavior.Behave();
-        Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
-
-        switch (childState)
+        /// <summary>
+        /// A helper function for the meat of the behavior
+        /// </summary>
+        /// <returns></returns>
+        private BehaviorState _Behave()
         {
-            case BehaviorState.Error:
-                return childState;
+            if (repetition >= maxRepetitions)
+            {
+                return BehaviorState.Success;
+            }
 
-            case BehaviorState.Running:
-                return childState;
-            
-            default:
-                repetition++;
-                return BehaviorState.Running;
+            BehaviorState childState = childBehavior.Behave();
+            Debug.Assert(childState != BehaviorState.None, "Error: Child behavior \"" + childBehavior.name + "\" of behavior \"" + name + "\" has no defined behavior.");
+
+            switch (childState)
+            {
+                case BehaviorState.Error:
+                    return childState;
+
+                case BehaviorState.Running:
+                    return childState;
+
+                default:
+                    repetition++;
+                    return BehaviorState.Running;
+            }
         }
     }
 }
