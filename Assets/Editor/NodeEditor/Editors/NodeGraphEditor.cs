@@ -36,6 +36,9 @@ namespace Benco.BehaviorTree.TreeEditor
 
         public override void OnInspectorGUI()
         {
+            GUIStyle richTextStyle = new GUIStyle(GUI.skin.label);
+            richTextStyle.richText = true;
+
             NodeGraph graph = (NodeGraph)target;
             GUILayout.BeginVertical();
             {
@@ -56,6 +59,8 @@ namespace Benco.BehaviorTree.TreeEditor
                 Type renamedVariableType = null;
 
                 Type rmType = null;
+
+                EditorGUILayout.LabelField(new GUIContent("<b>Shared Variables</b>"), richTextStyle);
 
                 foreach (KeyValuePair<string, SharedVariable> pair in sharedVariables)
                 {
@@ -112,10 +117,7 @@ namespace Benco.BehaviorTree.TreeEditor
                 EditorGUILayout.Space();
                 EditorGUILayout.Space();
 
-                GUIStyle style = new GUIStyle(GUI.skin.label);
-                style.richText = true;
-
-                EditorGUILayout.LabelField(new GUIContent("<b>Add New Variable</b>"), style);
+                EditorGUILayout.LabelField(new GUIContent("<b>Add New Variable</b>"), richTextStyle);
                 newSharedVariableTypeIndex = EditorGUILayout.Popup(newSharedVariableTypeIndex, NodeUtilities.validTypeOptions);
                 newSharedVariableName = EditorGUILayout.TextField(newSharedVariableName);
                 if (GUILayout.Button(new GUIContent("Add Variable", "Add Variable")))

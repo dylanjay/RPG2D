@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Linq;
 using System.Reflection;
+using Benco.BehaviorTree.TreeEditor;
 
 using Type = System.Type;
 using Attribute = System.Attribute;
@@ -9,7 +10,7 @@ using Wildcard = System.SByte;
 using Object = UnityEngine.Object;
 using UnityEditor;
 
-namespace Benco.BehaviorTree.TreeEditor
+namespace Benco.BehaviorTree
 {
     [System.Serializable]
     public class SharedVariableCollection : ISerializationCallbackReceiver
@@ -78,6 +79,7 @@ namespace Benco.BehaviorTree.TreeEditor
         public SharedVariableCollection(NodeGraph nodeGraph)
         {
             none = ScriptableObject.CreateInstance<NullSharedVariable>();
+            none.hideFlags = HideFlags.HideInHierarchy;
             none.name = emptyChoice;
             this.nodeGraph = nodeGraph;
             
@@ -132,7 +134,7 @@ namespace Benco.BehaviorTree.TreeEditor
             }
 
             SharedVariable sharedVar = (SharedVariable)ScriptableObject.CreateInstance(sharedVarType);
-            //sharedVar.hideFlags = HideFlags.HideInHierarchy;
+            sharedVar.hideFlags = HideFlags.HideInHierarchy;
             sharedVar.name = name;
             values.Add(name, sharedVar);
             references.Add(sharedVar, new NodeFieldPairList());

@@ -40,7 +40,7 @@ namespace Benco.BehaviorTree.TreeEditor
         public static NodeBase CreateNode(Type t, NodeGraph nodeGraph, Vector2 position)
         {
             NodeBase nodeBase = (NodeBase)ScriptableObject.CreateInstance(t);
-            //nodeBase.hideFlags = HideFlags.HideInHierarchy;
+            nodeBase.hideFlags = HideFlags.HideInHierarchy;
             nodeBase.title = nodeBase.name = nodeBase.GetType().ToString().Substring(4);
 
             nodeBase.Initialize();

@@ -209,7 +209,6 @@ namespace Benco.BehaviorTree.TreeEditor
 
         private static Type[] _validTypes;
         private static Type[] _sharedVariableDerivedTypes;
-        private static Dictionary<string, Type> _nameToType;
         private static GUIContent[] _validTypeOptions;
 
         public static void InitializeValidTypes()
@@ -220,34 +219,36 @@ namespace Benco.BehaviorTree.TreeEditor
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      from type in assembly.GetTypes()
                      where type.IsSubclassOf(typeof(SharedVariable)) && type.BaseType.IsGenericType
-                     select type.BaseType.GetGenericArguments()[0]).OrderBy(x => x.Name).ToArray();
-
-                _nameToType = new Dictionary<string, Type>();
-                foreach (Type type in _validTypes)
-                {
-                    _nameToType.Add(type.FullName, type);
-                }
+                     let attributes = (TypeNameOverrideAttribute[])type.GetCustomAttributes(typeof(TypeNameOverrideAttribute), false)
+                     let name = attributes.Length > 0 ? attributes[0].newDisplayName : type.BaseType.GetGenericArguments()[0].Name
+                     orderby name
+                     select type.BaseType.GetGenericArguments()[0]).ToArray();
 
                 _validTypeOptions =
-                    (from type in _validTypes
-                     select new GUIContent(type.Name)).OrderBy(x => x.text).ToArray();
+                    (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+                     from type in assembly.GetTypes()
+                     where type.IsSubclassOf(typeof(SharedVariable)) && type.BaseType.IsGenericType
+                     let attributes = (TypeNameOverrideAttribute[])type.GetCustomAttributes(typeof(TypeNameOverrideAttribute), false)
+                     let name = attributes.Length > 0 ? attributes[0].newDisplayName : type.BaseType.GetGenericArguments()[0].Name
+                     orderby name
+                     select new GUIContent(name)).ToArray();
 
                 _sharedVariableDerivedTypes =
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      from type in assembly.GetTypes()
                      where type.IsSubclassOf(typeof(SharedVariable)) && type.BaseType.IsGenericType
-                     select type).OrderBy(x => x.Name).ToArray();
-
-
+                     let attributes = (TypeNameOverrideAttribute[])type.GetCustomAttributes(typeof(TypeNameOverrideAttribute), false)
+                     let name = attributes.Length > 0 ? attributes[0].newDisplayName : type.Name
+                     orderby name
+                     select type).ToArray();
             }
-
         }
 
         public static GUIContent[] validTypeOptions
         {
             get
             {
-                if (_validTypes == null)
+                if (_validTypeOptions == null)
                 {
                     InitializeValidTypes();
                 }

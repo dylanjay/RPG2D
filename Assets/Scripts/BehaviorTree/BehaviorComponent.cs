@@ -28,7 +28,7 @@ namespace Benco.BehaviorTree
         public static BehaviorComponent CreateComponent(System.Type componentType, string name = "")
         {
             BehaviorComponent behaviorComponent = (BehaviorComponent)ScriptableObject.CreateInstance(componentType);
-
+            behaviorComponent.hideFlags = HideFlags.HideInHierarchy;
             behaviorComponent.Instantiate(name);
             return behaviorComponent;
         }
