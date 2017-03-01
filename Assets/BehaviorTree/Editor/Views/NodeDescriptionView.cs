@@ -12,18 +12,16 @@ namespace Benco.BehaviorTree.TreeEditor
 
         }
 
-        public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        public override void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeBehaviorTree graph)
         {
             base.UpdateView(editorRect, percentageRect, e, graph);
             GUI.Box(viewRect, "", viewSkin.GetStyle("DescriptionViewBackground"));
+
             GUILayout.BeginArea(viewRect);
             {
-                if (currentGraph != null)
+                if (currentGraph != null && currentGraph.selectedNode != null)
                 {
-                    if (currentGraph.selectedNode != null)
-                    {
-                        currentGraph.selectedNode.DrawNodeHelp();
-                    }
+                    currentGraph.selectedNode.DrawNodeHelp();
                 }
             }
             GUILayout.EndArea();

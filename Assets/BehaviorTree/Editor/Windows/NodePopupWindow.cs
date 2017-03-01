@@ -35,7 +35,7 @@ namespace Benco.BehaviorTree.TreeEditor
                 {
                     if (!string.IsNullOrEmpty(graphName) && !graphName.Equals("Enter a name..."))
                     {
-                        NodeGraph newGraph = NodeUtilities.CreateNodeGraph(graphName);
+                        NodeBehaviorTree newGraph = NodeUtilities.CreateNodeGraph(graphName);
                         Selection.activeObject = newGraph;
                         instance.Close();
                     }

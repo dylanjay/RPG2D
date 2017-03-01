@@ -11,7 +11,7 @@ namespace Benco.BehaviorTree.TreeEditor
         public Rect viewRect;
 
         protected GUISkin viewSkin;
-        protected NodeGraph currentGraph;
+        protected NodeBehaviorTree currentGraph;
 
         public ViewBase()
         {
@@ -34,7 +34,7 @@ namespace Benco.BehaviorTree.TreeEditor
             GetEditorSkin();
         }
 
-        public virtual void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        public virtual void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeBehaviorTree graph)
         {
             if (viewSkin == null)
             {
@@ -42,8 +42,8 @@ namespace Benco.BehaviorTree.TreeEditor
                 return;
             }
 
-            viewRect = new Rect(editorRect.x * percentageRect.x,
-                                editorRect.y * percentageRect.y,
+            viewRect = new Rect(editorRect.width * percentageRect.x,
+                                editorRect.height * percentageRect.y,
                                 editorRect.width * percentageRect.width,
                                 editorRect.height * percentageRect.height);
             currentGraph = graph;
@@ -56,14 +56,18 @@ namespace Benco.BehaviorTree.TreeEditor
 
         protected void GetEditorSkin()
         {
-            if (EditorGUIUtility.isProSkin)
+            if (viewSkin == null)
             {
-                viewSkin = Resources.Load("GUI Skins/Editor/NodeEditorDarkSkin") as GUISkin;
+                viewSkin = UnityEngine.Object.Instantiate(GUI.skin);
             }
-            else
-            {
-                viewSkin = Resources.Load("GUI Skins/Editor/NodeEditorLightSkin") as GUISkin;
-            }
+            //if (EditorGUIUtility.isProSkin)
+            //{
+            //    viewSkin = Resources.Load("GUI Skins/Editor/NodeEditorDarkSkin") as GUISkin;
+            //}
+            //else
+            //{
+            //    viewSkin = Resources.Load("GUI Skins/Editor/NodeEditorLightSkin") as GUISkin;
+            //}
         }
     }
 }

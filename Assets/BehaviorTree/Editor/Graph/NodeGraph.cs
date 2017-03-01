@@ -7,19 +7,48 @@ using Type = System.Type;
 
 namespace Benco.BehaviorTree.TreeEditor
 {
-    public class NodeGraph : ScriptableObject
+    public abstract class NodeGraph : ScriptableObject
     {
-        public string description = "";
-        
         [SerializeField]
-        private List<NodeBase> nodeList = new List<NodeBase>();
+        protected List<NodeBase> nodeList = new List<NodeBase>();
 
         [SerializeField]
-        private List<Edge>
+        protected List<NodeEdge> edgeList = new List<NodeEdge>();
 
         public int NodeCount { get { return nodeList.Count; } }
 
+        public int EdgeCount { get { return edgeList.Count; } }
+
         public IEnumerable<NodeBase> nodes { get { return nodeList.AsEnumerable(); } }
+
+        public IEnumerable<NodeEdge> edges { get { return edgeList.AsEnumerable(); } }
+
+        [SerializeField]
+        private NodeBase _root;
+
+        public virtual NodeBase root { get { return _root; } set { _root = value; } }
+
+        public void AddNode(NodeBase node)
+        {
+            if (nodeList.Contains(node))
+            {
+                Debug.Log("Already contains node " + node.name);
+            }
+            if (nodeList.Count == 0)
+            {
+                node.name = "Node " + default(int);
+            }
+            else
+            {
+                node.name = "Node " + (int.Parse(nodeList[nodeList.Count - 1].name.Substring(5)) + 1);
+            }
+            nodeList.Add(node);
+        }
+    }
+
+    public class NodeBehaviorTree : NodeGraph
+    {
+        public string description = "";
 
         [SerializeField]
         public SharedVariableCollection sharedVariableCollection;
@@ -106,6 +135,7 @@ namespace Benco.BehaviorTree.TreeEditor
                             selectedNode.isSelected = false;
                         }
                         selectedNode = null;
+
                         foreach (NodeBase node in nodeList)
                         {
                             if (node.nodeRect.Contains(e.mousePosition))
@@ -206,7 +236,6 @@ namespace Benco.BehaviorTree.TreeEditor
             wantsConnection = false;
             connectionNode = null;
             disconnectNode = null;
-            showProperties = false;
         }
 
         void DisconnectNodes(NodeBase male, NodeBase female)
@@ -306,23 +335,6 @@ namespace Benco.BehaviorTree.TreeEditor
             return false;
         }
 
-        public void AddNode(NodeBase node)
-        {
-            if (nodeList.Contains(node))
-            {
-                Debug.Log("Already contains node " + node.name);
-            }
-            if (nodeList.Count == 0)
-            {
-                node.name = "Node " + default(int);
-            }
-            else
-            {
-                node.name = "Node " + (int.Parse(nodeList[nodeList.Count - 1].name.Substring(5)) + 1);
-            }
-            nodeList.Add(node);
-        }
-
         public void AddBehavior(NodeBase node)
         {
             sharedVariableCollection.AddBehavior(node);
@@ -396,17 +408,17 @@ namespace Benco.BehaviorTree.TreeEditor
         private static readonly Dictionary<Type, System.Func<object, object>> _Fields =
             new Dictionary<Type, System.Func<object, object>>()
             {
-            { typeof(int),      value => EditorGUILayout.DelayedIntField((int)value)},
-            { typeof(float),    value => EditorGUILayout.DelayedFloatField((float)value) },
-            { typeof(double),   value => EditorGUILayout.DelayedDoubleField((float)value) },
-            { typeof(string),   value => EditorGUILayout.DelayedTextField((string)value) },
-            { typeof(bool),     value => EditorGUILayout.Toggle((bool)value) },
-            { typeof(Vector2),  value => EditorGUILayout.Vector2Field(GUIContent.none, (Vector2)value) },
-            { typeof(Vector3),  value => EditorGUILayout.Vector3Field(GUIContent.none, (Vector3)value) },
-            { typeof(Vector4),  value => EditorGUILayout.Vector4Field(GUIContent.none, (Vector3)value) },
-            { typeof(Bounds),   value => EditorGUILayout.BoundsField((Bounds)value) },
-            { typeof(Rect),     value => EditorGUILayout.RectField((Rect)value) },
-            { typeof(Object),   value => EditorGUILayout.ObjectField(GUIContent.none, (Object)value, value.GetType(), false)},
+                { typeof(int),      value => EditorGUILayout.DelayedIntField((int)value)},
+                { typeof(float),    value => EditorGUILayout.DelayedFloatField((float)value) },
+                { typeof(double),   value => EditorGUILayout.DelayedDoubleField((float)value) },
+                { typeof(string),   value => EditorGUILayout.DelayedTextField((string)value) },
+                { typeof(bool),     value => EditorGUILayout.Toggle((bool)value) },
+                { typeof(Vector2),  value => EditorGUILayout.Vector2Field(GUIContent.none, (Vector2)value) },
+                { typeof(Vector3),  value => EditorGUILayout.Vector3Field(GUIContent.none, (Vector3)value) },
+                { typeof(Vector4),  value => EditorGUILayout.Vector4Field(GUIContent.none, (Vector3)value) },
+                { typeof(Bounds),   value => EditorGUILayout.BoundsField((Bounds)value) },
+                { typeof(Rect),     value => EditorGUILayout.RectField((Rect)value) },
+                { typeof(Object),   value => EditorGUILayout.ObjectField(GUIContent.none, (Object)value, value.GetType(), false)},
             };
     }
 }

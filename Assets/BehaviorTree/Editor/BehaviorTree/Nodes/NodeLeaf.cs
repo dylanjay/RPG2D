@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace Benco.BehaviorTree.TreeEditor
 {
-    public class NodeLeaf : NodeBase
+    public class NodeLeaf : BehaviorNodeBase
     {
         private static GUIContent[] _allLeafOptions = null;
         private static ReadOnlyCollection<Type> _allLeafTypes = null;

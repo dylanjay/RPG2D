@@ -5,7 +5,7 @@ using System.Collections.ObjectModel;
 namespace Benco.BehaviorTree.TreeEditor
 {
     [Serializable]
-    public class NodeComposite : NodeBase
+    public class NodeComposite : BehaviorNodeBase
     {
         private static GUIContent[] _allCompositeOptions = null;
         private static ReadOnlyCollection<Type> _allCompositeTypes = null;

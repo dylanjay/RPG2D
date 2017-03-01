@@ -11,9 +11,9 @@ namespace Benco.BehaviorTree.TreeEditor
 #if UNITY_EDITOR
         public static string currentGraphPath;
 
-        public static NodeGraph CreateNodeGraph(string graphName)
+        public static NodeBehaviorTree CreateNodeGraph(string graphName)
         {
-            NodeGraph currentGraph = ScriptableObject.CreateInstance<NodeGraph>();
+            NodeBehaviorTree currentGraph = ScriptableObject.CreateInstance<NodeBehaviorTree>();
             if (currentGraph != null)
             {
                 currentGraph.name = graphName;
@@ -45,7 +45,7 @@ namespace Benco.BehaviorTree.TreeEditor
 
         public static void LoadGraph()
         {
-            NodeGraph currentGraph;
+            NodeBehaviorTree currentGraph;
             string path = EditorUtility.OpenFilePanel("Load Graph", Application.dataPath + @"/Resources/BehaviorTrees/", "asset");
             if (string.IsNullOrEmpty(path))
             {
@@ -56,7 +56,7 @@ namespace Benco.BehaviorTree.TreeEditor
             NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
             if (currentGraphPath != path)
             {
-                currentGraph = AssetDatabase.LoadAssetAtPath(finalPath, typeof(NodeGraph)) as NodeGraph;
+                currentGraph = AssetDatabase.LoadAssetAtPath(finalPath, typeof(NodeBehaviorTree)) as NodeBehaviorTree;
                 currentGraph.Reset();
 
                 if (currentGraph != null)
@@ -116,7 +116,7 @@ namespace Benco.BehaviorTree.TreeEditor
 
         public static void SaveGraph()
         {
-            NodeGraph savedGraph = AssetDatabase.LoadAssetAtPath(currentGraphPath, typeof(NodeGraph)) as NodeGraph;
+            NodeBehaviorTree savedGraph = AssetDatabase.LoadAssetAtPath(currentGraphPath, typeof(NodeBehaviorTree)) as NodeBehaviorTree;
             if (savedGraph != null)
             {
                 NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
@@ -189,7 +189,7 @@ namespace Benco.BehaviorTree.TreeEditor
             }
         }
 
-        public static void CreateNode(Type nodeType, BehaviorComponent behaviorComponent, NodeGraph graph, Vector2 position)
+        public static void CreateNode(Type nodeType, BehaviorComponent behaviorComponent, NodeBehaviorTree graph, Vector2 position)
         {
             if (graph == null) { return; }
 

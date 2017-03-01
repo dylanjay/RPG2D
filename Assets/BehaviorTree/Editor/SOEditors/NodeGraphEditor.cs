@@ -5,7 +5,7 @@ using Type = System.Type;
 
 namespace Benco.BehaviorTree.TreeEditor
 {
-    [CustomEditor(typeof(NodeGraph))]
+    [CustomEditor(typeof(NodeBehaviorTree))]
     public class NodeGraphEditor : Editor
     {
         private int newSharedVariableTypeIndex;
@@ -45,7 +45,7 @@ namespace Benco.BehaviorTree.TreeEditor
 
         public override void OnInspectorGUI()
         {
-            NodeGraph graph = (NodeGraph)target;
+            NodeBehaviorTree graph = (NodeBehaviorTree)target;
 
             DrawGraphData(graph);
 
@@ -132,7 +132,7 @@ namespace Benco.BehaviorTree.TreeEditor
             EditorGUILayout.EndVertical();
         }
 
-        private void DrawGraphData(NodeGraph graph)
+        private void DrawGraphData(NodeBehaviorTree graph)
         {
             EditorGUILayout.LabelField(new GUIContent("<b>Graph Data</b>"), richTextStyle);
 

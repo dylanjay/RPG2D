@@ -11,12 +11,12 @@ using Object = UnityEngine.Object;
 
 namespace Benco.BehaviorTree.TreeEditor
 {
-    [CustomEditor(typeof(NodeBase), true)]
+    [CustomEditor(typeof(BehaviorNodeBase), true)]
     public class NodeBaseEditor : Editor
     {
         public override void OnInspectorGUI()
         {
-            NodeBase node = (NodeBase)target;
+            BehaviorNodeBase node = (BehaviorNodeBase)target;
             FieldInfo choicesField = node.GetType().GetField("choices", BindingFlags.NonPublic | BindingFlags.Instance);
             SerializableDictionary<string, SharedVariable> choices = (SerializableDictionary<string, SharedVariable>)choicesField.GetValue(node);
 

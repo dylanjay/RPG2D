@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Benco.BehaviorTree.TreeEditor
 {
-    [CustomPropertyDrawer(typeof(NodeGraph), true)]
+    [CustomPropertyDrawer(typeof(NodeBehaviorTree), true)]
     public class NodeGraphDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)

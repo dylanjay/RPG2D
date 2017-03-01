@@ -32,7 +32,7 @@ namespace Benco.BehaviorTree
         }
 
         [SerializeField]
-        protected NodeGraph nodeGraph;
+        protected NodeBehaviorTree nodeGraph;
 
         [System.Serializable]
         protected class SGUIContentList : List<SGUIContent> { }
@@ -76,7 +76,7 @@ namespace Benco.BehaviorTree
             get { return references[none]; }
         }
 
-        public SharedVariableCollection(NodeGraph nodeGraph)
+        public SharedVariableCollection(NodeBehaviorTree nodeGraph)
         {
             none = ScriptableObject.CreateInstance<NullSharedVariable>();
             none.hideFlags = HideFlags.HideInHierarchy;

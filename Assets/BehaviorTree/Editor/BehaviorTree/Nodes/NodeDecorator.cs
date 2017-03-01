@@ -6,7 +6,7 @@ using System.Collections.ObjectModel;
 namespace Benco.BehaviorTree.TreeEditor
 {
     [Serializable]
-    public class NodeDecorator : NodeBase
+    public class NodeDecorator : BehaviorNodeBase
     {
         private static GUIContent[] _allDecoratorOptions = null;
         private static ReadOnlyCollection<Type> _allDecoratorTypes = null;

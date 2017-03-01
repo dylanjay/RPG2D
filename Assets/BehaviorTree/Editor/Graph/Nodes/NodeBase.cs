@@ -31,7 +31,7 @@ namespace Benco.BehaviorTree.TreeEditor
         protected class ChoiceDictionary : SerializableDictionary<string, SharedVariable> { }
         /// <summary>
         /// Key: The name of the field
-        /// Value: SGUIContent dropdown option
+        /// Value: The sharedVariable chosen
         /// </summary>
         [SerializeField]
         protected ChoiceDictionary choices = new ChoiceDictionary();
@@ -81,9 +81,9 @@ namespace Benco.BehaviorTree.TreeEditor
         {
             if (parentGraph != null)
             {
-                if (parentGraph.rootNode != null)
+                if (parentGraph.root != null)
                 {
-                    if (parentGraph.rootNode == this)
+                    if (parentGraph.root == this)
                     {
                         input = null;
                     }
@@ -125,7 +125,7 @@ namespace Benco.BehaviorTree.TreeEditor
         public virtual void UpdateNodeGUI(Event e, Rect viewRect)
         {
             //TODO : switch to reset function
-            if (parentGraph.rootNode == this)
+            if (parentGraph.root == this)
             {
                 input = null;
             }
@@ -136,15 +136,25 @@ namespace Benco.BehaviorTree.TreeEditor
             GUIStyle nodeStyle;
             if (isSelected)
             {
-                nodeStyle = nodeSkin.GetStyle("NodeSelected");
-            }
-            else if (parentGraph.rootNode == this)
-            {
-                nodeStyle = nodeSkin.GetStyle("NodeRoot");
+                if ((parentGraph.root == this))
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 3 on");
+                }
+                else
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 0 on");
+                }
             }
             else
             {
-                nodeStyle = nodeSkin.GetStyle("NodeDefault");
+                if ((parentGraph.root == this))
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 3");
+                }
+                else
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 0");
+                }
             }
             GUI.Box(nodeRect, title, nodeStyle);
 
@@ -247,7 +257,7 @@ namespace Benco.BehaviorTree.TreeEditor
         void ProcessContextMenu(Event e)
         {
             GenericMenu menu = new GenericMenu();
-            if (parentGraph.rootNode == this)
+            if (parentGraph.root == this)
             {
                 menu.AddItem(new GUIContent("Un-set as Root"), false, ContextCallback, this);
             }
@@ -263,9 +273,9 @@ namespace Benco.BehaviorTree.TreeEditor
             if (obj is NodeBase)
             {
                 NodeBase node = obj as NodeBase;
-                if (parentGraph.rootNode == node)
+                if (parentGraph.root == node)
                 {
-                    parentGraph.rootNode = null;
+                    parentGraph.root = null;
                     node.input = new NodeInput();
                 }
                 else
@@ -274,7 +284,7 @@ namespace Benco.BehaviorTree.TreeEditor
                     {
                         node.input.parentNode.output.childNodes.Remove(node);
                     }
-                    node.parentGraph.rootNode = node;
+                    node.parentGraph.root = node;
                     //TODO : call reset here
                 }
             }
