@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using ExtensionMethods;
 using Type = System.Type;
+using System.Diagnostics;
 
 namespace Benco.Graph
 {
@@ -29,18 +30,24 @@ namespace Benco.Graph
 
         public GraphController()
         {
-            BehaviorTree.GraphUIEvents graphEvents = new BehaviorTree.GraphUIEvents();
+            GraphUIEvents graphEvents = new GraphUIEvents(NodeAttributeTags.GetNodeMenu<BehaviorTree.NodeComposite>());
             registeredEvents.Add(typeof(NodeGraph), graphEvents.graphEvents);
             registeredEvents.Add(typeof(NodeBase), graphEvents.nodeEvents);
             Undo.undoRedoPerformed += delegate { NodeEditorWindow.instance.Repaint(); };
         }
 
+        [Conditional("Debug")]
+        private void PrintAllNodes()
+        {
+            graph.edges.PrintAll(x => x == null ? "null" :
+                               x.source == null ? "x.null" :
+                          x.source.node == null ? "x.source.null" : x.source.node.name);
+        }
+
         public void UpdateGraphGUI(Event e, Rect viewRect)
         {
             ProcessEvents(e, viewRect);
-            graph.edges.PrintAll(x => x == null ? "null" : 
-                               x.source == null ? "x.null" :
-                          x.source.node == null ? "x.source.null" : x.source.node.name);
+            PrintAllNodes();
             foreach (NodeEdge edge in graph.edges)
             {
                 DrawEdge(edge);
@@ -314,8 +321,30 @@ namespace Benco.Graph
             {
                 edgeTexture = GUI.skin.GetStyle("selectionRect").active.background;
             }
-
-            Handles.DrawAAPolyLine(edgeTexture, 3, edge.source.node.rect.center, edge.destination.node.rect.center);
+            // counterClockwiseOffset makes the directed edges offset. This splits the directed
+            // edges so they do not align:
+            //   ____  /__________  ____
+            //  /  |R\ \           /  |R\
+            // |  <>  |           |  <>  | (Radius R, <> == center of node)
+            //  \____/___________\ \____/
+            //                   /
+            if (edge.edgeType == EdgeType.Directed)
+            {
+                Vector2 directionVector = edge.destination.node.rect.center - edge.source.node.rect.center;
+                // The math below gets the Right vector from the directionVector above.
+                Vector2 counterClockwiseOffset = new Vector2(directionVector.y, -directionVector.x);
+                counterClockwiseOffset.Normalize();
+                counterClockwiseOffset *= 7.0f;
+                Handles.DrawAAPolyLine(edgeTexture, 3,
+                    edge.source.node.rect.center + counterClockwiseOffset,
+                    edge.destination.node.rect.center + counterClockwiseOffset);
+            }
+            else
+            {
+                Handles.DrawAAPolyLine(edgeTexture, 3,
+                    edge.source.node.rect.center,
+                    edge.destination.node.rect.center);
+            }
         }
 
         void DrawConnections(NodeBase node)

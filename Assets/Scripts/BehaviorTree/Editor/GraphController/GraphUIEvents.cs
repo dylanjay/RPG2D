@@ -5,7 +5,7 @@ using UnityEditor;
 using ExtensionMethods;
 using System.Linq;
 
-namespace Benco.BehaviorTree
+namespace Benco.Graph
 {
     public class GraphUIEvents
     {
@@ -13,12 +13,22 @@ namespace Benco.BehaviorTree
         /// The first position of the marquee selection box.
         /// </summary>
         private Vector2 firstSelectionPosition = Vector2.zero;
+
         /// <summary>
         /// The second position of the marquee selection box.
         /// </summary>
         private Vector2 secondSelectionPosition = Vector2.zero;
 
+        /// <summary>
+        /// Used for dragging objects from a starting location. For click-and-drag/selection,
+        /// <see cref="firstSelectionPosition"/>
+        /// <seealso cref="secondSelectionPosition"/>
+        /// </summary>
         private Vector2 dragStartLocation = Vector2.zero;
+
+        /// <summary>
+        /// The node an edge is being created from.
+        /// </summary>
         private NodeBase startTransitionNode = null;
 
         public Rect selectionRect
@@ -39,7 +49,7 @@ namespace Benco.BehaviorTree
 
         private static readonly Texture2D lineTexture = GUI.skin.GetStyle("selectionRect").active.background;
 
-        public GraphUIEvents()
+        public GraphUIEvents(GenericMenu contextMenu)
         {
             graphEvents = new List<UIEvent>()
             {
@@ -60,7 +70,7 @@ namespace Benco.BehaviorTree
                     mouseButtons = MouseButtons.Right,
                     modifiers = ModifierKeys.None,
                     eventType = EventType.MouseUp,
-                    onEventExit = (Event e) => { NodeAttributeTags.GetNodeMenu<NodeComposite>().ShowAsContext(); },
+                    onEventExit = (Event e) => { contextMenu.ShowAsContext(); },
                 },
 
 
@@ -147,7 +157,7 @@ namespace Benco.BehaviorTree
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.Alt,
                     eventType = EventType.MouseDrag,
-                    onEventBegin = (Event e) => StartTransition(e), // ,
+                    onEventBegin = (Event e) => StartTransition(e),
                     onEventExit = (Event e) => EndTransition(e),
                     onEventUpdate = (Event e) => { NodeEditorWindow.instance.Repaint(); },
                     onRepaint = (Event e) => RepaintTransition(e),
