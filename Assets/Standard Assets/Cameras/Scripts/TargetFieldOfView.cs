@@ -59,7 +59,9 @@ namespace UnityStandardAssets.Cameras
             bool initBounds = false;
             foreach (Renderer r in renderers)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 if (!((r is TrailRenderer) || (r is ParticleRenderer) || (r is ParticleSystemRenderer)))
+#pragma warning restore CS0618 // Type or member is obsolete
                 {
                     if (!initBounds)
                     {

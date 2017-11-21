@@ -15,9 +15,11 @@ namespace UnityStandardAssets.Effects
             var systems = GetComponentsInChildren<ParticleSystem>();
             foreach (ParticleSystem system in systems)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 system.startSize *= multiplier;
                 system.startSpeed *= multiplier;
                 system.startLifetime *= Mathf.Lerp(multiplier, 1, 0.5f);
+#pragma warning restore CS0618 // Type or member is obsolete
                 system.Clear();
                 system.Play();
             }

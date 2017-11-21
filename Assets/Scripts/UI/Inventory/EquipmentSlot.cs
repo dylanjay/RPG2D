@@ -18,15 +18,15 @@ public class EquipmentSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
 
         type = Inventory.EquipmentStringToEnum(name);
 
-        inventoryPanel = inventory.transform.FindChild("Inventory Panel").gameObject;
-        equipmentSlotPanel = inventory.transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
+        inventoryPanel = inventory.transform.Find("Inventory Panel").gameObject;
+        equipmentSlotPanel = inventory.transform.Find("Equipment Panel").Find("Equipment Slot Panel").gameObject;
     }
 
     void EquipItem(ItemData selectedItem, Inventory.EquipmentType equipmentSlot)
     {
         selectedItem.slot = -1;
         selectedItem.isEquipped = true;
-        Transform slotTransform = equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentSlot));
+        Transform slotTransform = equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentSlot));
         selectedItem.transform.SetParent(slotTransform);
         selectedItem.transform.position = slotTransform.position;
         inventory.equipmentSlots[equipmentSlot] = selectedItem.item;
@@ -67,7 +67,7 @@ public class EquipmentSlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
             //If this slot is full swap items
             else
             {
-                Transform itemToReplaceTransform = equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentSlot));
+                Transform itemToReplaceTransform = equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentSlot));
                 ItemData itemToReplaceData = itemToReplaceTransform.GetComponent<ItemData>();
                 if (itemToReplaceData.item is Equippable)
                 {

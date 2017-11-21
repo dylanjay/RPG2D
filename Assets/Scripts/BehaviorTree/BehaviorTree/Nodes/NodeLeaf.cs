@@ -1,0 +1,31 @@
+﻿using UnityEngine;
+using UnityEditor;
+using System;
+using System.Collections;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using Benco.Graph;
+
+namespace Benco.BehaviorTree
+{
+    public class NodeLeaf : BehaviorNodeBase
+    {
+        protected override void Initialize()
+        {
+            if (input != null || output != null)
+            {
+                Debug.LogError("Somehow the ports have already been initialized...");
+            }
+
+            input = CreateInstance<SingleNodePort>();
+            input.Init(this);
+            input.hideFlags = HideFlags.HideInHierarchy;
+
+            output = CreateInstance<ClosedPort>();
+            output.Init(this);
+            output.hideFlags = HideFlags.HideInHierarchy;
+        }
+    }
+}

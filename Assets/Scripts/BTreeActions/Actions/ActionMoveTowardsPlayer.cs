@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using Benco.Graph;
+using UnityEngine;
 
 namespace Benco.BehaviorTree
 {
     [CreateAssetMenu(fileName = "New Action Move Towards Player", menuName = "Actions/MoveTowardsPlayer", order = 2)]
-    [ShowInNodeEditor("Move Towards Player", false)]
+    [ShowInNodeEditor("Move Towards Player")]
     public class ActionMoveTowardsPlayer : BehaviorLeaf
     {
         [SerializeField]

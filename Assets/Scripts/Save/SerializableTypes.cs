@@ -134,7 +134,7 @@ public class SerializableInventory
                 if (item.transform.childCount > 0)
                 {
                     SerializableItem serItem = new SerializableItem();
-                    serItem.Fill(item.transform.FindChild(item.name.Substring(0, item.name.Length - 5)).GetComponent<ItemData>());
+                    serItem.Fill(item.transform.Find(item.name.Substring(0, item.name.Length - 5)).GetComponent<ItemData>());
                     items.Add(serItem);
                 }
             }

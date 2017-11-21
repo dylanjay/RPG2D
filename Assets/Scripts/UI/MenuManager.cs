@@ -19,14 +19,14 @@ public class MenuManager : MonoBehaviour
 
     void Start ()
     {
-        inventoryPanel = transform.FindChild("Inventory").FindChild("Inventory Panel").gameObject;
-        equipmentPanel = transform.FindChild("Inventory").FindChild("Equipment Panel").gameObject;
-        skillsPanel = transform.FindChild("Skill Tree").FindChild("Skill Tree Panel").gameObject;
-        mainMenuPanel = transform.FindChild("Main Menu Panel").gameObject;
-        playerHealthBar = transform.FindChild("Bottom Bar").FindChild("Health Bar").gameObject;
-        playerManaBar = transform.FindChild("Bottom Bar").FindChild("Mana Bar").gameObject;
+        inventoryPanel = transform.Find("Inventory").Find("Inventory Panel").gameObject;
+        equipmentPanel = transform.Find("Inventory").Find("Equipment Panel").gameObject;
+        skillsPanel = transform.Find("Skill Tree").Find("Skill Tree Panel").gameObject;
+        mainMenuPanel = transform.Find("Main Menu Panel").gameObject;
+        playerHealthBar = transform.Find("Bottom Bar").Find("Health Bar").gameObject;
+        playerManaBar = transform.Find("Bottom Bar").Find("Mana Bar").gameObject;
 
-        slotPanel = inventoryPanel.transform.FindChild("Inventory Slot Panel");
+        slotPanel = inventoryPanel.transform.Find("Inventory Slot Panel");
         tooltip = GetComponent<Tooltip>();
     }
 

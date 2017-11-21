@@ -27,7 +27,9 @@ namespace UnityStandardAssets.Effects
 
             foreach (var system in hoseWaterSystems)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 system.startSpeed = m_Power;
+#pragma warning restore CS0618 // Type or member is obsolete
                 var emission = system.emission;
                 emission.enabled = (m_Power > minPower*1.1f);
             }

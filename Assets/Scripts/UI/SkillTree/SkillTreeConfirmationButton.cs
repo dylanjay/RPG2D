@@ -16,7 +16,7 @@ public class SkillTreeConfirmationButton : MonoBehaviour, IPointerDownHandler
     {
         playerStats = PlayerStats.instance;
 
-        treeTabs = transform.parent.parent.FindChild("Tree Tabs");
+        treeTabs = transform.parent.parent.Find("Tree Tabs");
 
         if(name == "Confirm Button")
         {
@@ -30,12 +30,12 @@ public class SkillTreeConfirmationButton : MonoBehaviour, IPointerDownHandler
         for(int i = 0; i < treeTabs.childCount; i++)
         {
             SkillTreeTab tab = treeTabs.GetChild(i).GetComponent<SkillTreeTab>();
-            string pointsString = treeTabs.GetChild(i).FindChild("Tree Points").GetComponent<Text>().text;
+            string pointsString = treeTabs.GetChild(i).Find("Tree Points").GetComponent<Text>().text;
             int points = int.Parse(pointsString);
             pointsUsed += points - tab.points;
             tab.points = points;
             playerStats.SetStat(tab.skillStat, tab.points);
-            treeTabs.GetChild(i).FindChild("Decrement Button").gameObject.SetActive(false);
+            treeTabs.GetChild(i).Find("Decrement Button").gameObject.SetActive(false);
 
             for(int j = 0; j < treeTabs.GetChild(i).childCount; j++)
             {
@@ -55,7 +55,7 @@ public class SkillTreeConfirmationButton : MonoBehaviour, IPointerDownHandler
         {
             for(int i = 0; i < treeTabs.childCount; i++)
             {
-                treeTabs.GetChild(i).FindChild("Increment Button").gameObject.SetActive(false);
+                treeTabs.GetChild(i).Find("Increment Button").gameObject.SetActive(false);
             }
 
             transform.parent.gameObject.SetActive(false);
@@ -67,19 +67,19 @@ public class SkillTreeConfirmationButton : MonoBehaviour, IPointerDownHandler
         for(int i = 0; i < treeTabs.childCount; i++)
         {
             SkillTreeTab tab = treeTabs.GetChild(i).GetComponent<SkillTreeTab>();
-            string pointsString = treeTabs.GetChild(i).FindChild("Tree Points").GetComponent<Text>().text;
+            string pointsString = treeTabs.GetChild(i).Find("Tree Points").GetComponent<Text>().text;
             int inflatedPoints = int.Parse(pointsString);
             int pointsReverted = inflatedPoints - tab.points;
             playerStats.availablePoints += pointsReverted;
-            treeTabs.GetChild(i).FindChild("Tree Points").GetComponent<Text>().text = tab.points.ToString();
-            treeTabs.GetChild(i).FindChild("Decrement Button").gameObject.SetActive(false);
+            treeTabs.GetChild(i).Find("Tree Points").GetComponent<Text>().text = tab.points.ToString();
+            treeTabs.GetChild(i).Find("Decrement Button").gameObject.SetActive(false);
         }
 
         if(playerStats.availablePoints > 0)
         {
             for (int i = 0; i < treeTabs.childCount; i++)
             {
-                treeTabs.GetChild(i).FindChild("Increment Button").gameObject.SetActive(true);
+                treeTabs.GetChild(i).Find("Increment Button").gameObject.SetActive(true);
             }
         }
     }

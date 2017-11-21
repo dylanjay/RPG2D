@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System;
 using Benco.BehaviorTree;
+using Benco.Graph;
 
 [CreateAssetMenu(fileName = "New Action Pounce", menuName = "Actions/Pounce", order = 3)]
-[ShowInNodeEditor("Pounce", false)]
+[ShowInNodeEditor("Pounce")]
 public class ActionPounce : BehaviorLeaf
 {
     [SerializeField]

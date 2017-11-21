@@ -25,7 +25,9 @@ namespace UnityStandardAssets.Utility
             // find out the maximum lifetime of any particles in this effect
             foreach (var system in systems)
             {
+#pragma warning disable CS0618 // Type or member is obsolete
                 m_MaxLifetime = Mathf.Max(system.startLifetime, m_MaxLifetime);
+#pragma warning restore CS0618 // Type or member is obsolete
             }
 
             // wait for random duration

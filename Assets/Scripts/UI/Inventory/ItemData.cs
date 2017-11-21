@@ -28,8 +28,8 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
         inventory = Inventory.instance;
         player = PlayerControl.instance;
         inventoryPanel = inventory.gameObject;
-        equipmentPanel = inventoryPanel.transform.FindChild("Equipment Panel").gameObject;
-        equipmentSlotPanel = equipmentPanel.transform.FindChild("Equipment Slot Panel").gameObject;
+        equipmentPanel = inventoryPanel.transform.Find("Equipment Panel").gameObject;
+        equipmentSlotPanel = equipmentPanel.transform.Find("Equipment Slot Panel").gameObject;
         tooltip = Canvas.instance.gameObject.GetComponent<Tooltip>();
     }
 
@@ -69,7 +69,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
                 else
                 {
-                    Transform itemToReplace = equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentSlot)).FindChild(inventory.equipmentSlots[equipmentSlot].title);
+                    Transform itemToReplace = equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentSlot)).Find(inventory.equipmentSlots[equipmentSlot].title);
                     ItemData itemToReplaceData = itemToReplace.GetComponent<ItemData>();
                     itemToReplaceData.tab = inventory.currentTab;
                     itemToReplaceData.slot = slot;
@@ -81,7 +81,7 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
 
                 }
                 slot = -1;
-                Transform slotTransform = equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentSlot));
+                Transform slotTransform = equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentSlot));
                 transform.SetParent(slotTransform);
                 transform.position = slotTransform.position;
                 isEquipped = true;
@@ -109,8 +109,8 @@ public class ItemData : MonoBehaviour, IDragHandler, IEndDragHandler, IPointerUp
                 Inventory.EquipmentType equipmentType;
                 Equippable equippable = item as Equippable;
                 equipmentType = equippable.equipmentType;
-                transform.SetParent(equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentType)));
-                transform.position = equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentType)).position;
+                transform.SetParent(equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentType)));
+                transform.position = equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentType)).position;
             }
         }
         else

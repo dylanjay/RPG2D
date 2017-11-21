@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System;
 using Benco.BehaviorTree;
-
+using Benco.Graph;
 
 [CreateAssetMenu(fileName = "New Action Patrol", menuName = "Actions/Patrol", order = 1)]
-[ShowInNodeEditor("Patrol", false)]
+[ShowInNodeEditor("Patrol")]
 public class ActionPatrol : BehaviorLeaf
 {
     [SerializeField]

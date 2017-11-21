@@ -40,7 +40,7 @@ public class SkillTreePointButton : MonoBehaviour, IPointerDownHandler
 
             if(points == tab.points + 1)
             {
-                transform.parent.FindChild("Decrement Button").gameObject.SetActive(true);
+                transform.parent.Find("Decrement Button").gameObject.SetActive(true);
             }
 
             if(playerStats.availablePoints == 0)
@@ -53,7 +53,7 @@ public class SkillTreePointButton : MonoBehaviour, IPointerDownHandler
         {
             if(playerStats.availablePoints == 0)
             {
-                transform.parent.FindChild("Increment Button").gameObject.SetActive(true);
+                transform.parent.Find("Increment Button").gameObject.SetActive(true);
             }
 
             points--;
@@ -62,7 +62,7 @@ public class SkillTreePointButton : MonoBehaviour, IPointerDownHandler
 
             if (points == tab.points)
             {
-                transform.parent.FindChild("Decrement Button").gameObject.SetActive(false);
+                transform.parent.Find("Decrement Button").gameObject.SetActive(false);
             }
         }
     }

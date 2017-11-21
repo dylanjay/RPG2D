@@ -1,39 +1,88 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System;
+using System.Linq;
+using MemberInfo = System.Reflection.MemberInfo;
+using FieldInfo = System.Reflection.FieldInfo;
+using BindingFlags = System.Reflection.BindingFlags;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine;
 
 namespace ExtensionMethods
 {
     public static class ExtensionMethods
     {
-        public static string SubstringFromChars(this string str, char firstChar, char lastChar, bool includeChars = false)
+        /// <summary>
+        /// Creates a copy of this array, with element appended to the end.
+        /// </summary>
+        /// <typeparam name="T">The type of the array.</typeparam>
+        /// <param name="array">The array being copied.</param>
+        /// <param name="element">The element to append to the array.</param>
+        /// <returns></returns>
+        public static T[] CopyAdd<T>(this T[] array, T element)
         {
-            int firstIndex = str.IndexOf(firstChar);
-            int lastIndex = str.IndexOf(lastChar);
-            if (includeChars)
-            {
-                return str.Substring(firstIndex, lastIndex - firstIndex);
-            }
-            else
-            {
-                return str.Substring(firstIndex + 1, lastIndex - firstIndex - 1);
-            }
-
+            T[] newArray = new T[array.Length + 1];
+            Array.Copy(array, newArray, array.Length);
+            newArray[array.Length] = element;
+            return newArray;
         }
 
-        public static string SubstringFromCharsSqueeze(this string str, char firstChar, char lastChar, bool includeChars = false)
+        public static T[] CopyPushFront<T>(this T[] array, T element)
         {
-            int firstIndex = str.LastIndexOf(firstChar);
-            int lastIndex = str.IndexOf(lastChar);
-            if (includeChars)
-            {
-                return str.Substring(firstIndex, lastIndex - firstIndex);
-            }
-            else
-            {
-                return str.Substring(firstIndex + 1, lastIndex - firstIndex - 1);
-            }
+            T[] newArray = new T[array.Length + 1];
+            newArray[0] = element;
+            Array.Copy(array, 0, newArray, 1, array.Length);
+            return newArray;
+        }
 
+        public static int GetIndex<T>(this T[] array, T element)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if(array[i].Equals(element)) { return i; }
+            }
+            return -1;
+        }
+
+        public static int IndexOf<T>(this T[] array, Predicate<T> match)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (match(array[i])) { return i; }
+            }
+            return -1;
+        }
+
+        public static T Find<T>(this T[] array, Predicate<T> match)
+        {
+            return Array.Find(array, match);
+        }
+
+        public static bool HasAttribute<T>(this MemberInfo fieldInfo, bool inherit = false) where T : Attribute
+        {
+            return ((T[])fieldInfo.GetCustomAttributes(typeof(T), inherit)).Length != 0;
+        }
+
+        public static T GetAttribute<T>(this MemberInfo fieldInfo, bool inherit = false) where T : Attribute
+        {
+            return ((T[])fieldInfo.GetCustomAttributes(typeof(T), inherit)).FirstOrDefault();
+        }
+
+        public static FieldInfo[] GetInstanceFields(this Type type)
+        {
+            return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
+        }
+
+        public delegate string PrintDelegate<T>(T t);
+
+        public static void PrintAll<T>(this IEnumerable<T> list, PrintDelegate<T> lambda)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            foreach (T t in list)
+            {
+                stringBuilder.Append(lambda(t));
+                stringBuilder.Append(", ");
+            }
+            Debug.Log(stringBuilder.ToString());
         }
     }
-
 }

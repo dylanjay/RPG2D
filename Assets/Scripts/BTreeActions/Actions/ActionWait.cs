@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System;
 using Benco.BehaviorTree;
+using Benco.Graph;
 
-[CreateAssetMenu(fileName = "New Action Wait", menuName = "Actions/Wait", order = 0)]
-[ShowInNodeEditor("Wait For Seconds", false)]
+[ShowInNodeEditor("Wait For Seconds")]
 public class ActionWait : BehaviorLeaf
 {
     float time = 0.0f;

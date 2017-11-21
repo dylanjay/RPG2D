@@ -59,10 +59,10 @@ public class Inventory : MonoBehaviour
 
     void Start()
     {
-        inventoryPanel = transform.FindChild("Inventory Panel").gameObject;
-        tabPanel = inventoryPanel.transform.FindChild("Inventory Tab Panel").gameObject;
-        slotPanel = inventoryPanel.transform.FindChild("Inventory Slot Panel").gameObject;
-        equipmentSlotPanel = transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
+        inventoryPanel = transform.Find("Inventory Panel").gameObject;
+        tabPanel = inventoryPanel.transform.Find("Inventory Tab Panel").gameObject;
+        slotPanel = inventoryPanel.transform.Find("Inventory Slot Panel").gameObject;
+        equipmentSlotPanel = transform.Find("Equipment Panel").Find("Equipment Slot Panel").gameObject;
 
         database = ItemDatabase.instance;
 
@@ -258,7 +258,7 @@ public class Inventory : MonoBehaviour
             if (item.id != -1)
             {
                 equipmentSlots.Add(EquipmentStringToEnum(item.equipmentSlot), database.GetItemByID(item.id));
-                CreateItemObject(database.GetItemByID(item.id), 1, -1, -1, equipmentSlotPanel.transform.FindChild(item.equipmentSlot));
+                CreateItemObject(database.GetItemByID(item.id), 1, -1, -1, equipmentSlotPanel.transform.Find(item.equipmentSlot));
             }
             //it item id is -1 it is empty so add empty item
             else
@@ -275,7 +275,7 @@ public class Inventory : MonoBehaviour
         GameObject itemObj = CreateItemObject(itemToAdd, stackAmount, tab, slot, slots[tab][slot].transform);
         if (stackAmount > 1)
         {
-            itemObj.transform.FindChild("Stack Amount").GetComponent<Text>().text = stackAmount.ToString();
+            itemObj.transform.Find("Stack Amount").GetComponent<Text>().text = stackAmount.ToString();
         }
         slots[tab][slot].name = itemToAdd.title + " Slot";
     }
@@ -292,9 +292,9 @@ public class Inventory : MonoBehaviour
                 {
                     if (items[i][j].id == id)
                     {
-                        ItemData data = slots[i][j].transform.FindChild(itemToAdd.title).GetComponent<ItemData>();
+                        ItemData data = slots[i][j].transform.Find(itemToAdd.title).GetComponent<ItemData>();
                         data.stackAmount++;
-                        data.transform.FindChild("Stack Amount").GetComponent<Text>().text = data.stackAmount.ToString();
+                        data.transform.Find("Stack Amount").GetComponent<Text>().text = data.stackAmount.ToString();
                         return;
                     }
                 }

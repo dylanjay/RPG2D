@@ -46,7 +46,7 @@ public class SkillTree : MonoBehaviour
     {
         //TODO initialize skill tree with prefab (based on class?)
         abilityManager = AbilityManager.instance;
-        skillTree = transform.FindChild("Skill Tree Panel").FindChild("Tree Viewer");
+        skillTree = transform.Find("Skill Tree Panel").Find("Tree Viewer");
         player = Player.instance;
         playerGO = player.gameObject;
         currentTab = SkillStat.Strength;
@@ -136,10 +136,10 @@ public class SkillTree : MonoBehaviour
 
     public void LevelUp()
     {
-        Transform currentTab = skillTree.parent.FindChild("Tree Tabs");
+        Transform currentTab = skillTree.parent.Find("Tree Tabs");
         for (int i = 0; i < currentTab.childCount; i++)
         {
-            currentTab.GetChild(i).FindChild("Increment Button").gameObject.SetActive(true);
+            currentTab.GetChild(i).Find("Increment Button").gameObject.SetActive(true);
         }
         confirmationButtons.SetActive(true);
     }
@@ -175,19 +175,19 @@ public class SkillTree : MonoBehaviour
 
     public SkillTreeTab GetTab(SkillStat stat)
     {
-        Transform treeTabs = transform.FindChild("Skill Tree Panel").FindChild("Tree Tabs");
+        Transform treeTabs = transform.Find("Skill Tree Panel").Find("Tree Tabs");
         switch (stat)
         {
             case SkillStat.Strength:
-                return treeTabs.FindChild("Strength Tab").GetComponent<SkillTreeTab>();
+                return treeTabs.Find("Strength Tab").GetComponent<SkillTreeTab>();
             case SkillStat.Endurance:
-                return treeTabs.FindChild("Endurance Tab").GetComponent<SkillTreeTab>();
+                return treeTabs.Find("Endurance Tab").GetComponent<SkillTreeTab>();
             case SkillStat.Charisma:
-                return treeTabs.FindChild("Charisma Tab").GetComponent<SkillTreeTab>();
+                return treeTabs.Find("Charisma Tab").GetComponent<SkillTreeTab>();
             case SkillStat.Intelligence:
-                return treeTabs.FindChild("Intelligence Tab").GetComponent<SkillTreeTab>();
+                return treeTabs.Find("Intelligence Tab").GetComponent<SkillTreeTab>();
             case SkillStat.Agility:
-                return treeTabs.FindChild("Agility Tab").GetComponent<SkillTreeTab>();
+                return treeTabs.Find("Agility Tab").GetComponent<SkillTreeTab>();
             default:
                 Debug.LogError("Incorrect Stat Name on GetTab");
                 return null;

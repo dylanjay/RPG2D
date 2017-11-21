@@ -17,8 +17,8 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
     {
         inventory = Inventory.instance;
 
-        inventoryPanel = inventory.transform.FindChild("Inventory Panel").gameObject;
-        equipmentSlotPanel = inventory.transform.FindChild("Equipment Panel").FindChild("Equipment Slot Panel").gameObject;
+        inventoryPanel = inventory.transform.Find("Inventory Panel").gameObject;
+        equipmentSlotPanel = inventory.transform.Find("Equipment Panel").Find("Equipment Slot Panel").gameObject;
     }
 
     void PlaceItem(ItemData selectedItem)
@@ -58,7 +58,7 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
             //If this slot is full and item can be equipped - swap items
             else if (selectedItem.slot != slotID)
             {
-                Transform itemToReplaceTransform = transform.FindChild(transform.name.Substring(0, transform.name.Length - 5));
+                Transform itemToReplaceTransform = transform.Find(transform.name.Substring(0, transform.name.Length - 5));
                 ItemData itemToReplaceData = itemToReplaceTransform.GetComponent<ItemData>();
                 if (itemToReplaceData.item is Equippable)
                 {
@@ -70,7 +70,7 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
                         itemToReplaceData.isEquipped = true;
                         selectedItem.isEquipped = false;
                         itemToReplaceData.slot = -1;
-                        Transform slotTransform = equipmentSlotPanel.transform.FindChild(Inventory.EquipmentEnumToString(equipmentSlot));
+                        Transform slotTransform = equipmentSlotPanel.transform.Find(Inventory.EquipmentEnumToString(equipmentSlot));
                         itemToReplaceTransform.SetParent(slotTransform);
                         itemToReplaceTransform.position = slotTransform.position;
                         PlaceItem(selectedItem);
@@ -100,7 +100,7 @@ public class InventorySlot : MonoBehaviour, IDropHandler, IPointerEnterHandler, 
             //If this slot is full swap items
             else if (selectedItem.slot != slotID)
             {
-                Transform itemToReplace = transform.FindChild(transform.name.Substring(0, transform.name.Length - 5));
+                Transform itemToReplace = transform.Find(transform.name.Substring(0, transform.name.Length - 5));
                 itemToReplace.GetComponent<ItemData>().tab = inventory.initialTab;
                 itemToReplace.GetComponent<ItemData>().slot = selectedItem.slot;
                 itemToReplace.transform.SetParent(inventory.slots[inventory.initialTab][selectedItem.slot].transform);
