@@ -5,7 +5,7 @@ namespace Benco.Graph
 {
     public class NodeTypeView : ViewBase
     {
-        public NodeTypeView() : base("Type View")
+        public NodeTypeView() : base()
         {
 
         }

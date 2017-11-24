@@ -6,7 +6,7 @@ namespace Benco.Graph
 {
     public class NodeToolbarView : ViewBase
     {
-        public NodeToolbarView() : base("Tools")
+        public NodeToolbarView() : base()
         {
         }
 

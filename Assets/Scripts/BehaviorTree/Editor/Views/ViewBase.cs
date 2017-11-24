@@ -7,24 +7,15 @@ namespace Benco.Graph
     [Serializable]
     public class ViewBase
     {
-        public string viewTitle;
         public Rect viewRect;
         
         public ViewBase()
         {
-            viewTitle = string.Empty;
             viewRect = new Rect();
         }
 
-        public ViewBase(string viewTitle)
+        public ViewBase(Rect viewRect)
         {
-            this.viewTitle = viewTitle;
-            viewRect = new Rect();
-        }
-
-        public ViewBase(string viewTitle, Rect viewRect)
-        {
-            this.viewTitle = viewTitle;
             this.viewRect = viewRect;
         }
 

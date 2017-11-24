@@ -5,7 +5,7 @@ namespace Benco.Graph
 {
     public class NodeWorkView : ViewBase
     {
-        public NodeWorkView() : base("Work View")
+        public NodeWorkView() : base()
         {
         }
 
@@ -15,17 +15,12 @@ namespace Benco.Graph
             ProcessEvents(e);
             if (graph != null)
             {
-                viewTitle = graph.name;
                 string graphPath = NodeUtilities.currentGraphPath;
                 string expectedPath = string.Format(@"Assets/Resources/BehaviorTrees/{0}.asset", graph.name);
                 if (graphPath == null || graphPath != expectedPath)
                 {
                     NodeUtilities.currentGraphPath = expectedPath;
                 }
-            }
-            else
-            {
-                viewTitle = "Work View";
             }
 
             GUI.Box(viewRect, "", GUI.skin.GetStyle("flow background"));
