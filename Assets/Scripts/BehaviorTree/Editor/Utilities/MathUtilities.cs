@@ -16,9 +16,9 @@ namespace Benco.Utilities
         /// <param name="point">The point to check against for the line segment.</param>
         public static bool PointWithinLineSegment(Vector2 startPosition, Vector2 endPosition, float width, Vector2 point)
         {
-            Debug.Assert(width >= 0);
-            Vector2 segment = endPosition - startPosition;
-            Vector2 projection = point.ProjectOnto(segment);
+            Vector2 segment = startPosition - endPosition;
+            Vector2 relativePoint = startPosition - point;
+            Vector2 projection = relativePoint.ProjectOnto(segment);
             float projectedDistance = projection.magnitude;
             // If point not within the bounds below, exit early.
             //  |          |
@@ -26,8 +26,8 @@ namespace Benco.Utilities
             //  |          |
             if (projectedDistance < 0 || projectedDistance > segment.magnitude) { return false; }
 
-            Vector2 vectorRejection = point - projection;
-            return vectorRejection.sqrMagnitude - Vector2.kEpsilon < width * width;
+            Vector2 vectorRejection = relativePoint - projection;
+            return vectorRejection.sqrMagnitude < width * width + Vector2.kEpsilon;
         }
     }
 }

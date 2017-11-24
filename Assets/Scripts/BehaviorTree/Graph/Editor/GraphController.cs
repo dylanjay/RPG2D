@@ -35,6 +35,7 @@ namespace Benco.Graph
             GraphUIEvents graphEvents = new GraphUIEvents(NodeAttributeTags.GetNodeMenu<NodeComposite>());
             registeredEvents.Add(typeof(NodeGraph), graphEvents.graphEvents);
             registeredEvents.Add(typeof(NodeBase), graphEvents.nodeEvents);
+            registeredEvents.Add(typeof(NodeEdge), graphEvents.nodeEvents);
             Undo.undoRedoPerformed += delegate { NodeEditorWindow.instance.Repaint(); };
         }
 
@@ -321,24 +322,11 @@ namespace Benco.Graph
             {
                 Handles.color = new Color(0.42f, 0.7f, 1.0f);
             }
-            // counterClockwiseOffset makes the directed edges offset. This splits the directed
-            // edges so they do not align:
-            //   ____  /__________  ____
-            //  /  |R\ \           /  |R\
-            // |  <>  |           |  <>  | (Radius R, <> == center of node)
-            //  \____/___________\ \____/
-            //                   /
+            Vector2 startPosition, endPosition;
+            edge.GetPoints(out startPosition, out endPosition);
             if (edge.edgeType == EdgeType.Directed)
             {
                 float arrowWidth = 6.0f;
-                Vector2 directionVector = edge.destination.node.rect.center - edge.source.node.rect.center;
-                // The math below gets the Right vector from the directionVector above.
-                Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
-                counterClockwiseOffset.Normalize();
-                counterClockwiseOffset *= arrowWidth;
-
-                Vector2 startPosition = edge.source.node.rect.center + counterClockwiseOffset;
-                Vector2 endPosition = edge.destination.node.rect.center + counterClockwiseOffset;
 
                 Vector2 line = endPosition - startPosition;
                 // Below are the 3 points of the arrow of the directed edge.
@@ -352,20 +340,14 @@ namespace Benco.Graph
                 // If we decide later we don't care for this, we can use:
                 //  Vector2 midpoint = startPosition + line / 2.0f;
                 Vector2 offsetMidpoint = line.WithMagnitude(
-                    (Mathf.Cos(60.0f * Mathf.Deg2Rad) - 1.0f) / 2.0f * arrowWidth + line.magnitude / 2) + startPosition;
-                Handles.DrawAAPolyLine(3, 2, startPosition, endPosition);
+                    ((Mathf.Cos(60.0f * Mathf.Deg2Rad) - 1.0f) * arrowWidth + line.magnitude) / 2.0f) + startPosition;
                 Handles.DrawAAConvexPolygon(
                     offsetMidpoint + forwardPoint,
                     offsetMidpoint + leftPoint,
                     offsetMidpoint + rightPoint,
                     offsetMidpoint + forwardPoint);
             }
-            else
-            {
-                Handles.DrawAAPolyLine(3, 2,
-                    edge.source.node.rect.center,
-                    edge.destination.node.rect.center);
-            }
+            Handles.DrawAAPolyLine(3, 2, startPosition, endPosition);
             Handles.color = oldColor;
         }
 

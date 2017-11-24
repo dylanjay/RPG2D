@@ -47,6 +47,7 @@ namespace Benco.Graph
 
         public List<UIEvent> graphEvents;
         public List<UIEvent> nodeEvents;
+        public List<UIEvent> edgeEvents;
 
         private static readonly Texture2D lineTexture = GUI.skin.GetStyle("selectionRect").active.background;
 
@@ -113,7 +114,7 @@ namespace Benco.Graph
 
             nodeEvents = new List<UIEvent>()
             {
-                new UIEvent("Attempt Select Node")
+                new UIEvent("Attempt Select Node or Edges")
                 {
                     mouseButtons = MouseButtons.Left | MouseButtons.Right,
                     mustHaveAllMouseButtons = false,
@@ -176,7 +177,20 @@ namespace Benco.Graph
                     onEventExit = (Event e) => EndTransition(e),
                     onEventUpdate = (Event e) => { NodeEditorWindow.instance.Repaint(); },
                     onRepaint = (Event e) => RepaintTransition(e),
-                }
+                },
+            };
+
+            edgeEvents = new List<UIEvent>()
+            {
+                new UIEvent("Attempt Select Node or Edges")
+                {
+                    mouseButtons = MouseButtons.Left | MouseButtons.Right,
+                    mustHaveAllMouseButtons = false,
+                    modifiers = ModifierKeys.None | ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt,
+                    mustHaveAllModifiers = false,
+                    eventType = EventType.MouseDown,
+                    onEventBegin = (Event e) => AttemptNodeObjectSelection(e)
+                },
             };
         }
 
@@ -273,6 +287,7 @@ namespace Benco.Graph
                         }
                     }
                     NodeEditorWindow.instance.Repaint();
+                    Debug.Log("Returning early on node");
                     return;
                 }
             }
@@ -283,9 +298,10 @@ namespace Benco.Graph
             {
                 foreach (NodeEdge edge in GraphController.graph.edges)
                 {
-                    Vector2 startPoint = edge.source.node.rect.center;
-                    Vector2 endPoint = edge.destination.node.rect.center;
-                    if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 5, point: e.mousePosition))
+                    Vector2 startPoint, endPoint;
+                    edge.GetPoints(out startPoint, out endPoint);
+
+                    if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 8, point: e.mousePosition))
                     {
                         if (e.control)
                         {
@@ -299,6 +315,7 @@ namespace Benco.Graph
                             }
                         }
                         NodeEditorWindow.instance.Repaint();
+                        Debug.Log("Returning early on edge");
                         return;
                     }
                 }
@@ -308,8 +325,10 @@ namespace Benco.Graph
             if (!e.alt && !e.control && !e.shift)
             {
                 Selection.activeObject = GraphController.graph;
+                Debug.Log("No return early. Graph selected.");
+                NodeEditorWindow.instance.Repaint();
+                return;
             }
-            NodeEditorWindow.instance.Repaint();
         }
 
         private void Drag(Vector2 delta, IEnumerable<NodeBase> nodes)

@@ -21,6 +21,35 @@ namespace Benco.Graph
 
         public NodePort source;
         public NodePort destination;
+
+        private const float DIRECTED_EDGE_OFFSET_DISTANCE = 6.0f;
+        
+        public void GetPoints(out Vector2 startPoint, out Vector2 endPoint)
+        {
+            if (edgeType == EdgeType.Directed)
+            {
+                // counterClockwiseOffset makes the directed edges offset. This splits the directed
+                // edges so they do not align:
+                //   ____  /___________ ____
+                //  /  |R\ \           /  |R\
+                // |  <>  |           |  <>  | (Radius R, <> == center of node)
+                //  \____/___________\ \____/
+                //                   /
+                Vector2 directionVector = destination.node.rect.center - source.node.rect.center;
+                // The math below gets the Right vector from the directionVector above.
+                Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
+                counterClockwiseOffset.Normalize();
+                counterClockwiseOffset *= DIRECTED_EDGE_OFFSET_DISTANCE;
+                startPoint = source.node.rect.center + counterClockwiseOffset;
+                endPoint = destination.node.rect.center + counterClockwiseOffset;
+            }
+            else
+            {
+                startPoint = source.node.rect.center;
+                endPoint = destination.node.rect.center;
+            }
+        }
+
         public bool isSelected { get { return Selection.Contains(this); } }
         public bool isHighlighted { get; set; }
 
