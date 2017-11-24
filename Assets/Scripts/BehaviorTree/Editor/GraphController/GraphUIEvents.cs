@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using ExtensionMethods;
 using System.Linq;
+using Benco.Utilities;
 
 namespace Benco.Graph
 {
@@ -182,6 +183,22 @@ namespace Benco.Graph
         private void RepaintTransition(Event e)
         {
             Handles.DrawAAPolyLine(lineTexture, 3, dragStartLocation, e.mousePosition);
+            //TODO(mderu): Change this to if (edges are directed for this type of graph)
+            if (true)
+            {
+                Vector2 line = e.mousePosition - dragStartLocation;
+                Vector2 midpoint = dragStartLocation + line / 2.0f;
+                //Below are the 3 points of the arrow of the directed edge.
+                Vector2 forwardPoint = line.normalized * 7;
+                Vector2 leftPoint = forwardPoint.RotatedBy(120);
+                Vector2 rightPoint = forwardPoint.RotatedBy(240);
+                Handles.DrawAAConvexPolygon(
+                    midpoint + forwardPoint,
+                    midpoint + leftPoint,
+                    midpoint + rightPoint,
+                    midpoint + forwardPoint);
+            }
+                
         }
 
         private void EndTransition(Event e)

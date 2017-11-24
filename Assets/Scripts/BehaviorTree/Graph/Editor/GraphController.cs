@@ -5,6 +5,8 @@ using UnityEngine;
 using ExtensionMethods;
 using Type = System.Type;
 using System.Diagnostics;
+using Benco.BehaviorTree;
+using Benco.Utilities;
 
 namespace Benco.Graph
 {
@@ -30,7 +32,7 @@ namespace Benco.Graph
 
         public GraphController()
         {
-            GraphUIEvents graphEvents = new GraphUIEvents(NodeAttributeTags.GetNodeMenu<BehaviorTree.NodeComposite>());
+            GraphUIEvents graphEvents = new GraphUIEvents(NodeAttributeTags.GetNodeMenu<NodeComposite>());
             registeredEvents.Add(typeof(NodeGraph), graphEvents.graphEvents);
             registeredEvents.Add(typeof(NodeBase), graphEvents.nodeEvents);
             Undo.undoRedoPerformed += delegate { NodeEditorWindow.instance.Repaint(); };
@@ -277,6 +279,7 @@ namespace Benco.Graph
             }
         }
 
+        //TODO(mderu): Move this out of GraphController.
         void DrawNode(NodeBase node)
         {
             GUIStyle nodeStyle;
@@ -310,6 +313,7 @@ namespace Benco.Graph
             EditorUtility.SetDirty(node);
         }
 
+        //TODO(mderu): Move this out of GraphController.
         void DrawEdge(NodeEdge edge)
         {
             Texture2D edgeTexture;
@@ -335,9 +339,22 @@ namespace Benco.Graph
                 Vector2 counterClockwiseOffset = new Vector2(directionVector.y, -directionVector.x);
                 counterClockwiseOffset.Normalize();
                 counterClockwiseOffset *= 7.0f;
-                Handles.DrawAAPolyLine(edgeTexture, 3,
-                    edge.source.node.rect.center + counterClockwiseOffset,
-                    edge.destination.node.rect.center + counterClockwiseOffset);
+                Vector2 startPosition = edge.source.node.rect.center + counterClockwiseOffset;
+                Vector2 endPosition = edge.destination.node.rect.center + counterClockwiseOffset;
+
+                Vector2 line = endPosition - startPosition;
+                Vector2 midpoint = startPosition + line / 2.0f;
+                //Below are the 3 points of the arrow of the directed edge.
+                Vector2 forwardPoint = line.normalized * 7;
+                Vector2 leftPoint = forwardPoint.RotatedBy(120);
+                Vector2 rightPoint = forwardPoint.RotatedBy(240);
+
+                Handles.DrawAAPolyLine(edgeTexture, 3, startPosition, endPosition);
+                Handles.DrawAAConvexPolygon(
+                    midpoint + forwardPoint,
+                    midpoint + leftPoint,
+                    midpoint + rightPoint,
+                    midpoint + forwardPoint);
             }
             else
             {
