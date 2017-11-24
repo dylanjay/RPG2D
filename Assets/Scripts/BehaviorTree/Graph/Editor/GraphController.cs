@@ -336,7 +336,7 @@ namespace Benco.Graph
             {
                 Vector2 directionVector = edge.destination.node.rect.center - edge.source.node.rect.center;
                 // The math below gets the Right vector from the directionVector above.
-                Vector2 counterClockwiseOffset = new Vector2(directionVector.y, -directionVector.x);
+                Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
                 counterClockwiseOffset.Normalize();
                 counterClockwiseOffset *= 7.0f;
                 Vector2 startPosition = edge.source.node.rect.center + counterClockwiseOffset;
