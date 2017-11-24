@@ -316,14 +316,10 @@ namespace Benco.Graph
         //TODO(mderu): Move this out of GraphController.
         void DrawEdge(NodeEdge edge)
         {
-            Texture2D edgeTexture;
+            Color oldColor = Handles.color;
             if (edge.isSelected || edge.isHighlighted)
             {
-                edgeTexture = GUI.skin.GetStyle("button").focused.background;
-            }
-            else
-            {
-                edgeTexture = GUI.skin.GetStyle("selectionRect").active.background;
+                Handles.color = new Color(0.42f, 0.7f, 1.0f);
             }
             // counterClockwiseOffset makes the directed edges offset. This splits the directed
             // edges so they do not align:
@@ -357,7 +353,7 @@ namespace Benco.Graph
                 //  Vector2 midpoint = startPosition + line / 2.0f;
                 Vector2 offsetMidpoint = line.WithMagnitude(
                     (Mathf.Cos(60.0f * Mathf.Deg2Rad) - 1.0f) / 2.0f * arrowWidth + line.magnitude / 2) + startPosition;
-                Handles.DrawAAPolyLine(edgeTexture, 3, startPosition, endPosition);
+                Handles.DrawAAPolyLine(3, 2, startPosition, endPosition);
                 Handles.DrawAAConvexPolygon(
                     offsetMidpoint + forwardPoint,
                     offsetMidpoint + leftPoint,
@@ -366,10 +362,11 @@ namespace Benco.Graph
             }
             else
             {
-                Handles.DrawAAPolyLine(edgeTexture, 3,
+                Handles.DrawAAPolyLine(3, 2,
                     edge.source.node.rect.center,
                     edge.destination.node.rect.center);
             }
+            Handles.color = oldColor;
         }
 
         void DrawConnections(NodeBase node)
