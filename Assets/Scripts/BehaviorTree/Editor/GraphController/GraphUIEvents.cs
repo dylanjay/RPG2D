@@ -216,7 +216,7 @@ namespace Benco.Graph
             {
                 Vector2 line = e.mousePosition - dragStartLocation;
                 Vector2 midpoint = dragStartLocation + line / 2.0f;
-                //Below are the 3 points of the arrow of the directed edge.
+                // Below are the 3 points of the arrow of the directed edge.
                 Vector2 forwardPoint = line.normalized * 7;
                 Vector2 leftPoint = forwardPoint.RotatedBy(120);
                 Vector2 rightPoint = forwardPoint.RotatedBy(240);
@@ -271,16 +271,32 @@ namespace Benco.Graph
 
         private void AttemptNodeObjectSelection(Event e)
         {
+            // UnityShenanigans:
+            // If you Ctrl/Shift + Click a node/edge twice in a row without moving the mouse,
+            // It doesn't update the selection on the second click. The third click will
+            // toggle the selection as expected.
+
             foreach (NodeBase node in GraphController.graph.nodes)
             {
                 if (node.rect.Contains(e.mousePosition))
                 {
-                    if (e.control)
+                    if (e.control || e.shift)
                     {
-                        Selection.objects = Selection.objects.CopyPushFront(node);
+                        int index = ArrayUtility.FindIndex(Selection.objects, (nodeBase) => nodeBase == node);
+                        if (index >= 0)
+                        {
+                            Selection.objects = Selection.objects.WithIndexRemoved(index);
+                        }
+                        else
+                        {
+                            Selection.objects = Selection.objects.CopyPushFront(node);
+                        }
                     }
                     else
                     {
+                        // UnityShenanigans:
+                        // If a selected node is clicked on without holding control or shift,
+                        // it will not deselect the other selected items.
                         if (!Selection.objects.Contains(node))
                         {
                             Selection.activeObject = node;
@@ -303,16 +319,24 @@ namespace Benco.Graph
 
                     if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 8, point: e.mousePosition))
                     {
-                        if (e.control)
+                        if (e.control || e.shift)
                         {
-                            Selection.objects = Selection.objects.CopyPushFront(edge);
+                            int index = ArrayUtility.FindIndex(Selection.objects, (nodeEdge) => nodeEdge == edge);
+                            if (index >= 0)
+                            {
+                                Selection.objects = Selection.objects.WithIndexRemoved(index);
+                            }
+                            else
+                            {
+                                Selection.objects = Selection.objects.CopyPushFront(edge);
+                            }
                         }
                         else
                         {
-                            if (!Selection.objects.Contains(edge))
-                            {
-                                Selection.activeObject = edge;
-                            }
+                            // UnityShenanigans:
+                            // Unlike nodes, Unity's Animation Window deselects other edges when
+                            // an edge is selected after it has already been selected.
+                            Selection.activeObject = edge;
                         }
                         NodeEditorWindow.instance.Repaint();
                         Debug.Log("Returning early on edge");

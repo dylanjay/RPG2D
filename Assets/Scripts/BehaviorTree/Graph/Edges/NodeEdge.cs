@@ -23,7 +23,7 @@ namespace Benco.Graph
         public NodePort destination;
 
         private const float DIRECTED_EDGE_OFFSET_DISTANCE = 6.0f;
-        
+
         public void GetPoints(out Vector2 startPoint, out Vector2 endPoint)
         {
             if (edgeType == EdgeType.Directed)

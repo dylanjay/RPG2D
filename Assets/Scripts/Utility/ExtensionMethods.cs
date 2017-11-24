@@ -6,6 +6,7 @@ using BindingFlags = System.Reflection.BindingFlags;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using UnityEditor;
 
 namespace ExtensionMethods
 {
@@ -32,6 +33,34 @@ namespace ExtensionMethods
             newArray[0] = element;
             Array.Copy(array, 0, newArray, 1, array.Length);
             return newArray;
+        }
+
+        /// <summary>
+        /// Removes the element at <paramref name="index"/> from <paramref name="array"/>. 
+        /// If the index is greater than
+        /// </summary>
+        /// <returns>A copy of the new array.</returns>
+        /// <remarks>
+        /// This function is assert guarded, but will do the following when those asserts are compiled out:
+        /// If index is less than 0, it will remove the first element.
+        /// If index is gt or eq to <paramref name="array"/>.Length, it will remove the last element.
+        /// </remarks>
+        public static T[] WithIndexRemoved<T>(this T[] array, int index)
+        {
+            Debug.Assert(index >= 0);
+            Debug.Assert(index < array.Length);
+
+            T[] retArray = new T[array.Length - 1];
+            int i;
+            for (i = 0; i < index; i++)
+            {
+                retArray[i] = array[i];
+            }
+            for (i++; i < array.Length - 1; i++)
+            {
+                retArray[i] = array[i + 1];
+            }
+            return retArray;
         }
 
         public static int GetIndex<T>(this T[] array, T element)
