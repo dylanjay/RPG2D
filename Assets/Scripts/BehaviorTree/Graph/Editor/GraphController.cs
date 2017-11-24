@@ -334,27 +334,35 @@ namespace Benco.Graph
             //                   /
             if (edge.edgeType == EdgeType.Directed)
             {
+                float arrowWidth = 6.0f;
                 Vector2 directionVector = edge.destination.node.rect.center - edge.source.node.rect.center;
                 // The math below gets the Right vector from the directionVector above.
                 Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
                 counterClockwiseOffset.Normalize();
-                counterClockwiseOffset *= 7.0f;
+                counterClockwiseOffset *= arrowWidth;
+
                 Vector2 startPosition = edge.source.node.rect.center + counterClockwiseOffset;
                 Vector2 endPosition = edge.destination.node.rect.center + counterClockwiseOffset;
 
                 Vector2 line = endPosition - startPosition;
-                Vector2 midpoint = startPosition + line / 2.0f;
-                //Below are the 3 points of the arrow of the directed edge.
+                // Below are the 3 points of the arrow of the directed edge.
                 Vector2 forwardPoint = line.normalized * 7;
                 Vector2 leftPoint = forwardPoint.RotatedBy(120);
                 Vector2 rightPoint = forwardPoint.RotatedBy(240);
 
+                // The arrows Unity's Animation Window uses are centered around the cartesian center, 
+                // rather than the arrow's center of mass. To mimic Unity, we'll calculate the cartesian
+                // center of the arrow in offsetMidpoint.
+                // If we decide later we don't care for this, we can use:
+                //  Vector2 midpoint = startPosition + line / 2.0f;
+                Vector2 offsetMidpoint = line.WithMagnitude(
+                    (Mathf.Cos(60.0f * Mathf.Deg2Rad) - 1.0f) / 2.0f * arrowWidth + line.magnitude / 2) + startPosition;
                 Handles.DrawAAPolyLine(edgeTexture, 3, startPosition, endPosition);
                 Handles.DrawAAConvexPolygon(
-                    midpoint + forwardPoint,
-                    midpoint + leftPoint,
-                    midpoint + rightPoint,
-                    midpoint + forwardPoint);
+                    offsetMidpoint + forwardPoint,
+                    offsetMidpoint + leftPoint,
+                    offsetMidpoint + rightPoint,
+                    offsetMidpoint + forwardPoint);
             }
             else
             {

@@ -82,18 +82,32 @@ namespace Benco.Graph
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
                     onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation, 
+                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
                                                       GraphController.graph.nodes),
                 },
 
-                new UIEvent("Attempt Select Node")
+                new UIEvent("Drag All Nodes")
                 {
+                    mouseButtons = MouseButtons.Left,
+                    modifiers = ModifierKeys.Alt,
+                    eventType = EventType.MouseDrag,
+                    onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
+                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
+                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
+                                                      GraphController.graph.nodes),
+                },
+
+                new UIEvent("Attempt Select Nodes or Edges")
+                {
+                    // Right clicking a node will also set it as selected. This is default in Unity.
+                    // Note that right clicking an edge will not select it. This is handled in 
+                    // AttemptNodeObjectSelection()
                     mouseButtons = MouseButtons.Left | MouseButtons.Right,
                     mustHaveAllMouseButtons = false,
                     modifiers = ModifierKeys.None | ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt,
                     mustHaveAllModifiers = false,
                     eventType = EventType.MouseDown,
-                    onEventBegin = (Event e) => AttemptNodeSelect(e)
+                    onEventBegin = (Event e) => AttemptNodeObjectSelection(e)
                 },
             };
 
@@ -106,7 +120,7 @@ namespace Benco.Graph
                     modifiers = ModifierKeys.None | ModifierKeys.Control | ModifierKeys.Shift | ModifierKeys.Alt,
                     mustHaveAllModifiers = false,
                     eventType = EventType.MouseDown,
-                    onEventBegin = (Event e) => AttemptNodeSelect(e)
+                    onEventBegin = (Event e) => AttemptNodeObjectSelection(e)
                 },
 
                 new UIEvent("Reposition/Drag")
@@ -198,7 +212,6 @@ namespace Benco.Graph
                     midpoint + rightPoint,
                     midpoint + forwardPoint);
             }
-                
         }
 
         private void EndTransition(Event e)
@@ -242,7 +255,7 @@ namespace Benco.Graph
             return null;
         }
 
-        private void AttemptNodeSelect(Event e)
+        private void AttemptNodeObjectSelection(Event e)
         {
             foreach (NodeBase node in GraphController.graph.nodes)
             {
@@ -261,6 +274,33 @@ namespace Benco.Graph
                     }
                     NodeEditorWindow.instance.Repaint();
                     return;
+                }
+            }
+
+            // Unity by default will not select edges if a right/context-click has been recieved.
+            // Don't ask me why, I don't make up the rules.
+            if (e.button != 1 && !e.alt)
+            {
+                foreach (NodeEdge edge in GraphController.graph.edges)
+                {
+                    Vector2 startPoint = edge.source.node.rect.center;
+                    Vector2 endPoint = edge.destination.node.rect.center;
+                    if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 5, point: e.mousePosition))
+                    {
+                        if (e.control)
+                        {
+                            Selection.objects = Selection.objects.CopyPushFront(edge);
+                        }
+                        else
+                        {
+                            if (!Selection.objects.Contains(edge))
+                            {
+                                Selection.activeObject = edge;
+                            }
+                        }
+                        NodeEditorWindow.instance.Repaint();
+                        return;
+                    }
                 }
             }
 
