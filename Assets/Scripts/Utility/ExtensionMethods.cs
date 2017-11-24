@@ -36,8 +36,7 @@ namespace ExtensionMethods
         }
 
         /// <summary>
-        /// Removes the element at <paramref name="index"/> from <paramref name="array"/>. 
-        /// If the index is greater than
+        /// Removes the element at <paramref name="index"/> from <paramref name="array"/>.
         /// </summary>
         /// <returns>A copy of the new array.</returns>
         /// <remarks>

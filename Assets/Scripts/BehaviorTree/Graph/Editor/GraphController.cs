@@ -35,7 +35,7 @@ namespace Benco.Graph
             GraphUIEvents graphEvents = new GraphUIEvents(NodeAttributeTags.GetNodeMenu<NodeComposite>());
             registeredEvents.Add(typeof(NodeGraph), graphEvents.graphEvents);
             registeredEvents.Add(typeof(NodeBase), graphEvents.nodeEvents);
-            registeredEvents.Add(typeof(NodeEdge), graphEvents.nodeEvents);
+            registeredEvents.Add(typeof(NodeEdge), graphEvents.edgeEvents);
             Undo.undoRedoPerformed += delegate { NodeEditorWindow.instance.Repaint(); };
         }
 

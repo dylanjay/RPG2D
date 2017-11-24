@@ -191,6 +191,21 @@ namespace Benco.Graph
                     eventType = EventType.MouseDown,
                     onEventBegin = (Event e) => AttemptNodeObjectSelection(e)
                 },
+
+                // UnityShenanigans:
+                // When clicking on an edge, you can continue to drag to create a selection box
+                // to select nodes. This also adds the selected edge to the selection box as well.
+                new UIEvent("Create Selection Box")
+                {
+                    mouseButtons = MouseButtons.Left,
+                    modifiers = ModifierKeys.None,
+                    eventType = EventType.MouseDrag,
+                    onEventBegin = (Event e) => StartSelection(e),
+                    onEventUpdate = (Event e) => UpdateSelection(e),
+                    onEventExit = (Event e) => ExitSelection(e, canceled: false),
+                    onEventCancel = (Event e) => ExitSelection(e, canceled: true),
+                    onRepaint = (Event e) => { GUI.Box(selectionRect, "", GUI.skin.GetStyle("selectionRect")); }
+                },
             };
         }
 
@@ -280,7 +295,7 @@ namespace Benco.Graph
             {
                 if (node.rect.Contains(e.mousePosition))
                 {
-                    if (e.control || e.shift)
+                    if ((e.control || e.shift) && !Selection.objects.Contains(GraphController.graph))
                     {
                         int index = ArrayUtility.FindIndex(Selection.objects, (nodeBase) => nodeBase == node);
                         if (index >= 0)
@@ -319,7 +334,7 @@ namespace Benco.Graph
 
                     if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 8, point: e.mousePosition))
                     {
-                        if (e.control || e.shift)
+                        if ((e.control || e.shift) && !Selection.objects.Contains(GraphController.graph))
                         {
                             int index = ArrayUtility.FindIndex(Selection.objects, (nodeEdge) => nodeEdge == edge);
                             if (index >= 0)
