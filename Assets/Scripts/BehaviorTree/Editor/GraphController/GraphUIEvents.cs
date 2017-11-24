@@ -312,16 +312,6 @@ namespace Benco.Graph
             NodeEditorWindow.instance.Repaint();
         }
 
-        private void DragAll(Vector2 delta)
-        {
-            foreach (NodeBase node in GraphController.graph.nodes)
-            {
-                node.rect.x += delta.x;
-                node.rect.y += delta.y;
-            }
-            NodeEditorWindow.instance.Repaint();
-        }
-
         private void Drag(Vector2 delta, IEnumerable<NodeBase> nodes)
         {
             foreach (NodeBase node in nodes)
