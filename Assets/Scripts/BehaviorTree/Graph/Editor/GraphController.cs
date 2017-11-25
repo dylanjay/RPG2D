@@ -71,7 +71,7 @@ namespace Benco.Graph
                 }
                 return;
             }
-            else if (e.type == EventType.Layout || e.type == EventType.Used)
+            else if (e.type == EventType.Layout || e.type == EventType.Used || e.type == EventType.Ignore)
             {
                 return;
             }
@@ -134,7 +134,7 @@ namespace Benco.Graph
                     }
                 }
             }
-            // Note: not same if statment because currentEvent can be set in the previous if statement.
+            // Note: not same if statement because currentEvent can be set in the previous if statement.
             if (currentEvent != null)
             {
                 if (newEvent)

@@ -134,7 +134,7 @@ namespace Benco.Graph
                     onEventUpdate = (Event e) => Drag(e.delta, from obj in Selection.objects
                                                                where typeof(NodeBase).IsAssignableFrom(obj.GetType())
                                                                select (NodeBase)obj),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation, 
+                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
                                                       from obj in Selection.objects
                                                       where typeof(NodeBase).IsAssignableFrom(obj.GetType())
                                                       select (NodeBase)obj),
@@ -179,6 +179,17 @@ namespace Benco.Graph
                     onEventUpdate = (Event e) => { NodeEditorWindow.instance.Repaint(); },
                     onRepaint = (Event e) => RepaintTransition(e),
                 },
+
+                new UIEvent("Drag All Nodes")
+                {
+                    mouseButtons = MouseButtons.Left,
+                    modifiers = ModifierKeys.Alt,
+                    eventType = EventType.MouseDrag,
+                    onEventBegin = (Event e) => NodeDragAll(e),
+                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
+                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
+                                                      GraphController.graph.nodes),
+                },
             };
 
             edgeEvents = new List<UIEvent>()
@@ -208,6 +219,14 @@ namespace Benco.Graph
                     onRepaint = (Event e) => { GUI.Box(selectionRect, "", GUI.skin.GetStyle("selectionRect")); }
                 },
             };
+        }
+
+        private bool NodeDragAll(Event e)
+        {
+            NodeBase selectedNode = Selection.activeObject as NodeBase;
+            if (selectedNode.rect.Contains(e.mousePosition)) { return false; }
+            dragStartLocation = e.mousePosition;
+            return true;
         }
         
         private bool StartTransition(Event e)
