@@ -169,26 +169,16 @@ namespace Benco.Graph
                     onEventExit = (Event e) => ShowNodeContextMenu(e),
                 },
 
-                new UIEvent("Create Transition")
+                new UIEvent("Create Transition or Drag Nodes")
                 {
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.Alt,
                     eventType = EventType.MouseDrag,
-                    checkedOnEventBegin = (Event e) => StartTransition(e),
-                    onEventExit = (Event e) => EndTransition(e),
-                    onEventUpdate = (Event e) => { NodeEditorWindow.instance.Repaint(); },
-                    onRepaint = (Event e) => RepaintTransition(e),
-                },
-
-                new UIEvent("Drag All Nodes")
-                {
-                    mouseButtons = MouseButtons.Left,
-                    modifiers = ModifierKeys.Alt,
-                    eventType = EventType.MouseDrag,
-                    onEventBegin = (Event e) => NodeDragAll(e),
-                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
-                                                      GraphController.graph.nodes),
+                    onEventBegin = (Event e) => StartTransitionOrDrag(e),
+                    onEventExit = (Event e) => EndTransitionOrDrag(e),
+                    onEventUpdate = (Event e) => UpdateTransitionOrDrag(e),
+                    onRepaint = (Event e) => RepaintTransitionOrDrag(e),
+                    onEventCancel = (Event e) => CancelTransitionOrDrag(e),
                 },
             };
 
@@ -218,6 +208,17 @@ namespace Benco.Graph
                     onEventCancel = (Event e) => ExitSelection(e, canceled: true),
                     onRepaint = (Event e) => { GUI.Box(selectionRect, "", GUI.skin.GetStyle("selectionRect")); }
                 },
+
+                new UIEvent("Drag All Nodes")
+                {
+                    mouseButtons = MouseButtons.Left,
+                    modifiers = ModifierKeys.Alt,
+                    eventType = EventType.MouseDrag,
+                    onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
+                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
+                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
+                                                      GraphController.graph.nodes),
+                },
             };
         }
 
@@ -229,40 +230,53 @@ namespace Benco.Graph
             return true;
         }
         
-        private bool StartTransition(Event e)
+        private void StartTransitionOrDrag(Event e)
         {
-            // Make sure there is a node that is selected first.
+            dragStartLocation = e.mousePosition;
             NodeBase selectedNode = Selection.activeObject as NodeBase;
             if (selectedNode == null || !selectedNode.rect.Contains(e.mousePosition))
             {
-                return false;
+                return;
             }
             startTransitionNode = selectedNode;
-            dragStartLocation = e.mousePosition;
-            return true;
         }
 
-        private void RepaintTransition(Event e)
+        private void UpdateTransitionOrDrag(Event e)
         {
-            Handles.DrawAAPolyLine(lineTexture, 3, dragStartLocation, e.mousePosition);
-            //TODO(mderu): Change this to if (edges are directed for this type of graph)
-            if (true)
+            if (startTransitionNode == null)
             {
-                Vector2 line = e.mousePosition - dragStartLocation;
-                Vector2 midpoint = dragStartLocation + line / 2.0f;
-                // Below are the 3 points of the arrow of the directed edge.
-                Vector2 forwardPoint = line.normalized * 7;
-                Vector2 leftPoint = forwardPoint.RotatedBy(120);
-                Vector2 rightPoint = forwardPoint.RotatedBy(240);
-                Handles.DrawAAConvexPolygon(
-                    midpoint + forwardPoint,
-                    midpoint + leftPoint,
-                    midpoint + rightPoint,
-                    midpoint + forwardPoint);
+                Drag(e.delta, GraphController.graph.nodes);
+            }
+            else
+            {
+                NodeEditorWindow.instance.Repaint();
             }
         }
 
-        private void EndTransition(Event e)
+        private void RepaintTransitionOrDrag(Event e)
+        {
+            if (startTransitionNode != null)
+            {
+                Handles.DrawAAPolyLine(lineTexture, 3, dragStartLocation, e.mousePosition);
+                //TODO(mderu): Change this to if (edges are directed for this type of graph)
+                if (true)
+                {
+                    Vector2 line = e.mousePosition - dragStartLocation;
+                    Vector2 midpoint = dragStartLocation + line / 2.0f;
+                    // Below are the 3 points of the arrow of the directed edge.
+                    Vector2 forwardPoint = line.normalized * 7.0f;
+                    Vector2 leftPoint = forwardPoint.RotatedBy(120.0f);
+                    Vector2 rightPoint = forwardPoint.RotatedBy(240.0f);
+                    Handles.DrawAAConvexPolygon(
+                        midpoint + forwardPoint,
+                        midpoint + leftPoint,
+                        midpoint + rightPoint,
+                        midpoint + forwardPoint);
+                }
+            }
+        }
+
+        private void EndTransitionOrDrag(Event e)
         {
             NodeBase nodeUnderMouse = GetNodeAt(e.mousePosition);
             if (nodeUnderMouse != null)
@@ -275,7 +289,7 @@ namespace Benco.Graph
             startTransitionNode = null;
         }
 
-        private void CancelTransition(Event e)
+        private void CancelTransitionOrDrag(Event e)
         {
             startTransitionNode = null;
         }
