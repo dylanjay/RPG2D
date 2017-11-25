@@ -27,6 +27,7 @@ namespace Benco.Graph
     public class UIEvent
     {
         private static readonly EventDelegate emptyDelegate = (Event e) => { };
+        private static readonly CheckedEventDelegate emptyCheckedDelegate = (Event e) => { return true; };
 
         /// <summary>
         /// The modifiers the Event should have before the EventHandler is called.
@@ -55,48 +56,58 @@ namespace Benco.Graph
         }
 
         /// <summary>
-        /// If eventType is EventType.ExecuteCommand, which command must be called before the EventHandler is called.
+        /// If eventType is EventType.ExecuteCommand, which command must be called before the
+        /// EventHandler is called.
         /// </summary>
         public string eventCommand { get; set; }
 
         public delegate void EventDelegate(Event e);
+        public delegate bool CheckedEventDelegate(Event e);
 
         /// <summary>
-        /// What should be called on the first (and only the first) event. Note that onEventUpdate will still be
-        /// called after this. If the event is a Drag action, then this event will use the data of the OnMouseDown
-        /// instead.
+        /// A version of <see cref="onEventBegin"/> that cancels the event upon returning false.
         /// </summary>
-        /// <param name="e">The event that began the EventHandler.</param>
-        public EventDelegate onEventBegin = emptyDelegate;
+        public CheckedEventDelegate checkedOnEventBegin = emptyCheckedDelegate;
+        /// <summary>
+        /// What should be called on the first (and only the first) event. Note that onEventUpdate
+        /// will still be called after this. If the event is a Drag action, then this event will
+        /// use the data of the OnMouseDown instead.
+        /// </summary>
+        public EventDelegate onEventBegin { set { checkedOnEventBegin = (Event e) => { value(e); return true; }; } }
 
+        /// <summary>
+        /// A version of <see cref="onEventUpdate"/> that cancels the event upon returning false.
+        /// </summary>
+        public CheckedEventDelegate checkedOnEventUpdate = emptyCheckedDelegate;
         /// <summary>
         /// Every time the event is updated for KeyDown and Drags, this function will be called.
         /// </summary>
-        /// <param name="e">The current event.</param>
-        public EventDelegate onEventUpdate = emptyDelegate;
-
+        public EventDelegate onEventUpdate { set { checkedOnEventUpdate = (Event e) => { value(e); return true; }; } }
+        
         /// <summary>
         /// The function to be called when the event is completed. Called on the last event frame.
         /// </summary>
-        /// <param name="e">The current event.</param>
         public EventDelegate onEventExit = emptyDelegate;
 
         /// <summary>
-        /// The function to be called when the event is canceled. An event can be cancelled via the Escape key, or
-        /// if cancelOnDoubleMousePress or cancelOnReleaseModifier is set.
-        /// or
+        /// The function to be called when the event is canceled. An event can be canceled via the
+        /// Escape key, or if cancelOnDoubleMousePress or cancelOnReleaseModifier is set.
         /// </summary>
-        /// <param name="e">The current event.</param>
         public EventDelegate onEventCancel = emptyDelegate;
 
         /// <summary>
-        /// The function that gets called when the input requires drawing something to the screen. Used for things like
-        /// drawing a selection box, or updating other visuals.
-        /// or
+        /// The function that gets called when the input requires drawing something to the screen.
+        /// Used for things like drawing a selection box, or updating other visuals.
         /// </summary>
-        /// <param name="e">The current event.</param>
+        /// <remarks>
+        /// onRepaint does not have a corresponding checkedOnRepaint. This is because onRepaint
+        /// should not have any code that determines an event's cancelation.
+        /// </remarks>
         public EventDelegate onRepaint = emptyDelegate;
 
+        /// <summary>
+        /// The name of the UIEvent. Used for debugging purposes.
+        /// </summary>
         public string name = "";
 
         public UIEvent(string name = "")
@@ -104,5 +115,4 @@ namespace Benco.Graph
             this.name = name;
         }
     }
-
 }

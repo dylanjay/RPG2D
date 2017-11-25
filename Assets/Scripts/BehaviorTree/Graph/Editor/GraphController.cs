@@ -141,30 +141,43 @@ namespace Benco.Graph
                 {
                     if (currentEvent.eventType == EventType.MouseDrag)
                     {
-                        currentEvent.onEventBegin(lastMouseEvent);
-                        currentEvent.onEventUpdate(e);
+                        if (!currentEvent.checkedOnEventBegin(lastMouseEvent) ||
+                            !currentEvent.checkedOnEventUpdate(e))
+                        {
+                            CancelEvent(e);
+                        }
                     }
                     else if (currentEvent.eventType == EventType.MouseDown || 
                              currentEvent.eventType == EventType.MouseUp ||
                              currentEvent.eventType == EventType.ValidateCommand ||
                              currentEvent.eventType == EventType.ExecuteCommand)
                     {
-                        currentEvent.onEventBegin(e);
-                        currentEvent.onEventUpdate(e);
-                        currentEvent.onEventExit(e);
+                        if (!currentEvent.checkedOnEventBegin(e) ||
+                            !currentEvent.checkedOnEventUpdate(e))
+                        {
+                            CancelEvent(e);
+                        }
+                        else
+                        {
+                            currentEvent.onEventExit(e);
+                        }
                         currentEvent = null;
                     }
                     else
                     {
-                        currentEvent.onEventBegin(e);
-                        currentEvent.onEventUpdate(e);
+                        if (!currentEvent.checkedOnEventBegin(e) ||
+                            !currentEvent.checkedOnEventUpdate(e))
+                        {
+                            CancelEvent(e);
+                        }
                     }
                 }
                 else
                 {
                     if (e.type == EventType.MouseUp && currentEvent.eventType == EventType.MouseDrag)
                     {
-                        currentEvent.onEventUpdate(e);
+                        // Return value is ignored here because the event is exiting anyway.
+                        currentEvent.checkedOnEventUpdate(e);
                         currentEvent.onEventExit(e);
                         currentEvent = null;
                         lastMouseEvent = null;
@@ -172,14 +185,14 @@ namespace Benco.Graph
                     else if ((currentEventState.mouseButtons == MouseButtons.Both &&
                               currentEvent.cancelOnBothMouseButtonsPressed) || e.keyCode == KeyCode.Escape)
                     {
-                        currentEvent.onEventCancel(e);
-                        currentEvent = null;
-                        lastMouseEvent = null;
-                        lastKeyEvent = null;
+                        CancelEvent(e);
                     }
                     else
                     {
-                        currentEvent.onEventUpdate(e);
+                        if (!currentEvent.checkedOnEventUpdate(e))
+                        {
+                            CancelEvent(e);
+                        }
                     }
                 }
             }
@@ -196,6 +209,18 @@ namespace Benco.Graph
             {
                 lastKeyEvent = new Event(e);
             }
+        }
+
+        /// <summary>
+        /// Cancels an event and stops tracking its state changes.
+        /// </summary>
+        /// <param name="e">The event to send to the canceled UIEvent.</param>
+        private void CancelEvent(Event e)
+        {
+            currentEvent.onEventCancel(e);
+            currentEvent = null;
+            lastMouseEvent = null;
+            lastKeyEvent = null;
         }
         
         private bool HasCorrectModifiers(EventState eventState, UIEvent uiEvent)

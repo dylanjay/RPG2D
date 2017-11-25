@@ -100,6 +100,7 @@ namespace Benco.Graph
 
                 new UIEvent("Attempt Select Nodes or Edges")
                 {
+                    // UnityShenanigans:
                     // Right clicking a node will also set it as selected. This is default in Unity.
                     // Note that right clicking an edge will not select it. This is handled in 
                     // AttemptNodeObjectSelection()
@@ -114,7 +115,7 @@ namespace Benco.Graph
 
             nodeEvents = new List<UIEvent>()
             {
-                new UIEvent("Attempt Select Node or Edges")
+                new UIEvent("Attempt Select Nodes or Edges")
                 {
                     mouseButtons = MouseButtons.Left | MouseButtons.Right,
                     mustHaveAllMouseButtons = false,
@@ -173,7 +174,7 @@ namespace Benco.Graph
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.Alt,
                     eventType = EventType.MouseDrag,
-                    onEventBegin = (Event e) => StartTransition(e),
+                    checkedOnEventBegin = (Event e) => StartTransition(e),
                     onEventExit = (Event e) => EndTransition(e),
                     onEventUpdate = (Event e) => { NodeEditorWindow.instance.Repaint(); },
                     onRepaint = (Event e) => RepaintTransition(e),
@@ -208,19 +209,18 @@ namespace Benco.Graph
                 },
             };
         }
-
-        private void StartTransition(Event e)
+        
+        private bool StartTransition(Event e)
         {
             // Make sure there is a node that is selected first.
             NodeBase selectedNode = Selection.activeObject as NodeBase;
-            if (selectedNode == null)
+            if (selectedNode == null || !selectedNode.rect.Contains(e.mousePosition))
             {
-                return;
-                //AttemptNodeSelect(e);
-                //selectedNode = Selection.activeObject as NodeBase;
+                return false;
             }
             startTransitionNode = selectedNode;
             dragStartLocation = e.mousePosition;
+            return true;
         }
 
         private void RepaintTransition(Event e)
@@ -318,7 +318,6 @@ namespace Benco.Graph
                         }
                     }
                     NodeEditorWindow.instance.Repaint();
-                    Debug.Log("Returning early on node");
                     return;
                 }
             }
@@ -354,7 +353,6 @@ namespace Benco.Graph
                             Selection.activeObject = edge;
                         }
                         NodeEditorWindow.instance.Repaint();
-                        Debug.Log("Returning early on edge");
                         return;
                     }
                 }
@@ -364,7 +362,6 @@ namespace Benco.Graph
             if (!e.alt && !e.control && !e.shift)
             {
                 Selection.activeObject = GraphController.graph;
-                Debug.Log("No return early. Graph selected.");
                 NodeEditorWindow.instance.Repaint();
                 return;
             }
