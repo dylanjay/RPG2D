@@ -70,7 +70,7 @@ namespace Benco.Graph
                 }
                 return;
             }
-            else if (e.type == EventType.Layout || e.type == EventType.Used || e.type == EventType.Ignore)
+            else if (e.type == EventType.Layout || e.type == EventType.Used || graph == null)
             {
                 return;
             }
@@ -173,7 +173,8 @@ namespace Benco.Graph
                 }
                 else
                 {
-                    if (e.type == EventType.MouseUp && currentEvent.eventType == EventType.MouseDrag)
+                    if ((e.type == EventType.MouseUp || e.type == EventType.Ignore) && 
+                        currentEvent.eventType == EventType.MouseDrag)
                     {
                         // Return value is ignored here because the event is exiting anyway.
                         currentEvent.checkedOnEventUpdate(e);
@@ -331,7 +332,6 @@ namespace Benco.Graph
                     nodeStyle = GUI.skin.GetStyle("flow node 0");
                 }
             }
-
             GUI.Box(node.rect, node.title, nodeStyle);
             
             DrawConnections(node);

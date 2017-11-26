@@ -1,4 +1,5 @@
-﻿using UnityEditor;
+﻿using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 namespace Benco.Graph
@@ -21,19 +22,14 @@ namespace Benco.Graph
         }
 
         [SerializeField]
-        private NodeWorkView workView;
-
-        [SerializeField]
-        private NodeToolbarView toolsView;
-
-        [SerializeField]
-        private NodeTypeView typeView;
+        private List<ViewBase> views = new List<ViewBase>();
         
         public const float TOOLBAR_HEIGHT = 17;
         [SerializeField]
         private float dividerPosition = 200;
-        
 
+        private ViewBase eventReceivingView = null;
+        
         [SerializeField]
         public NodeGraph currentGraph = null;
 
@@ -42,7 +38,7 @@ namespace Benco.Graph
         {
             instance = GetWindow<NodeEditorWindow>();
             instance.InitializeWindow();
-            CreateViews();
+            instance.CreateViews();
         }
 
         public void Update()
@@ -56,25 +52,33 @@ namespace Benco.Graph
 
         public void OnGUI()
         {
-            if (workView == null || toolsView == null || typeView == null)
+            if (views.Count == 0)
             {
-                CreateViews();
+                InitNodeEditor();
                 return;
             }
-
             Event e = Event.current;
             
-            Rect toolbarViewRect = new Rect(0, 0, position.width, TOOLBAR_HEIGHT);
-            Rect typeViewRect = new Rect(0, TOOLBAR_HEIGHT, dividerPosition,
-                                         position.height - TOOLBAR_HEIGHT);
-            Rect workViewRect = new Rect(dividerPosition, 
-                                         TOOLBAR_HEIGHT,
-                                         position.width - dividerPosition, 
-                                         position.height - TOOLBAR_HEIGHT);
-
-            workView.UpdateView(workViewRect, e, currentGraph);
-            typeView.UpdateView(typeViewRect, e, currentGraph);
-            toolsView.UpdateView(toolbarViewRect, e, currentGraph);
+            if (e.type == EventType.MouseDown)
+            {
+                for (int i = 0; i < views.Count; i++)
+                {
+                    if (views[i].displayRect.Contains(e.mousePosition))
+                    {
+                        eventReceivingView = views[i];
+                        break;
+                    }
+                }
+            }
+            EventType eventType = e.type;
+            for (int i = 0; i < views.Count; i++)
+            {
+                views[i].displayRect = views[i].updateDisplayRect();
+                e.type = eventReceivingView == views[i] || 
+                         e.type == EventType.Repaint || 
+                         e.type == EventType.Layout ? eventType : eventType;
+                views[i].UpdateView(e, currentGraph);
+            }
         }
 
         internal void InitializeWindow()
@@ -82,7 +86,7 @@ namespace Benco.Graph
             instance.titleContent = new GUIContent("Node Editor");
         }
 
-        static void CreateViews()
+        void CreateViews()
         {
             if (instance == null)
             {
@@ -90,9 +94,25 @@ namespace Benco.Graph
                 instance.InitializeWindow();
             }
 
-            instance.workView = new NodeWorkView();
-            instance.toolsView = new NodeToolbarView();
-            instance.typeView = new NodeTypeView();
+            NodeWorkView workView = new NodeWorkView();
+            NodeToolbarView toolbarView = new NodeToolbarView();
+            NodeTypeView typeView = new NodeTypeView();
+            toolbarView.updateDisplayRect = () => {
+                return new Rect(0, 0, position.width, TOOLBAR_HEIGHT);
+            };
+            typeView.updateDisplayRect = () => {
+                return new Rect(0, TOOLBAR_HEIGHT, dividerPosition,
+                                position.height - TOOLBAR_HEIGHT);
+            };
+            workView.updateDisplayRect = () => {
+                return new Rect(dividerPosition,
+                                TOOLBAR_HEIGHT,
+                                position.width - dividerPosition,
+                                position.height - TOOLBAR_HEIGHT);
+            };
+            views.Add(workView);
+            views.Add(toolbarView);
+            views.Add(typeView);
         }
     }
 }

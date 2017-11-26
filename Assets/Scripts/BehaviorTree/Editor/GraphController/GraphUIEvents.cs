@@ -219,6 +219,16 @@ namespace Benco.Graph
                     onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
                                                       GraphController.graph.nodes),
                 },
+
+                new UIEvent("Delete Edges")
+                {
+                    mouseButtons = MouseButtons.None,
+                    modifiers = ModifierKeys.None,
+                    mustHaveAllModifiers = true,
+                    eventType = EventType.ValidateCommand,
+                    eventCommand = "SoftDelete|Delete",
+                    onEventBegin = (Event e) => DeletePressed(e)
+                },
             };
         }
 
@@ -419,6 +429,12 @@ namespace Benco.Graph
                 if (nodeBase != null)
                 {
                     GraphController.graph.DeleteNode(nodeBase);
+                }
+                NodeEdge nodeEdge = selectedObjects[i] as NodeEdge;
+                if (nodeEdge != null)
+                {
+                    NodeEdge.DestroyEdge(nodeEdge);
+                    GraphController.graph.RemoveEdge(nodeEdge);
                 }
             }
             NodeEditorWindow.instance.Repaint();

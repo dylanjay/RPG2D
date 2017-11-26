@@ -111,6 +111,7 @@ namespace Benco.Graph
             return nodeEdge;
         }
 
+        // TODO(mderu): make this an exposed function on edge.source[.node] / edge.destination[.node]
         public static void DestroyEdge(NodeEdge edge)
         {
             Undo.RecordObject(edge.source.node.parentGraph, "Destroying Edge");

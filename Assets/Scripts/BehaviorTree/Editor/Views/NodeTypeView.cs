@@ -13,10 +13,8 @@ namespace Benco.Graph
 
         }
 
-        public override void UpdateView(Rect displayRect, Event e, NodeGraph graph)
+        public override void UpdateView(Event e, NodeGraph graph)
         {
-            ProcessEvents(e);
-
             GUI.Box(displayRect, "", GUI.skin.GetStyle("Box"));
 
             GUILayout.BeginArea(displayRect);
@@ -28,25 +26,25 @@ namespace Benco.Graph
                         GUILayout.ExpandWidth(true),
                         GUILayout.Height(25)
                     };
-                    if (GUILayout.Button("Seq", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Sequence", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeComposite), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorSequence)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("Sel", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Selector", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeComposite), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorSelector)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("MSeq", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Memory Sequence", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeComposite), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorMemSequence)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("MSel", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Memory Selector", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeComposite), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorMemSelector)), graph, spawnLocation);
@@ -54,28 +52,28 @@ namespace Benco.Graph
 
                     GUILayout.Box("", labelStyle, GUILayout.Width(displayRect.width), GUILayout.Height(8));
 
-                    if (GUILayout.Button("Invert", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Inverter", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeDecorator), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorInverter)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("Succ", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Succeeder", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeDecorator), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorSucceeder)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("Fail", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Failer", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeDecorator), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorFailer)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("Run", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Runner", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeDecorator), 
-                            BehaviorComponent.CreateComponent(typeof(BehaviorMemSelector)), graph, spawnLocation);
+                            BehaviorComponent.CreateComponent(typeof(BehaviorRunner)), graph, spawnLocation);
                     }
 
                     if (GUILayout.Button("Wait", buttonStyle, buttonParams))
@@ -90,7 +88,7 @@ namespace Benco.Graph
                             BehaviorComponent.CreateComponent(typeof(BehaviorLimiter)), graph, spawnLocation);
                     }
 
-                    if (GUILayout.Button("MaxTime", buttonStyle, buttonParams))
+                    if (GUILayout.Button("Max Time", buttonStyle, buttonParams))
                     {
                         NodeUtilities.CreateNode(typeof(NodeDecorator), 
                             BehaviorComponent.CreateComponent(typeof(BehaviorMaxTime)), graph, spawnLocation);

@@ -19,10 +19,8 @@ namespace Benco.Graph
             }
         }
 
-        public override void UpdateView(Rect displayRect, Event e, NodeGraph graph)
+        public override void UpdateView(Event e, NodeGraph graph)
         {
-            ProcessEvents(e);
-            
             GUI.Box(displayRect, "", EditorStyles.toolbar);
             
             GUILayout.BeginArea(displayRect);

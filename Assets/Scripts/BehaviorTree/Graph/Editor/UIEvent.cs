@@ -57,7 +57,8 @@ namespace Benco.Graph
 
         /// <summary>
         /// If eventType is EventType.ExecuteCommand, which command must be called before the
-        /// EventHandler is called.
+        /// EventHandler is called. If multiple eventCommands are possible, you can split the
+        /// or them with an "|" between words (sans spaces, e.g. "SoftDelete|Delete").
         /// </summary>
         public string eventCommand { get; set; }
 

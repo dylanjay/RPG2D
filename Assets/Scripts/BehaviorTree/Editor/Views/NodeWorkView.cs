@@ -5,12 +5,11 @@ namespace Benco.Graph
 {
     public class NodeWorkView : ViewBase
     {
-        public NodeWorkView() : base()
+        public override void UpdateView(Event e, NodeGraph graph)
         {
-        }
 
-        public override void UpdateView(Rect displayRect, Event e, NodeGraph graph)
-        {
+            GUI.Box(displayRect, "", GUI.skin.GetStyle("flow background"));
+            ProcessEvents(e);
             if (graph != null)
             {
                 string graphPath = NodeUtilities.currentGraphPath;
@@ -21,13 +20,10 @@ namespace Benco.Graph
                 }
             }
 
-            GUI.Box(displayRect, "", GUI.skin.GetStyle("flow background"));
-
             if (graph != null)
             {
                 NodeEditorWindow.graphController.UpdateGraphGUI(e, displayRect);
             }
-            ProcessEvents(e);
         }
 
         public override void ProcessEvents(Event e)
