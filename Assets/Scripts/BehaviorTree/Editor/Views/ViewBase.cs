@@ -5,31 +5,12 @@ using System;
 namespace Benco.Graph
 {
     [Serializable]
-    public class ViewBase
+    public abstract class ViewBase
     {
-        public Rect viewRect;
-        
-        public ViewBase()
-        {
-            viewRect = new Rect();
-        }
+        public ViewBase() { }
 
-        public ViewBase(Rect viewRect)
-        {
-            this.viewRect = viewRect;
-        }
+        public abstract void UpdateView(Rect displayRect, Event e, NodeGraph graph);
 
-        protected virtual void UpdateView(Rect editorRect, Rect percentageRect, Event e)
-        {
-            viewRect = new Rect(editorRect.width * percentageRect.x,
-                                editorRect.height * percentageRect.y,
-                                editorRect.width * percentageRect.width,
-                                editorRect.height * percentageRect.height);
-        }
-
-        public virtual void ProcessEvents(Event e)
-        {
-
-        }
+        public virtual void ProcessEvents(Event e) {}
     }
 }

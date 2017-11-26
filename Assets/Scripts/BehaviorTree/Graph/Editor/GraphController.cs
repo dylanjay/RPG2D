@@ -49,7 +49,6 @@ namespace Benco.Graph
 
         public void UpdateGraphGUI(Event e, Rect viewRect)
         {
-            ProcessEvents(e, viewRect);
             PrintAllNodes();
             foreach (NodeEdge edge in graph.edges)
             {
@@ -61,7 +60,7 @@ namespace Benco.Graph
             }
         }
 
-        void ProcessEvents(Event e, Rect viewRect)
+        public void OnGUI(Event e)
         {
             if (e.type == EventType.Repaint)
             {

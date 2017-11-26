@@ -8,23 +8,24 @@ namespace Benco.Graph
     {
         private static GUILayoutOption buttonHeight;
         private static GUILayoutOption noExpandWidth;
+        private static GUILayoutOption expandHeight;
 
         public NodeToolbarView() : base()
         {
             if (buttonHeight == null)
             {
-                buttonHeight = GUILayout.Height(viewRect.height);
+                buttonHeight = GUILayout.ExpandHeight(true);
                 noExpandWidth = GUILayout.ExpandWidth(false);
             }
         }
 
-        public void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        public override void UpdateView(Rect displayRect, Event e, NodeGraph graph)
         {
-            base.UpdateView(editorRect, percentageRect, e);
             ProcessEvents(e);
             
-            GUI.Box(viewRect, "", EditorStyles.toolbar);
-            GUILayout.BeginArea(viewRect);
+            GUI.Box(displayRect, "", EditorStyles.toolbar);
+            
+            GUILayout.BeginArea(displayRect);
             {
                 GUILayout.BeginHorizontal();
                 {
@@ -63,21 +64,6 @@ namespace Benco.Graph
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndArea();
-        }
-
-        public override void ProcessEvents(Event e)
-        {
-            base.ProcessEvents(e);
-        }
-
-        void ProcessContextMenu(Event e)
-        {
-
-        }
-
-        void ContextCallback(object obj)
-        {
-
         }
     }
 }

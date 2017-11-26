@@ -29,8 +29,10 @@ namespace Benco.Graph
         [SerializeField]
         private NodeTypeView typeView;
         
-        const float viewHorizontalPercentage = 100f;
-        const float barSize = 0.05f;
+        public const float TOOLBAR_HEIGHT = 17;
+        [SerializeField]
+        private float dividerPosition = 200;
+        
 
         [SerializeField]
         public NodeGraph currentGraph = null;
@@ -62,19 +64,17 @@ namespace Benco.Graph
 
             Event e = Event.current;
             
-            float heightPercent = GUI.skin.GetStyle("Toolbar").fixedHeight / position.height;
+            Rect toolbarViewRect = new Rect(0, 0, position.width, TOOLBAR_HEIGHT);
+            Rect typeViewRect = new Rect(0, TOOLBAR_HEIGHT, dividerPosition,
+                                         position.height - TOOLBAR_HEIGHT);
+            Rect workViewRect = new Rect(dividerPosition, 
+                                         TOOLBAR_HEIGHT,
+                                         position.width - dividerPosition, 
+                                         position.height - TOOLBAR_HEIGHT);
 
-            workView.UpdateView(position,
-                                new Rect(0, heightPercent, 1,1),
-                                e, currentGraph);
-
-            toolsView.UpdateView(position,
-                                 new Rect(0, 0, 1, heightPercent),
-                                 e, currentGraph);
-
-            typeView.UpdateView(position,
-                                new Rect(0, barSize, barSize, 1),
-                                e, currentGraph);
+            workView.UpdateView(workViewRect, e, currentGraph);
+            typeView.UpdateView(typeViewRect, e, currentGraph);
+            toolsView.UpdateView(toolbarViewRect, e, currentGraph);
         }
 
         internal void InitializeWindow()

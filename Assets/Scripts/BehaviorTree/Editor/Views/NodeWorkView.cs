@@ -9,10 +9,8 @@ namespace Benco.Graph
         {
         }
 
-        public void UpdateView(Rect editorRect, Rect percentageRect, Event e, NodeGraph graph)
+        public override void UpdateView(Rect displayRect, Event e, NodeGraph graph)
         {
-            base.UpdateView(editorRect, percentageRect, e);
-            ProcessEvents(e);
             if (graph != null)
             {
                 string graphPath = NodeUtilities.currentGraphPath;
@@ -23,21 +21,18 @@ namespace Benco.Graph
                 }
             }
 
-            GUI.Box(viewRect, "", GUI.skin.GetStyle("flow background"));
+            GUI.Box(displayRect, "", GUI.skin.GetStyle("flow background"));
 
-            GUILayout.BeginArea(viewRect);
+            if (graph != null)
             {
-                if (graph != null)
-                {
-                    NodeEditorWindow.graphController.UpdateGraphGUI(e, viewRect);
-                }
+                NodeEditorWindow.graphController.UpdateGraphGUI(e, displayRect);
             }
-            GUILayout.EndArea();
+            ProcessEvents(e);
         }
 
         public override void ProcessEvents(Event e)
         {
-            base.ProcessEvents(e);
+            NodeEditorWindow.graphController.OnGUI(e);
         }
     }
 }
