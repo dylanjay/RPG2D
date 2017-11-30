@@ -70,14 +70,15 @@ namespace Benco.Graph
                     }
                 }
             }
-            EventType eventType = e.type;
+            Event usedEvent = new Event(e);
+            if (e.type != EventType.Layout && e.type != EventType.Repaint)
+            {
+                usedEvent.type = EventType.Used;
+            }
             for (int i = 0; i < views.Count; i++)
             {
                 views[i].displayRect = views[i].updateDisplayRect();
-                e.type = eventReceivingView == views[i] || 
-                         e.type == EventType.Repaint || 
-                         e.type == EventType.Layout ? eventType : eventType;
-                views[i].UpdateView(e, currentGraph);
+                views[i].UpdateView(eventReceivingView == views[i] ? e : usedEvent, currentGraph);
             }
         }
 
