@@ -7,9 +7,6 @@ namespace Benco.Graph
     {
         public override void UpdateView(Event e, NodeGraph graph)
         {
-
-            GUI.Box(displayRect, "", GUI.skin.GetStyle("flow background"));
-            ProcessEvents(e);
             if (graph != null)
             {
                 string graphPath = NodeUtilities.currentGraphPath;
@@ -22,13 +19,9 @@ namespace Benco.Graph
 
             if (graph != null)
             {
+                //e.mousePosition -= displayRect.position;
                 NodeEditorWindow.graphController.UpdateGraphGUI(e, displayRect);
             }
-        }
-
-        public override void ProcessEvents(Event e)
-        {
-            NodeEditorWindow.graphController.OnGUI(e);
         }
     }
 }

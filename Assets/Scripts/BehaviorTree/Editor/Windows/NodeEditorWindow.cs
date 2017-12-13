@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Benco.Utilities;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -7,7 +8,6 @@ namespace Benco.Graph
     public class NodeEditorWindow : EditorWindow
     {
         public static NodeEditorWindow instance { get; private set; }
-
         private static GraphController _graphController;
         public static GraphController graphController
         {

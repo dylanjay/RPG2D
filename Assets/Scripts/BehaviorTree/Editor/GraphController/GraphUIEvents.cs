@@ -32,6 +32,11 @@ namespace Benco.Graph
         /// </summary>
         private NodeBase startTransitionNode = null;
 
+        /// <summary>
+        /// The GraphController this GraphUIEvent is attached to..
+        /// </summary>
+        private readonly GraphController graphController;
+
         public Rect selectionRect
         {
             get
@@ -51,8 +56,9 @@ namespace Benco.Graph
 
         private static readonly Texture2D lineTexture = GUI.skin.GetStyle("selectionRect").active.background;
 
-        public GraphUIEvents(GenericMenu contextMenu)
+        public GraphUIEvents(GraphController graphController, GenericMenu contextMenu)
         {
+            this.graphController = graphController;
             graphEvents = new List<UIEvent>()
             {
                 new UIEvent("Create Selection Box")
@@ -74,28 +80,25 @@ namespace Benco.Graph
                     eventType = EventType.MouseUp,
                     onEventExit = (Event e) => { contextMenu.ShowAsContext(); },
                 },
-
-
-                new UIEvent("Drag All Nodes")
+                
+                new UIEvent("Pan View")
                 {
                     mouseButtons = MouseButtons.Middle,
                     modifiers = ModifierKeys.None,
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
-                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
-                                                      GraphController.graph.nodes),
+                    onEventUpdate = (Event e) => Pan(e.delta),
+                    onEventCancel = (Event e) => Pan(e.mousePosition - dragStartLocation),
                 },
 
-                new UIEvent("Drag All Nodes")
+                new UIEvent("Pan View")
                 {
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.Alt,
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
-                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
-                                                      GraphController.graph.nodes),
+                    onEventUpdate = (Event e) => Pan(e.delta),
+                    onEventCancel = (Event e) => Pan(e.mousePosition - dragStartLocation),
                 },
 
                 new UIEvent("Attempt Select Nodes or Edges")
@@ -110,6 +113,15 @@ namespace Benco.Graph
                     mustHaveAllModifiers = false,
                     eventType = EventType.MouseDown,
                     onEventBegin = (Event e) => AttemptNodeObjectSelection(e)
+                },
+                
+                new UIEvent("MouseWheel Zoom and Pan")
+                {
+                    mouseButtons = MouseButtons.None,
+                    modifiers = ModifierKeys.None | ModifierKeys.Control,
+                    mustHaveAllModifiers = false,
+                    eventType = EventType.ScrollWheel,
+                    onEventBegin = (Event e) => HandleMouseWheel(e)
                 },
             };
 
@@ -140,15 +152,14 @@ namespace Benco.Graph
                                                       select (NodeBase)obj),
                 },
 
-                new UIEvent("Drag All Nodes")
+                new UIEvent("Pan View")
                 {
                     mouseButtons = MouseButtons.Middle,
                     modifiers = ModifierKeys.None,
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
-                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
-                                                      GraphController.graph.nodes),
+                    onEventUpdate = (Event e) => Pan(e.delta),
+                    onEventCancel = (Event e) => Pan(e.mousePosition - dragStartLocation),
                 },
 
                 new UIEvent("Delete Nodes")
@@ -160,6 +171,15 @@ namespace Benco.Graph
                     eventCommand = "SoftDelete|Delete",
                     onEventBegin = (Event e) => DeletePressed(e)
                 },
+                
+                new UIEvent("MouseWheel Zoom and Pan")
+                {
+                    mouseButtons = MouseButtons.None,
+                    modifiers = ModifierKeys.None | ModifierKeys.Control,
+                    mustHaveAllModifiers = false,
+                    eventType = EventType.ScrollWheel,
+                    onEventBegin = (Event e) => HandleMouseWheel(e)
+                },
 
                 new UIEvent("Right Click Menu")
                 {
@@ -169,16 +189,16 @@ namespace Benco.Graph
                     onEventExit = (Event e) => ShowNodeContextMenu(e),
                 },
 
-                new UIEvent("Create Transition or Drag Nodes")
+                new UIEvent("Create Transition or Pan View")
                 {
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.Alt,
                     eventType = EventType.MouseDrag,
-                    onEventBegin = (Event e) => StartTransitionOrDrag(e),
-                    onEventExit = (Event e) => EndTransitionOrDrag(e),
-                    onEventUpdate = (Event e) => UpdateTransitionOrDrag(e),
-                    onRepaint = (Event e) => RepaintTransitionOrDrag(e),
-                    onEventCancel = (Event e) => CancelTransitionOrDrag(e),
+                    onEventBegin = (Event e) => StartTransitionOrPan(e),
+                    onEventExit = (Event e) => EndTransitionOrPan(e),
+                    onEventUpdate = (Event e) => UpdateTransitionOrPan(e),
+                    onRepaint = (Event e) => RepaintTransitionOrPan(e),
+                    onEventCancel = (Event e) => CancelTransitionOrPan(e),
                 },
             };
 
@@ -209,15 +229,14 @@ namespace Benco.Graph
                     onRepaint = (Event e) => { GUI.Box(selectionRect, "", GUI.skin.GetStyle("selectionRect")); }
                 },
 
-                new UIEvent("Drag All Nodes")
+                new UIEvent("Pan View")
                 {
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.Alt,
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
-                    onEventUpdate = (Event e) => Drag(e.delta, GraphController.graph.nodes),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
-                                                      GraphController.graph.nodes),
+                    onEventUpdate = (Event e) => Pan(e.delta),
+                    onEventCancel = (Event e) => Pan(e.mousePosition - dragStartLocation),
                 },
 
                 new UIEvent("Delete Edges")
@@ -231,16 +250,16 @@ namespace Benco.Graph
                 },
             };
         }
-
-        private bool NodeDragAll(Event e)
+        
+        private void Pan(Vector2 delta)
         {
-            NodeBase selectedNode = Selection.activeObject as NodeBase;
-            if (selectedNode.rect.Contains(e.mousePosition)) { return false; }
-            dragStartLocation = e.mousePosition;
-            return true;
+            Vector2 scale = graphController.scale;
+            delta = new Vector2(delta.x * scale.x, delta.y * scale.y);
+            graphController.offset += new Vector2(delta.x , delta.y);
+            NodeEditorWindow.instance.Repaint();
         }
         
-        private void StartTransitionOrDrag(Event e)
+        private void StartTransitionOrPan(Event e)
         {
             dragStartLocation = e.mousePosition;
             NodeBase selectedNode = Selection.activeObject as NodeBase;
@@ -251,11 +270,11 @@ namespace Benco.Graph
             startTransitionNode = selectedNode;
         }
 
-        private void UpdateTransitionOrDrag(Event e)
+        private void UpdateTransitionOrPan(Event e)
         {
             if (startTransitionNode == null)
             {
-                Drag(e.delta, GraphController.graph.nodes);
+                Pan(e.delta);
             }
             else
             {
@@ -263,7 +282,7 @@ namespace Benco.Graph
             }
         }
 
-        private void RepaintTransitionOrDrag(Event e)
+        private void RepaintTransitionOrPan(Event e)
         {
             if (startTransitionNode != null)
             {
@@ -286,7 +305,42 @@ namespace Benco.Graph
             }
         }
 
-        private void EndTransitionOrDrag(Event e)
+        private void HandleMouseWheel(Event e)
+        {
+            Vector2 scale = graphController.scale;
+            Vector2 newScale;
+            if (e.control)
+            {
+                float scaleBy = e.delta.y < 0 ? 2.0f : .5f;
+                newScale = new Vector2(Mathf.ClosestPowerOfTwo((int)Mathf.Round(scale.x * 4)) / 4.0f * scaleBy,
+                                       Mathf.ClosestPowerOfTwo((int)Mathf.Round(scale.x * 4)) / 4.0f * scaleBy);
+            }
+            else
+            {
+                float scaleFactor = 1 + Mathf.Abs(e.delta.y) / 30;
+                if (e.delta.y > 0)
+                {
+                    scaleFactor = 1 / scaleFactor;
+                }
+                newScale = new Vector2(scale.x * scaleFactor, scale.y * scaleFactor);
+            }
+            newScale = new Vector2(Mathf.Clamp(newScale.x, .25f, 2.0f),
+                                   Mathf.Clamp(newScale.y, .25f, 2.0f));
+
+            if (.9999f < newScale.x && newScale.x < 1.0001f && .9999f < newScale.y && newScale.y < 1.0001f)
+            {
+                newScale = Vector2.one;
+            }
+
+            graphController.scale = newScale;
+
+            graphController.offset += new Vector2(e.delta.x, 0);
+            graphController.offset = - e.mousePosition.ScaledBy(newScale) +
+                                        e.mousePosition.ScaledBy(scale) + graphController.offset;
+            NodeEditorWindow.instance.Repaint();
+        }
+
+        private void EndTransitionOrPan(Event e)
         {
             NodeBase nodeUnderMouse = GetNodeAt(e.mousePosition);
             if (nodeUnderMouse != null)
@@ -299,7 +353,7 @@ namespace Benco.Graph
             startTransitionNode = null;
         }
 
-        private void CancelTransitionOrDrag(Event e)
+        private void CancelTransitionOrPan(Event e)
         {
             startTransitionNode = null;
         }

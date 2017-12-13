@@ -3,8 +3,8 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using ExtensionMethods;
+using Conditional = System.Diagnostics.ConditionalAttribute;
 using Type = System.Type;
-using System.Diagnostics;
 using Benco.BehaviorTree;
 using Benco.Utilities;
 
@@ -30,9 +30,13 @@ namespace Benco.Graph
 
         Dictionary<Type, List<UIEvent>> registeredEvents = new Dictionary<Type, List<UIEvent>>();
 
+        public Vector2 offset = new Vector2(0, 0);
+        public Vector2 scale = new Vector2(1, 1);
+
         public GraphController()
         {
-            GraphUIEvents graphEvents = new GraphUIEvents(NodeAttributeTags.GetNodeMenu<NodeComposite>());
+            GraphUIEvents graphEvents = new GraphUIEvents(this,
+                                                          NodeAttributeTags.GetNodeMenu<NodeComposite>());
             registeredEvents.Add(typeof(NodeGraph), graphEvents.graphEvents);
             registeredEvents.Add(typeof(NodeBase), graphEvents.nodeEvents);
             registeredEvents.Add(typeof(NodeEdge), graphEvents.edgeEvents);
@@ -49,14 +53,28 @@ namespace Benco.Graph
 
         public void UpdateGraphGUI(Event e, Rect viewRect)
         {
-            PrintAllNodes();
-            foreach (NodeEdge edge in graph.edges)
+            GUI.Box(viewRect, "", GUI.skin.GetStyle("flow background"));
+            if (graph != null)
             {
-                DrawEdge(edge);
-            }
-            foreach (NodeBase node in graph.nodes)
-            {
-                DrawNode(node);
+                PrintAllNodes();
+                Matrix4x4 guiMatrix = Matrix4x4.identity;
+                guiMatrix.m00 = scale.x;
+                guiMatrix.m11 = scale.y;
+                guiMatrix.m03 = (int)offset.x;
+                guiMatrix.m13 = (int)offset.y;
+                GUI.matrix = guiMatrix;
+                GUIExtensions.BeginTrueClip(guiMatrix, viewRect);
+                foreach (NodeEdge edge in graph.edges)
+                {
+                    DrawEdge(edge);
+                }
+                foreach (NodeBase node in graph.nodes)
+                {
+                    DrawNode(node);
+                }
+                OnGUI(e);
+                GUIExtensions.EndTrueClip();
+                GUI.matrix = Matrix4x4.identity;
             }
         }
 
@@ -101,7 +119,6 @@ namespace Benco.Graph
                     break;
                 }
             }
-
             // Sum up the modification buttons
             currentEventState.modifiers = 0;
             currentEventState.modifiers |= (e.control ? ModifierKeys.Control : 0);
@@ -146,10 +163,11 @@ namespace Benco.Graph
                             CancelEvent(e);
                         }
                     }
-                    else if (currentEvent.eventType == EventType.MouseDown || 
+                    else if (currentEvent.eventType == EventType.MouseDown ||
                              currentEvent.eventType == EventType.MouseUp ||
                              currentEvent.eventType == EventType.ValidateCommand ||
-                             currentEvent.eventType == EventType.ExecuteCommand)
+                             currentEvent.eventType == EventType.ExecuteCommand ||
+                             currentEvent.eventType == EventType.ScrollWheel)
                     {
                         if (!currentEvent.checkedOnEventBegin(e) ||
                             !currentEvent.checkedOnEventUpdate(e))
@@ -173,7 +191,7 @@ namespace Benco.Graph
                 }
                 else
                 {
-                    if ((e.type == EventType.MouseUp || e.type == EventType.Ignore) && 
+                    if ((e.type == EventType.MouseUp || e.type == EventType.Ignore) &&
                         currentEvent.eventType == EventType.MouseDrag)
                     {
                         // Return value is ignored here because the event is exiting anyway.
@@ -222,7 +240,7 @@ namespace Benco.Graph
             lastMouseEvent = null;
             lastKeyEvent = null;
         }
-        
+
         private bool HasCorrectModifiers(EventState eventState, UIEvent uiEvent)
         {
             if (uiEvent.mustHaveAllModifiers)
@@ -237,7 +255,7 @@ namespace Benco.Graph
 
         private bool HasCorrectMouseButtons(EventState eventState, UIEvent uiEvent)
         {
-            if(uiEvent.mustHaveAllMouseButtons)
+            if (uiEvent.mustHaveAllMouseButtons)
             {
                 return uiEvent.mouseButtons == eventState.mouseButtons;
             }
@@ -333,7 +351,7 @@ namespace Benco.Graph
                 }
             }
             GUI.Box(node.rect, node.title, nodeStyle);
-            
+
             DrawConnections(node);
             EditorUtility.SetDirty(node);
         }
