@@ -67,7 +67,7 @@ namespace Benco.Utilities
         /// </summary>
         /// <param name="matrix">The new GUI.matrix value for every direct object in this clipping space.</param>
         /// <param name="clippingRect">The clipping rect with respect to the EditorWindow.</param>
-        public static void BeginTrueClip(Matrix4x4 matrix, Rect clippingRect)
+        public static Rect BeginTrueClip(Matrix4x4 matrix, Rect clippingRect)
         {
             if (!initialized) { Initialize(); }
             // Storage for the clippingRects removed to prevent excess clipping.
@@ -87,6 +87,7 @@ namespace Benco.Utilities
 
             // Begins a clipping space with inverseRect, equivalent to clippingRect's EditorWindow dimensions.
             GUI.BeginClip(inverseRect, -inverseRect.position, Vector2.zero, false);
+            return inverseRect;
         }
 
         /// <summary>

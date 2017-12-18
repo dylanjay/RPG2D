@@ -63,18 +63,70 @@ namespace Benco.Graph
                 guiMatrix.m03 = (int)offset.x;
                 guiMatrix.m13 = (int)offset.y;
                 GUI.matrix = guiMatrix;
-                GUIExtensions.BeginTrueClip(guiMatrix, viewRect);
-                foreach (NodeEdge edge in graph.edges)
+                Rect guiRect = GUIExtensions.BeginTrueClip(guiMatrix, viewRect);
                 {
-                    DrawEdge(edge);
+                    DrawGrid(guiRect);
+                    foreach (NodeEdge edge in graph.edges)
+                    {
+                        DrawEdge(edge);
+                    }
+                    foreach (NodeBase node in graph.nodes)
+                    {
+                        DrawNode(node);
+                    }
+                    OnGUI(e);
                 }
-                foreach (NodeBase node in graph.nodes)
-                {
-                    DrawNode(node);
-                }
-                OnGUI(e);
                 GUIExtensions.EndTrueClip();
                 GUI.matrix = Matrix4x4.identity;
+            }
+        }
+
+        private void DrawGrid(Rect guiRect)
+        {
+            float zoomPower = 2 - Mathf.Log10(scale.x);
+
+            // Split grid draws into 2 zoom groups: rounded down power of 2 and rounded up power of two
+            int lowPower = (int)zoomPower;
+            float lowZoomPower = (1 - (zoomPower - (int)zoomPower));
+            lowZoomPower *= lowZoomPower;
+            int lowLineSpacing = Mathf.RoundToInt(Mathf.Pow(10, lowPower));
+            int highPower = lowPower + 1;
+            float highZoomPower = (1 - lowZoomPower);
+            int highLineSpacing = Mathf.RoundToInt(Mathf.Pow(10, highPower));
+            Color prevHandleColor = Handles.color;
+            DrawVerticalLines(guiRect, lowZoomPower, lowLineSpacing);
+            DrawVerticalLines(guiRect, highZoomPower, highLineSpacing);
+            DrawHorizontalLines(guiRect, lowZoomPower, lowLineSpacing);
+            DrawHorizontalLines(guiRect, highZoomPower, highLineSpacing);
+
+            Handles.color = prevHandleColor;
+        }
+
+        private void DrawVerticalLines(Rect guiRect, float zoomPower, float lineSpacing)
+        {
+            float gridOffsetX = guiRect.x - Mathf.Repeat(guiRect.x, lineSpacing);
+
+            Handles.color = new Color(0, 0, 0, 0.75f * zoomPower);
+            for (int i = 0; i < guiRect.width / lineSpacing + 1; i++)
+            {
+                Handles.DrawAAPolyLine(1.0f / scale.x, 2, new Vector2(lineSpacing * i + gridOffsetX,
+                                                                      guiRect.y),
+                                                          new Vector2(lineSpacing * i + gridOffsetX,
+                                                                      guiRect.y + guiRect.height));
+            }
+        }
+
+        private void DrawHorizontalLines(Rect guiRect, float zoomPower, float lineSpacing)
+        {
+            float gridOffsetY = guiRect.y - Mathf.Repeat(guiRect.y, lineSpacing);
+
+            Handles.color = new Color(0, 0, 0, 0.65f * zoomPower);
+            for (int i = 0; i < guiRect.width / lineSpacing + 1; i++)
+            {
+                Handles.DrawAAPolyLine(1.0f / scale.x, 2, new Vector2(guiRect.x,
+                                                                      lineSpacing * i + gridOffsetY),
+                                                          new Vector2(guiRect.x + guiRect.width,
+                                                                      lineSpacing * i + gridOffsetY));
             }
         }
 

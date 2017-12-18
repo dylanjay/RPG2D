@@ -317,19 +317,22 @@ namespace Benco.Graph
             }
             else
             {
-                float scaleFactor = 1 + Mathf.Abs(e.delta.y) / 30;
+                float scaleFactor = .90572366426f * Mathf.Abs(e.delta.y / 3.0f);
                 if (e.delta.y > 0)
                 {
                     scaleFactor = 1 / scaleFactor;
                 }
                 newScale = new Vector2(scale.x * scaleFactor, scale.y * scaleFactor);
             }
-            newScale = new Vector2(Mathf.Clamp(newScale.x, .25f, 2.0f),
-                                   Mathf.Clamp(newScale.y, .25f, 2.0f));
 
-            if (.9999f < newScale.x && newScale.x < 1.0001f && .9999f < newScale.y && newScale.y < 1.0001f)
+            // The next 2 if statements below are a hack to get crisp rendering at power-of-two scales.
+            if (Mathf.Approximately(Mathf.ClosestPowerOfTwo((int)(newScale.x * 32768)), newScale.x * 32768))
             {
-                newScale = Vector2.one;
+                newScale.x = Mathf.ClosestPowerOfTwo((int)(newScale.x * 32768)) / 32768.0f;
+            }
+            if (Mathf.Approximately(Mathf.ClosestPowerOfTwo((int)(newScale.y * 32768)), newScale.y * 32768))
+            {
+                newScale.y = Mathf.ClosestPowerOfTwo((int)(newScale.y * 32768)) / 32768.0f;
             }
 
             graphController.scale = newScale;
