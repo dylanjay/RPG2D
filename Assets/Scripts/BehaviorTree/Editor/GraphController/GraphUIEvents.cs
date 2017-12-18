@@ -54,6 +54,14 @@ namespace Benco.Graph
         public List<UIEvent> nodeEvents;
         public List<UIEvent> edgeEvents;
 
+        /// <summary>
+        /// The amount of scroll input sent to the graph that has not resulted in a change in
+        /// scale. This is only useful for trackpads, as Unity treats scrolling for
+        /// Windows/Linux mice as a integer value. On Windows, the amount is multiplied by the
+        /// value set at "Settings > Devices > Mouse > Choose how many lines to scroll each time".
+        /// </summary>
+        private float mouseScrollRemainder = 0.0f;
+
         private static readonly Texture2D lineTexture = GUI.skin.GetStyle("selectionRect").active.background;
 
         public GraphUIEvents(GraphController graphController, GenericMenu contextMenu)
@@ -309,20 +317,36 @@ namespace Benco.Graph
         {
             Vector2 scale = graphController.scale;
             Vector2 newScale;
+            mouseScrollRemainder += e.delta.y;
             if (e.control)
             {
                 float scaleBy = e.delta.y < 0 ? 2.0f : .5f;
                 newScale = new Vector2(Mathf.ClosestPowerOfTwo((int)Mathf.Round(scale.x * 4)) / 4.0f * scaleBy,
                                        Mathf.ClosestPowerOfTwo((int)Mathf.Round(scale.x * 4)) / 4.0f * scaleBy);
             }
-            else
+            // Only shift zoom amount if we've reached the threshold. Note that we truncate
+            // values over 1, because Windows/Linux scroll values are inflated.
+            else if (Mathf.Abs(mouseScrollRemainder) > 1)
             {
-                float scaleFactor = .90572366426f * Mathf.Abs(e.delta.y / 3.0f);
+                // Store the non-trun
+                mouseScrollRemainder = Mathf.Repeat(mouseScrollRemainder, 1.0f);
+                // Magic Number Explanation:
+                // 1.1040894985198974609375f == 2^(1/7): When multiplied 7 times, will give us a
+                // 2. In other words, there are exactly 3 scroll steps from a scale of 1 to 2.
+                float scaleFactor = 1.1040894985198974609375f;
+                // Normally, we would multiply scaleFactor by e.delta, which defines the scroll 
+                // wheel's scroll distance, but Unity automatically multiplies this by the OS's
+                // line scroll speed, which would make it fail to stop at the crisp values.
                 if (e.delta.y > 0)
                 {
                     scaleFactor = 1 / scaleFactor;
                 }
                 newScale = new Vector2(scale.x * scaleFactor, scale.y * scaleFactor);
+            }
+            // We haven't reached a threshold yet. Do nothing.
+            else
+            {
+                return;
             }
 
             // The next 2 if statements below are a hack to get crisp rendering at power-of-two scales.
@@ -334,6 +358,9 @@ namespace Benco.Graph
             {
                 newScale.y = Mathf.ClosestPowerOfTwo((int)(newScale.y * 32768)) / 32768.0f;
             }
+
+            newScale = new Vector2(Mathf.Clamp(newScale.x, .25f, 4.0f),
+                                   Mathf.Clamp(newScale.y, .25f, 4.0f));
 
             graphController.scale = newScale;
 
