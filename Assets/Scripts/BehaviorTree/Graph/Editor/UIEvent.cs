@@ -9,6 +9,7 @@ namespace Benco.Graph
         Control = 1 << 1,
         Alt = 1 << 2,
         Shift = 1 << 3,
+        All = None | Control | Alt | Shift,
     }
 
     /// <summary>

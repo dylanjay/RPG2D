@@ -8,6 +8,11 @@ namespace Benco.Utilities
 {
     public static class GUIExtensions
     {
+        /// <summary>
+        /// A magical value for the rootRect on the clip stack.
+        /// </summary>
+        public static readonly Rect rootRect = new Rect(-10000, -10000, 40000, 40000);
+
         private class TrueClipSnapshot
         {
             /// <summary>
@@ -39,10 +44,6 @@ namespace Benco.Utilities
         /// </summary>
         private static Stack<TrueClipSnapshot> snapshotStack = new Stack<TrueClipSnapshot>();
 
-        /// <summary>
-        /// A magical value for the rootRect on the clip stack.
-        /// </summary>
-        private static readonly Rect rootRect = new Rect(-10000, -10000, 40000, 40000);
 
         private static void Initialize()
         {

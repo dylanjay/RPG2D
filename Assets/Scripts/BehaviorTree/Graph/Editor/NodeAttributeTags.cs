@@ -42,7 +42,7 @@ namespace Benco.Graph
                                          component,
                                          NodeEditorWindow.instance.currentGraph,
                                          //TODO(P3): I don't like the dependency on GraphController here.
-                                         NodeEditorWindow.graphController.lastMouseEvent.mousePosition);
+                                         Event.current.mousePosition);
             };
             nodeMenu.AddItem(new GUIContent(sineInfo.path), false, lambda);
         }

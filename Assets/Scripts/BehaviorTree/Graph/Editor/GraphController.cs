@@ -22,13 +22,7 @@ namespace Benco.Graph
         }
 
         public static NodeGraph graph { get { return NodeEditorWindow.instance.currentGraph; } }
-
-        public Event lastMouseEvent { get; private set; }
-        public Event lastKeyEvent { get; private set; }
-
-        EventState currentEventState = new EventState();
-        UIEvent currentEvent = null;
-
+        
         Dictionary<Type, List<UIEvent>> registeredEvents = new Dictionary<Type, List<UIEvent>>();
 
         public Vector2 offset = new Vector2(0, 0);
@@ -123,7 +117,7 @@ namespace Benco.Graph
             float gridOffsetY = guiRect.y - Mathf.Repeat(guiRect.y, lineSpacing);
 
             Handles.color = new Color(0.1f, 0.1f, 0.1f, zoomPower);
-            for (int i = 0; i < guiRect.width / lineSpacing + 1; i++)
+            for (int i = 0; i < guiRect.height / lineSpacing + 1; i++)
             {
                 Handles.DrawAAPolyLine(1.0f / scale.x, 2, new Vector2((int)guiRect.x,
                                                                       lineSpacing * i + gridOffsetY),
@@ -161,73 +155,6 @@ namespace Benco.Graph
             }
             uiEventEngine.eventList = registeredEvents[selectedType];
             uiEventEngine.OnGUI(e);
-        }
-
-        /// <summary>
-        /// Cancels an event and stops tracking its state changes.
-        /// </summary>
-        /// <param name="e">The event to send to the canceled UIEvent.</param>
-        private void CancelEvent(Event e)
-        {
-            currentEvent.onEventCancel(e);
-            currentEvent = null;
-            lastMouseEvent = null;
-            lastKeyEvent = null;
-        }
-
-        private bool HasCorrectModifiers(EventState eventState, UIEvent uiEvent)
-        {
-            if (uiEvent.mustHaveAllModifiers)
-            {
-                return (uiEvent.modifiers == eventState.modifiers);
-            }
-            else
-            {
-                return (uiEvent.modifiers & eventState.modifiers) > 0;
-            }
-        }
-
-        private bool HasCorrectMouseButtons(EventState eventState, UIEvent uiEvent)
-        {
-            if (uiEvent.mustHaveAllMouseButtons)
-            {
-                return uiEvent.mouseButtons == eventState.mouseButtons;
-            }
-            else
-            {
-                return (uiEvent.mouseButtons & eventState.mouseButtons) > 0;
-            }
-        }
-
-        private bool HasCorrectEvent(EventState eventState, UIEvent uiEvent)
-        {
-            if (uiEvent.eventType == EventType.ValidateCommand ||
-                uiEvent.eventType == EventType.ExecuteCommand)
-            {
-                if (eventState.eventType == EventType.ValidateCommand ||
-                eventState.eventType == EventType.ExecuteCommand)
-                {
-                    string[] commands = uiEvent.eventCommand.Split('|');
-                    for (int i = 0; i < commands.Length; i++)
-                    {
-                        if (commands[i] == eventState.eventCommand)
-                        {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            }
-            else if (uiEvent.eventType == EventType.MouseDrag)
-            {
-                return lastMouseEvent != null &&
-                       lastMouseEvent.type == EventType.MouseDown &&
-                       eventState.eventType == EventType.MouseDrag;
-            }
-            else
-            {
-                return eventState.eventType == uiEvent.eventType;
-            }
         }
 
         //TODO(mderu): Move this out of GraphController.
@@ -300,10 +227,7 @@ namespace Benco.Graph
 
         public void Reset()
         {
-            lastMouseEvent = null;
-            lastKeyEvent = null;
-            currentEventState = new EventState();
-            currentEvent = null;
+            uiEventEngine.Reset();
         }
     }
 }
