@@ -12,6 +12,7 @@ namespace Benco.Graph
 {
     public class GraphController
     {
+        UIEventEngine uiEventEngine = new UIEventEngine();
         class EventState
         {
             public ModifierKeys modifiers { get; set; }
@@ -65,7 +66,7 @@ namespace Benco.Graph
                 GUI.matrix = guiMatrix;
                 Rect guiRect = GUIExtensions.BeginTrueClip(guiMatrix, viewRect);
                 {
-                    DrawGrid(guiRect);
+                    DrawGrid(viewRect, guiRect);
                     foreach (NodeEdge edge in graph.edges)
                     {
                         DrawEdge(edge);
@@ -81,18 +82,19 @@ namespace Benco.Graph
             }
         }
 
-        private void DrawGrid(Rect guiRect)
+        private void DrawGrid(Rect viewRect, Rect guiRect)
         {
-            float zoomPower = 2 - Mathf.Log10(scale.x);
+            float zoomPower = (Mathf.Log10(Mathf.Max(viewRect.width, viewRect.height)) - .5f
+                               - Mathf.Log10(scale.x)) / Mathf.Log10(17f);
 
             // Split grid draws into 2 zoom groups: rounded down power of 2 and rounded up power of two
             int lowPower = (int)zoomPower;
             float lowZoomPower = (1 - (zoomPower - (int)zoomPower));
             lowZoomPower *= lowZoomPower;
-            int lowLineSpacing = Mathf.RoundToInt(Mathf.Pow(10, lowPower));
+            int lowLineSpacing = Mathf.RoundToInt(Mathf.Pow(10f, lowPower));
             int highPower = lowPower + 1;
             float highZoomPower = (1 - lowZoomPower);
-            int highLineSpacing = Mathf.RoundToInt(Mathf.Pow(10, highPower));
+            int highLineSpacing = Mathf.RoundToInt(Mathf.Pow(10f, highPower));
             Color prevHandleColor = Handles.color;
             DrawVerticalLines(guiRect, lowZoomPower, lowLineSpacing);
             DrawVerticalLines(guiRect, highZoomPower, highLineSpacing);
@@ -106,13 +108,13 @@ namespace Benco.Graph
         {
             float gridOffsetX = guiRect.x - Mathf.Repeat(guiRect.x, lineSpacing);
 
-            Handles.color = new Color(0, 0, 0, 0.75f * zoomPower);
+            Handles.color = new Color(0.1f, 0.1f, 0.1f, zoomPower);
             for (int i = 0; i < guiRect.width / lineSpacing + 1; i++)
             {
                 Handles.DrawAAPolyLine(1.0f / scale.x, 2, new Vector2(lineSpacing * i + gridOffsetX,
-                                                                      guiRect.y),
+                                                                      (int)guiRect.y),
                                                           new Vector2(lineSpacing * i + gridOffsetX,
-                                                                      guiRect.y + guiRect.height));
+                                                                      (int)(guiRect.y + guiRect.height)));
             }
         }
 
@@ -120,31 +122,18 @@ namespace Benco.Graph
         {
             float gridOffsetY = guiRect.y - Mathf.Repeat(guiRect.y, lineSpacing);
 
-            Handles.color = new Color(0, 0, 0, 0.65f * zoomPower);
+            Handles.color = new Color(0.1f, 0.1f, 0.1f, zoomPower);
             for (int i = 0; i < guiRect.width / lineSpacing + 1; i++)
             {
-                Handles.DrawAAPolyLine(1.0f / scale.x, 2, new Vector2(guiRect.x,
+                Handles.DrawAAPolyLine(1.0f / scale.x, 2, new Vector2((int)guiRect.x,
                                                                       lineSpacing * i + gridOffsetY),
-                                                          new Vector2(guiRect.x + guiRect.width,
+                                                          new Vector2((int)(guiRect.x + guiRect.width),
                                                                       lineSpacing * i + gridOffsetY));
             }
         }
 
         public void OnGUI(Event e)
         {
-            if (e.type == EventType.Repaint)
-            {
-                if (currentEvent != null)
-                {
-                    currentEvent.onRepaint(e);
-                }
-                return;
-            }
-            else if (e.type == EventType.Layout || e.type == EventType.Used || graph == null)
-            {
-                return;
-            }
-
             Type selectedType = Selection.activeObject != null ? Selection.activeObject.GetType() : typeof(void);
 
             foreach (Type type in registeredEvents.Keys)
@@ -160,7 +149,6 @@ namespace Benco.Graph
             {
                 Selection.activeObject = graph;
                 selectedType = Selection.activeObject.GetType();
-                //return;
             }
 
             foreach (Type type in registeredEvents.Keys)
@@ -171,114 +159,8 @@ namespace Benco.Graph
                     break;
                 }
             }
-            // Sum up the modification buttons
-            currentEventState.modifiers = 0;
-            currentEventState.modifiers |= (e.control ? ModifierKeys.Control : 0);
-            currentEventState.modifiers |= (e.alt ? ModifierKeys.Alt : 0);
-            currentEventState.modifiers |= (e.shift ? ModifierKeys.Shift : 0);
-            // Add ModifierKeys.None if no modifier key was pressed.
-            if (currentEventState.modifiers == 0) { currentEventState.modifiers = ModifierKeys.None; }
-            currentEventState.eventCommand = e.commandName;
-            currentEventState.eventType = e.type;
-            // If a mouse button was pressed, update currentEventState.mouseButtons.
-            if (e.type == EventType.MouseDown)
-            {
-                currentEventState.mouseButtons |= (MouseButtons)(1 << e.button);
-            }
-
-            bool newEvent = false;
-            if (currentEvent == null)
-            {
-                for (int i = 0; i < registeredEvents[selectedType].Count; i++)
-                {
-                    UIEvent potentialEvent = registeredEvents[selectedType][i];
-                    if (HasCorrectModifiers(currentEventState, potentialEvent) &&
-                        HasCorrectMouseButtons(currentEventState, potentialEvent) &&
-                        HasCorrectEvent(currentEventState, potentialEvent))
-                    {
-                        currentEvent = potentialEvent;
-                        newEvent = true;
-                        break;
-                    }
-                }
-            }
-            // Note: not same if statement because currentEvent can be set in the previous if statement.
-            if (currentEvent != null)
-            {
-                if (newEvent)
-                {
-                    if (currentEvent.eventType == EventType.MouseDrag)
-                    {
-                        if (!currentEvent.checkedOnEventBegin(lastMouseEvent) ||
-                            !currentEvent.checkedOnEventUpdate(e))
-                        {
-                            CancelEvent(e);
-                        }
-                    }
-                    else if (currentEvent.eventType == EventType.MouseDown ||
-                             currentEvent.eventType == EventType.MouseUp ||
-                             currentEvent.eventType == EventType.ValidateCommand ||
-                             currentEvent.eventType == EventType.ExecuteCommand ||
-                             currentEvent.eventType == EventType.ScrollWheel)
-                    {
-                        if (!currentEvent.checkedOnEventBegin(e) ||
-                            !currentEvent.checkedOnEventUpdate(e))
-                        {
-                            CancelEvent(e);
-                        }
-                        else
-                        {
-                            currentEvent.onEventExit(e);
-                        }
-                        currentEvent = null;
-                    }
-                    else
-                    {
-                        if (!currentEvent.checkedOnEventBegin(e) ||
-                            !currentEvent.checkedOnEventUpdate(e))
-                        {
-                            CancelEvent(e);
-                        }
-                    }
-                }
-                else
-                {
-                    if ((e.type == EventType.MouseUp || e.type == EventType.Ignore) &&
-                        currentEvent.eventType == EventType.MouseDrag)
-                    {
-                        // Return value is ignored here because the event is exiting anyway.
-                        currentEvent.checkedOnEventUpdate(e);
-                        currentEvent.onEventExit(e);
-                        currentEvent = null;
-                        lastMouseEvent = null;
-                    }
-                    else if ((currentEventState.mouseButtons == MouseButtons.Both &&
-                              currentEvent.cancelOnBothMouseButtonsPressed) || e.keyCode == KeyCode.Escape)
-                    {
-                        CancelEvent(e);
-                    }
-                    else
-                    {
-                        if (!currentEvent.checkedOnEventUpdate(e))
-                        {
-                            CancelEvent(e);
-                        }
-                    }
-                }
-            }
-            // If a button was released, remove it for the next event frame.
-            if (e.type == EventType.MouseUp)
-            {
-                currentEventState.mouseButtons &= (MouseButtons)~(1 << e.button);
-            }
-            if (e.type == EventType.MouseDrag || e.type == EventType.MouseDown || e.type == EventType.MouseUp)
-            {
-                lastMouseEvent = new Event(e);
-            }
-            else if (e.type == EventType.KeyDown || e.type == EventType.KeyUp)
-            {
-                lastKeyEvent = new Event(e);
-            }
+            uiEventEngine.eventList = registeredEvents[selectedType];
+            uiEventEngine.OnGUI(e);
         }
 
         /// <summary>
@@ -348,33 +230,6 @@ namespace Benco.Graph
             }
         }
 
-        private void NodeDelete(Event e, NodeBase mainNode)
-        {
-            if (e.type == EventType.MouseDown && e.button == 0)
-            {
-                if (e.control)
-                {
-                    if (mainNode.isSelected)
-                    {
-                        Selection.objects = (from obj in Selection.objects
-                                             where obj != mainNode
-                                             select obj).ToArray();
-                    }
-                    else
-                    {
-                        Selection.objects = Selection.objects.Concat(new Object[] { mainNode }).ToArray();
-                    }
-                }
-                else
-                {
-                    if (!mainNode.isSelected)
-                    {
-                        Selection.activeObject = mainNode;
-                    }
-                }
-            }
-        }
-
         //TODO(mderu): Move this out of GraphController.
         void DrawNode(NodeBase node)
         {
@@ -403,8 +258,6 @@ namespace Benco.Graph
                 }
             }
             GUI.Box(node.rect, node.title, nodeStyle);
-
-            DrawConnections(node);
             EditorUtility.SetDirty(node);
         }
 
@@ -443,70 +296,6 @@ namespace Benco.Graph
             }
             Handles.DrawAAPolyLine(3, 2, startPosition, endPosition);
             Handles.color = oldColor;
-        }
-
-        void DrawConnections(NodeBase node)
-        {
-            //foreach (NodeBase connectedNode in node.output.nodes)
-            //{
-            //    Vector3 start = node.rect.center;
-            //    Vector3 end = connectedNode.rect.center;
-            //    Vector2 startTangent = new Vector2();
-            //    Vector2 endTangent = new Vector2();
-            //    Color color = Color.gray;
-
-            //    if (node.isSelected || (node.input.connectedNode != null && node.input.connectedNode.isSelected))
-            //    {
-            //        color = new Color(1, 0.5f, 0);
-            //    }
-
-            //    float offset = Mathf.Abs(start.x - end.x) / 1.75f;
-            //    if (end.x < start.x)
-            //    {
-            //        startTangent = new Vector2(start.x - offset, start.y);
-            //        endTangent = new Vector2(end.x + offset, end.y);
-            //    }
-            //    else
-            //    {
-            //        startTangent = new Vector2(start.x + offset, start.y);
-            //        endTangent = new Vector2(end.x - offset, end.y);
-            //    }
-
-            //    Handles.BeginGUI();
-            //    {
-            //        Handles.color = Color.white;
-            //        Handles.DrawBezier(start, end, startTangent, endTangent, color, null, 2);
-            //    }
-            //    Handles.EndGUI();
-            //}
-        }
-
-        void DrawConnectionToMouse(Vector2 position, NodeBase selectedNode)
-        {
-            Vector3 start = selectedNode.rect.center;
-            Vector3 end = position;
-            Vector2 startTangent = new Vector2();
-            Vector2 endTangent = new Vector2();
-            Color color = Color.gray;
-            color = new Color(1, 0.5f, 0);
-            float offset = Mathf.Abs(start.x - end.x) / 1.75f;
-            if (position.x < start.x)
-            {
-                startTangent = new Vector2(start.x - offset, start.y);
-                endTangent = new Vector2(end.x + offset, end.y);
-            }
-            else
-            {
-                startTangent = new Vector2(start.x + offset, start.y);
-                endTangent = new Vector2(end.x - offset, end.y);
-            }
-
-            Handles.BeginGUI();
-            {
-                Handles.color = Color.white;
-                Handles.DrawBezier(start, end, startTangent, endTangent, color, null, 2);
-            }
-            Handles.EndGUI();
         }
 
         public void Reset()
