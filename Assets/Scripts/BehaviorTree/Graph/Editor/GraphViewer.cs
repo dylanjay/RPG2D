@@ -10,32 +10,26 @@ using Benco.Utilities;
 
 namespace Benco.Graph
 {
-    public class GraphController
+    public class GraphViewer
     {
-        UIEventEngine uiEventEngine = new UIEventEngine();
-        class EventState
-        {
-            public ModifierKeys modifiers { get; set; }
-            public MouseButtons mouseButtons { get; set; }
-            public EventType eventType { get; set; }
-            public string eventCommand { get; set; }
-        }
+        private UIEventEngine uiEventEngine = new UIEventEngine();
 
-        public static NodeGraph graph { get { return NodeEditorWindow.instance.currentGraph; } }
+        public NodeGraph graph { get { return parentWindow.currentGraph; } }
         
         Dictionary<Type, List<UIEvent>> registeredEvents = new Dictionary<Type, List<UIEvent>>();
 
+        public NodeEditorWindow parentWindow { get; private set; }
         public Vector2 offset = new Vector2(0, 0);
         public Vector2 scale = new Vector2(1, 1);
 
-        public GraphController()
+        public GraphViewer(NodeEditorWindow nodeEditorWindow)
         {
-            GraphUIEvents graphEvents = new GraphUIEvents(this,
-                                                          NodeAttributeTags.GetNodeMenu<NodeComposite>());
+            parentWindow = nodeEditorWindow;
+            GraphUIEvents graphEvents = new GraphUIEvents(this);
             registeredEvents.Add(typeof(NodeGraph), graphEvents.graphEvents);
             registeredEvents.Add(typeof(NodeBase), graphEvents.nodeEvents);
             registeredEvents.Add(typeof(NodeEdge), graphEvents.edgeEvents);
-            Undo.undoRedoPerformed += delegate { NodeEditorWindow.instance.Repaint(); };
+            Undo.undoRedoPerformed += delegate { parentWindow.Repaint(); };
         }
 
         [Conditional("Debug")]
@@ -160,6 +154,7 @@ namespace Benco.Graph
         //TODO(mderu): Move this out of GraphController.
         void DrawNode(NodeBase node)
         {
+            if (node == null) { return; }
             GUIStyle nodeStyle;
 
             if (node.isSelected || node.isHighlighted)
@@ -225,9 +220,19 @@ namespace Benco.Graph
             Handles.color = oldColor;
         }
 
+        public Vector2 GetLastMousePosition()
+        {
+            return uiEventEngine.lastMouseEvent.mousePosition;
+        }
+
         public void Reset()
         {
             uiEventEngine.Reset();
+        }
+
+        public void Repaint()
+        {
+            parentWindow.Repaint();
         }
     }
 }

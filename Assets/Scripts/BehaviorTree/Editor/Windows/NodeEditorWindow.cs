@@ -7,15 +7,14 @@ namespace Benco.Graph
 {
     public class NodeEditorWindow : EditorWindow
     {
-        public static NodeEditorWindow instance { get; private set; }
-        private static GraphController _graphController;
-        public static GraphController graphController
+        private GraphViewer _graphController;
+        public GraphViewer graphController
         {
             get
             {
                 if (_graphController == null)
                 {
-                    _graphController = new GraphController();
+                    _graphController = new GraphViewer(this);
                 }
                 return _graphController;
             }
@@ -42,9 +41,9 @@ namespace Benco.Graph
         [MenuItem("Node Editor/Launch Editor")]
         public static void InitNodeEditor()
         {
-            instance = GetWindow<NodeEditorWindow>();
-            instance.InitializeWindow();
-            instance.CreateViews();
+            NodeEditorWindow nodeEditorWindow = GetWindow<NodeEditorWindow>();
+            nodeEditorWindow.InitializeWindow();
+            nodeEditorWindow.CreateViews();
         }
 
         public void Update()
@@ -97,9 +96,9 @@ namespace Benco.Graph
             }
         }
 
-        internal void InitializeWindow()
+        private void InitializeWindow()
         {
-            instance.titleContent = new GUIContent("Node Editor");
+            titleContent = new GUIContent("Node Editor");
 
             uiEventEngine = new UIEventEngine(
                 new List<UIEvent>()
@@ -141,15 +140,9 @@ namespace Benco.Graph
 
         void CreateViews()
         {
-            if (instance == null)
-            {
-                instance = GetWindow<NodeEditorWindow>();
-                instance.InitializeWindow();
-            }
-
-            NodeWorkView workView = new NodeWorkView();
-            NodeToolbarView toolbarView = new NodeToolbarView();
-            NodeTypeView typeView = new NodeTypeView();
+            NodeWorkView workView = new NodeWorkView(this);
+            NodeToolbarView toolbarView = new NodeToolbarView(this);
+            NodeTypeView typeView = new NodeTypeView(this);
             toolbarView.updateDisplayRect = () =>
             {
                 return new Rect(0, 0, position.width, TOOLBAR_HEIGHT);

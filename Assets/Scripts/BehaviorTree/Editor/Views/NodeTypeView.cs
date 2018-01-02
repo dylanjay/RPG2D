@@ -6,15 +6,21 @@ namespace Benco.Graph
 {
     public class NodeTypeView : ViewBase
     {
-        private GUIStyle buttonStyle = GUI.skin.GetStyle("Button");
-        private GUIStyle labelStyle = GUI.skin.GetStyle("Label");
-        public NodeTypeView() : base()
-        {
+        private GUIStyle buttonStyle = null;
+        private GUIStyle labelStyle = null;
 
-        }
+        public NodeTypeView(NodeEditorWindow parentWindow) : base(parentWindow) { }
 
         public override void UpdateView(Event e, NodeGraph graph)
         {
+            // GUI.skin calls can only be made in an OnGUI call. Here we initialize
+            // them if previous calls have not already initialized these values.
+            if (buttonStyle == null)
+            {
+                buttonStyle = GUI.skin.GetStyle("Button");
+                labelStyle = GUI.skin.GetStyle("Label");
+            }
+
             GUI.Box(displayRect, "", GUI.skin.GetStyle("Box"));
 
             GUILayout.BeginArea(displayRect);

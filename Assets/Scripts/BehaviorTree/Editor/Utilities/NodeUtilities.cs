@@ -41,7 +41,7 @@ namespace Benco.Graph
             }
         }
 
-        public static void LoadGraph()
+        public static void LoadGraph(NodeEditorWindow nodeEditorWindow)
         {
             NodeGraph currentGraph;
             string path = EditorUtility.OpenFilePanel("Load Graph", Application.dataPath + @"/Resources/BehaviorTrees/", "asset");
@@ -55,7 +55,7 @@ namespace Benco.Graph
             if (currentGraphPath != path)
             {
                 currentGraph = AssetDatabase.LoadAssetAtPath(finalPath, typeof(NodeGraph)) as NodeGraph;
-                NodeEditorWindow.graphController.Reset();
+                nodeEditorWindow.graphController.Reset();
 
                 if (currentGraph != null)
                 {

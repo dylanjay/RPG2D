@@ -42,7 +42,7 @@ namespace Benco.BehaviorTree
                 int prevOptionNumber = 0;
                 if (!behaviorWasEmpty)
                 {
-                    prevOptionNumber = 1 + NodeAttributeTags.GetInfo(node.GetType()).IndexOf(
+                    prevOptionNumber = 1 + NodeAttributeTags.GetInfo(node.GetType()).FindIndex(
                             x => x.classType == behaviorComponent.GetType()
                     );
                 }

@@ -9,15 +9,20 @@ namespace Benco.Graph
     [Serializable]
     public abstract class ViewBase
     {
+        protected NodeEditorWindow parentWindow { get; private set; }
+
         [SerializeField]
         public Rect displayRect;
 
         public UpdateRect updateDisplayRect = () => { return Rect.zero; };
 
-        public ViewBase() { }
+        public ViewBase(NodeEditorWindow parentWindow)
+        {
+            this.parentWindow = parentWindow;
+        }
 
         public abstract void UpdateView(Event e, NodeGraph graph);
 
-        public virtual void ProcessEvents(Event e) {}
+        public virtual void ProcessEvents(Event e) { }
     }
 }

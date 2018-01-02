@@ -6,12 +6,11 @@ namespace Benco.Graph
 {
     public class NodePopupWindow : EditorWindow
     {
-        static NodePopupWindow instance;
         string graphName = "Enter a name...";
 
         public static void Init()
         {
-            instance = GetWindow<NodePopupWindow>();
+            NodePopupWindow instance = GetWindow<NodePopupWindow>();
             instance.titleContent = new GUIContent("Graph Name");
             instance.maxSize = new Vector2(300, 80);
             instance.minSize = instance.maxSize;
@@ -41,7 +40,7 @@ namespace Benco.Graph
                     {
                         NodeBehaviorTree newGraph = NodeUtilities.CreateNodeGraph<NodeBehaviorTree>(graphName);
                         Selection.activeObject = newGraph;
-                        instance.Close();
+                        Close();
                     }
                     else
                     {
@@ -51,7 +50,7 @@ namespace Benco.Graph
                 GUILayout.Space(10);
                 if (GUILayout.Button("Cancel"))
                 {
-                    instance.Close();
+                    Close();
                 }
                 GUILayout.Space(20);
             }

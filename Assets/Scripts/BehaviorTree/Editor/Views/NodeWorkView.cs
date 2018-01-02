@@ -5,6 +5,8 @@ namespace Benco.Graph
 {
     public class NodeWorkView : ViewBase
     {
+        public NodeWorkView(NodeEditorWindow parentWindow) : base(parentWindow) { }
+
         public override void UpdateView(Event e, NodeGraph graph)
         {
             if (graph != null)
@@ -20,7 +22,7 @@ namespace Benco.Graph
             if (graph != null)
             {
                 //e.mousePosition -= displayRect.position;
-                NodeEditorWindow.graphController.UpdateGraphGUI(e, displayRect);
+                parentWindow.graphController.UpdateGraphGUI(e, displayRect);
             }
         }
     }

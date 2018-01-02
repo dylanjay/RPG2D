@@ -5,6 +5,7 @@ using UnityEditor;
 using ExtensionMethods;
 using System.Linq;
 using Benco.Utilities;
+using Benco.BehaviorTree;
 
 namespace Benco.Graph
 {
@@ -35,7 +36,7 @@ namespace Benco.Graph
         /// <summary>
         /// The GraphController this GraphUIEvent is attached to..
         /// </summary>
-        private readonly GraphController graphController;
+        private readonly GraphViewer graphViewer;
 
         public Rect selectionRect
         {
@@ -64,9 +65,20 @@ namespace Benco.Graph
 
         private static readonly Texture2D lineTexture = GUI.skin.GetStyle("selectionRect").active.background;
 
-        public GraphUIEvents(GraphController graphController, GenericMenu contextMenu)
+        private void CreateNode(object sineInfoObject)
         {
-            this.graphController = graphController;
+            SineInfo sineInfo = (SineInfo)sineInfoObject;
+            BehaviorComponent component = BehaviorComponent.CreateComponent(sineInfo.classType);
+            NodeUtilities.CreateNode(sineInfo.nodeType,
+                                     component,
+                                     graphViewer.graph,
+                                     graphViewer.GetLastMousePosition());
+        }
+
+        public GraphUIEvents(GraphViewer graphController)
+        {
+            GenericMenu contextMenu = NodeAttributeTags.GetNodeMenu<NodeComposite>(CreateNode);
+            this.graphViewer = graphController;
             graphEvents = new List<UIEvent>()
             {
                 new UIEvent("Create Selection Box")
@@ -179,7 +191,7 @@ namespace Benco.Graph
                     eventCommand = "SoftDelete|Delete",
                     onEventBegin = (Event e) => DeletePressed(e)
                 },
-                
+
                 new UIEvent("MouseWheel Zoom and Pan")
                 {
                     mouseButtons = MouseButtons.None,
@@ -261,10 +273,10 @@ namespace Benco.Graph
         
         private void Pan(Vector2 delta)
         {
-            Vector2 scale = graphController.scale;
+            Vector2 scale = graphViewer.scale;
             delta = new Vector2(delta.x * scale.x, delta.y * scale.y);
-            graphController.offset += new Vector2(delta.x , delta.y);
-            NodeEditorWindow.instance.Repaint();
+            graphViewer.offset += new Vector2(delta.x , delta.y);
+            graphViewer.Repaint();
         }
         
         private void StartTransitionOrPan(Event e)
@@ -286,7 +298,7 @@ namespace Benco.Graph
             }
             else
             {
-                NodeEditorWindow.instance.Repaint();
+                graphViewer.Repaint();
             }
         }
 
@@ -315,7 +327,7 @@ namespace Benco.Graph
 
         private void HandleMouseWheel(Event e)
         {
-            Vector2 scale = graphController.scale;
+            Vector2 scale = graphViewer.scale;
             Vector2 newScale;
             mouseScrollRemainder += e.delta.y;
             if (e.control)
@@ -362,12 +374,12 @@ namespace Benco.Graph
             newScale = new Vector2(Mathf.Clamp(newScale.x, .25f, 4.0f),
                                    Mathf.Clamp(newScale.y, .25f, 4.0f));
 
-            graphController.scale = newScale;
+            graphViewer.scale = newScale;
 
-            graphController.offset += new Vector2(e.delta.x, 0);
-            graphController.offset = - e.mousePosition.ScaledBy(newScale) +
-                                        e.mousePosition.ScaledBy(scale) + graphController.offset;
-            NodeEditorWindow.instance.Repaint();
+            graphViewer.offset += new Vector2(e.delta.x, 0);
+            graphViewer.offset = - e.mousePosition.ScaledBy(newScale) +
+                                        e.mousePosition.ScaledBy(scale) + graphViewer.offset;
+            graphViewer.Repaint();
         }
 
         private void EndTransitionOrPan(Event e)
@@ -401,7 +413,7 @@ namespace Benco.Graph
 
         private NodeBase GetNodeAt(Vector2 position)
         {
-            foreach (NodeBase node in GraphController.graph.nodes)
+            foreach (NodeBase node in graphViewer.graph.nodes)
             {
                 if (node.rect.Contains(position))
                 {
@@ -418,11 +430,11 @@ namespace Benco.Graph
             // It doesn't update the selection on the second click. The third click will
             // toggle the selection as expected.
 
-            foreach (NodeBase node in GraphController.graph.nodes)
+            foreach (NodeBase node in graphViewer.graph.nodes)
             {
                 if (node.rect.Contains(e.mousePosition))
                 {
-                    if ((e.control || e.shift) && !Selection.objects.Contains(GraphController.graph))
+                    if ((e.control || e.shift) && !Selection.objects.Contains(graphViewer.graph))
                     {
                         int index = ArrayUtility.FindIndex(Selection.objects, (nodeBase) => nodeBase == node);
                         if (index >= 0)
@@ -444,7 +456,7 @@ namespace Benco.Graph
                             Selection.activeObject = node;
                         }
                     }
-                    NodeEditorWindow.instance.Repaint();
+                    graphViewer.Repaint();
                     return;
                 }
             }
@@ -453,14 +465,14 @@ namespace Benco.Graph
             // Don't ask me why, I don't make up the rules.
             if (e.button != 1 && !e.alt)
             {
-                foreach (NodeEdge edge in GraphController.graph.edges)
+                foreach (NodeEdge edge in graphViewer.graph.edges)
                 {
                     Vector2 startPoint, endPoint;
                     edge.GetPoints(out startPoint, out endPoint);
 
                     if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 8, point: e.mousePosition))
                     {
-                        if ((e.control || e.shift) && !Selection.objects.Contains(GraphController.graph))
+                        if ((e.control || e.shift) && !Selection.objects.Contains(graphViewer.graph))
                         {
                             int index = ArrayUtility.FindIndex(Selection.objects, (nodeEdge) => nodeEdge == edge);
                             if (index >= 0)
@@ -479,7 +491,7 @@ namespace Benco.Graph
                             // an edge is selected after it has already been selected.
                             Selection.activeObject = edge;
                         }
-                        NodeEditorWindow.instance.Repaint();
+                        graphViewer.Repaint();
                         return;
                     }
                 }
@@ -488,8 +500,8 @@ namespace Benco.Graph
             //Nothing was selected and no modifiers were pressed, select the graph.
             if (!e.alt && !e.control && !e.shift)
             {
-                Selection.activeObject = GraphController.graph;
-                NodeEditorWindow.instance.Repaint();
+                Selection.activeObject = graphViewer.graph;
+                graphViewer.Repaint();
                 return;
             }
         }
@@ -501,7 +513,7 @@ namespace Benco.Graph
                 node.rect.x += delta.x;
                 node.rect.y += delta.y;
             }
-            NodeEditorWindow.instance.Repaint();
+            graphViewer.Repaint();
         }
 
         private void DeletePressed(Event e)
@@ -512,16 +524,16 @@ namespace Benco.Graph
                 NodeBase nodeBase = selectedObjects[i] as NodeBase;
                 if (nodeBase != null)
                 {
-                    GraphController.graph.DeleteNode(nodeBase);
+                    graphViewer.graph.DeleteNode(nodeBase);
                 }
                 NodeEdge nodeEdge = selectedObjects[i] as NodeEdge;
                 if (nodeEdge != null)
                 {
                     NodeEdge.DestroyEdge(nodeEdge);
-                    GraphController.graph.RemoveEdge(nodeEdge);
+                    graphViewer.graph.RemoveEdge(nodeEdge);
                 }
             }
-            NodeEditorWindow.instance.Repaint();
+            graphViewer.Repaint();
         }
 
         private void StartSelection(Event e)
@@ -532,18 +544,18 @@ namespace Benco.Graph
         private void UpdateSelection(Event e)
         {
             secondSelectionPosition = e.mousePosition;
-            foreach (NodeBase node in GraphController.graph.nodes)
+            foreach (NodeBase node in graphViewer.graph.nodes)
             {
                 node.isHighlighted = selectionRect.Overlaps(node.rect);
             }
-            NodeEditorWindow.instance.Repaint();
+            graphViewer.Repaint();
         }
 
         private void ExitSelection(Event e, bool canceled)
         {
             bool addedNode = false;
             List<Object> selection = new List<Object>(Selection.objects);
-            foreach (NodeBase node in GraphController.graph.nodes)
+            foreach (NodeBase node in graphViewer.graph.nodes)
             {
                 if (selectionRect.Overlaps(node.rect))
                 {
@@ -557,7 +569,7 @@ namespace Benco.Graph
             {
                 if (addedNode)
                 {
-                    selection.Remove(GraphController.graph);
+                    selection.Remove(graphViewer.graph);
                 }
                 Selection.objects = selection.ToArray();
             }

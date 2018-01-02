@@ -10,6 +10,7 @@ using UnityEditor;
 
 namespace ExtensionMethods
 {
+    public delegate IComparable GetComparable<T>(T t);
     public static class ExtensionMethods
     {
         /// <summary>
@@ -25,6 +26,103 @@ namespace ExtensionMethods
             Array.Copy(array, newArray, array.Length);
             newArray[array.Length] = element;
             return newArray;
+        }
+
+        /// <summary>
+        /// A helper function for <see cref="FindSortedPosition()"/>
+        /// </summary>
+        public static int _FindSortedPosition<T>(this IList<T> list, T element, Comparison<T> compare, int start, int end)
+        {
+            if (start >= end)
+            {
+                return start;
+            }
+            int currentPosition = (end + start) / 2;
+            int comparison = compare(element, list[currentPosition]);
+            if (comparison < 0)
+            {
+                return _FindSortedPosition(list, element, compare, start, currentPosition);
+            }
+            else if (comparison > 0)
+            {
+                return _FindSortedPosition(list, element, compare, currentPosition + 1, end);
+            }
+            else
+            {
+                // In the event of a tie, allow the existing element to maintain its place.
+                return currentPosition + 1;
+            }
+        }
+
+        /// <summary>
+        /// Finds the position the element would have if it was added to the array.
+        /// Note that his is different than FindSorted().
+        /// 
+        /// In the event of a tie, the element will be added after the element that already 
+        /// existed within the array.
+        /// </summary>
+        /// <param name="comparison">The comparer the list has been sorted with.</param>
+        public static int FindSortedPosition<T>(this IList<T> list, T element, Comparison<T> comparison)
+        {
+            return _FindSortedPosition(list, element, comparison, 0, list.Count);
+        }
+
+        /// <summary>
+        /// Inserts an element into a copy of a sorted array, and returns the new array.
+        /// 
+        /// In the event of a tie, the element will be added after the element that already 
+        /// existed within the array.
+        /// </summary>
+        public static T[] InsertSorted<T>(this T[] sortedArray, T element) where T : IComparable
+        {
+            Comparison<T> comparison = (x, y) => x.CompareTo(y);
+            int position = sortedArray.FindSortedPosition(element, comparison);
+            T[] newArray = new T[sortedArray.Length + 1];
+            for (int i = 0; i < position; i++)
+            {
+                newArray[i] = sortedArray[i];
+            }
+            newArray[position] = element;
+            for (int i = position + 1; i < newArray.Length; i++)
+            {
+                newArray[i] = sortedArray[i - 1];
+            }
+            return newArray;
+        }
+
+        /// <summary>
+        /// Inserts an element into the list. Returns the list for fluent idiom.
+        /// 
+        /// In the event of a tie, the element will be added after the element that already 
+        /// existed within the array.
+        /// </summary>
+        public static List<T> InsertSorted<T>(this List<T> sortedList, T element) where T : IComparable
+        {
+            Comparison<T> comparison = (x, y) => x.CompareTo(y);
+            int position = sortedList.FindSortedPosition(element, comparison);
+            sortedList.Insert(position, element);
+            return sortedList;
+        }
+
+        public static List<T> InsertSorted<T>(this List<T> sortedList, T element, GetComparable<T> comp)
+        {
+            Comparison<T> comparison = (x, y) => comp(x).CompareTo(comp(y));
+            int position = sortedList.FindSortedPosition(element, comparison);
+            sortedList.Insert(position, element);
+            return sortedList;
+        }
+
+        /// <summary>
+        /// Inserts an element into the list. Returns the list for fluent idiom.
+        /// 
+        /// In the event of a tie, the element will be added after the element that already 
+        /// existed within the array.
+        /// </summary>
+        public static List<T> InsertSorted<T>(this List<T> sortedList, T element, Comparison<T> comparison)
+        {
+            int position = sortedList.FindSortedPosition(element, comparison);
+            sortedList.Insert(position, element);
+            return sortedList;
         }
 
         public static T[] CopyPushFront<T>(this T[] array, T element)
@@ -71,9 +169,9 @@ namespace ExtensionMethods
             return -1;
         }
 
-        public static int IndexOf<T>(this T[] array, Predicate<T> match)
+        public static int FindIndex<T>(this IList<T> array, Predicate<T> match)
         {
-            for (int i = 0; i < array.Length; i++)
+            for (int i = 0; i < array.Count; i++)
             {
                 if (match(array[i])) { return i; }
             }

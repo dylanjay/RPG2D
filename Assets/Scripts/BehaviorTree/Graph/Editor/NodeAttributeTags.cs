@@ -5,8 +5,7 @@ using System.Linq;
 using System.Text;
 using ExtensionMethods;
 using UnityEditor;
-
-using BehaviorComponent = Benco.BehaviorTree.BehaviorComponent;
+using System.Collections.ObjectModel;
 
 namespace Benco.Graph
 {
@@ -17,34 +16,44 @@ namespace Benco.Graph
     /// </summary>
     public class NodeInfo
     {
-        //Needs to be separated from SineInfo[] so it can be passed into dropdown calls.
-        public GUIContent[] dropdownOptions { get; private set; }
-        public SineInfo[] sineInfos { get; private set; }
-        public GenericMenu nodeMenu { get; private set; }
-
-        public NodeInfo()
+        private bool dropdownOptionsDirty = true;
+        private GUIContent[] _dropdownOptions;
+        public GUIContent[] dropdownOptions
         {
-            sineInfos = new SineInfo[0];
-            dropdownOptions = new GUIContent[0];
-            nodeMenu = new GenericMenu();
+            get
+            {
+                if (dropdownOptionsDirty)
+                {
+                    _dropdownOptions = new GUIContent[_sineInfos.Count];
+                    for (int i = 0; i < _sineInfos.Count; i++)
+                    {
+                        _dropdownOptions[i] = new GUIContent(_sineInfos[i].displayName);
+                    }
+                    dropdownOptionsDirty = false;
+                }
+                return _dropdownOptions;
+            }
+            private set { _dropdownOptions = value; }
         }
+
+        private List<SineInfo> _sineInfos = new List<SineInfo>();
+        public ReadOnlyCollection<SineInfo> sineInfos { get { return _sineInfos.AsReadOnly(); } }
 
         public void AddInfo(SineInfo sineInfo)
         {
-            sineInfos = sineInfos.CopyAdd(sineInfo).OrderBy(x => x.displayName).ToArray();
-            GUIContent newElement = new GUIContent(sineInfo.displayName);
-            dropdownOptions = dropdownOptions.CopyAdd(newElement).OrderBy(x => x.text).ToArray();
-            GenericMenu.MenuFunction lambda = () =>
+            _sineInfos.InsertSorted(sineInfo, (x) => x.displayName);
+            dropdownOptionsDirty = true;
+        }
+        
+        public GenericMenu GetMenu(GenericMenu.MenuFunction2 menuFunction)
+        {
+            GenericMenu nodeMenu = new GenericMenu();
+            for (int i = 0; i < _sineInfos.Count; i++)
             {
-                //TODO: BehaviorComponents shouldn't be in Benco.Graph framework code.
-                BehaviorComponent component = BehaviorComponent.CreateComponent(sineInfo.classType);
-                NodeUtilities.CreateNode(sineInfo.nodeType,
-                                         component,
-                                         NodeEditorWindow.instance.currentGraph,
-                                         //TODO(P3): I don't like the dependency on GraphController here.
-                                         Event.current.mousePosition);
-            };
-            nodeMenu.AddItem(new GUIContent(sineInfo.path), false, lambda);
+                SineInfo sineInfo = _sineInfos[i];
+                nodeMenu.AddItem(new GUIContent(sineInfo.path), false, menuFunction, sineInfo);
+            }
+            return nodeMenu;
         }
     }
 
@@ -169,20 +178,20 @@ namespace Benco.Graph
             //}
         }
 
-        public static GenericMenu GetNodeMenu<T>()
+        public static GenericMenu GetNodeMenu<T>(GenericMenu.MenuFunction2 menuFunction)
         {
             if (nodeTypeToAttr == null) { Initialize(); }
-            return nodeTypeToAttr[typeof(T)].nodeMenu;
+            return nodeTypeToAttr[typeof(T)].GetMenu(menuFunction);
         }
 
-        public static SineInfo[] GetInfo(Type nodeType)
+        public static ReadOnlyCollection<SineInfo> GetInfo(Type nodeType)
         {
             if (nodeTypeToAttr == null) { Initialize(); }
 
             NodeInfo nodeInfo;
             if (!nodeTypeToAttr.TryGetValue(nodeType, out nodeInfo))
             {
-                return new SineInfo[0];
+                return new List<SineInfo>().AsReadOnly();
             }
             return nodeInfo.sineInfos;
         }

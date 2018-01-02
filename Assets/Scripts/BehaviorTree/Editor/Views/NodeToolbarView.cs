@@ -10,7 +10,7 @@ namespace Benco.Graph
         private static GUILayoutOption noExpandWidth;
         private static GUILayoutOption expandHeight;
 
-        public NodeToolbarView() : base()
+        public NodeToolbarView(NodeEditorWindow parentWindow) : base(parentWindow)
         {
             if (buttonHeight == null)
             {
@@ -33,7 +33,7 @@ namespace Benco.Graph
                     }
                     if (GUILayout.Button("Load", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
                     {
-                        NodeUtilities.LoadGraph();
+                        NodeUtilities.LoadGraph(parentWindow);
                     }
                     GUILayout.Box("", EditorStyles.label, GUILayout.Width(6), buttonHeight);
                     if (graph != null)
