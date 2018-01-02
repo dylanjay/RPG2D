@@ -7,17 +7,32 @@ namespace Benco.Graph
 {
     public class NodeEditorWindow : EditorWindow
     {
-        private GraphViewer _graphController;
-        public GraphViewer graphController
+        private GraphViewer _graphViewer;
+        public GraphViewer graphViewer
         {
             get
             {
-                if (_graphController == null)
+                if (_graphViewer == null)
                 {
-                    _graphController = new GraphViewer(this);
+                    _graphViewer = new GraphViewer(this);
                 }
-                return _graphController;
+                return _graphViewer;
             }
+        }
+
+        [SerializeField]
+        private GraphEditorSettings _graphEditorSettings;
+        public GraphEditorSettings graphEditorSettings
+        {
+            get
+            {
+                if (_graphEditorSettings == null)
+                {
+                    _graphEditorSettings = new GraphEditorSettings();
+                }
+                return _graphEditorSettings;
+            }
+            set { _graphEditorSettings = value; }
         }
 
         [SerializeField]
@@ -41,9 +56,9 @@ namespace Benco.Graph
         [MenuItem("Node Editor/Launch Editor")]
         public static void InitNodeEditor()
         {
-            NodeEditorWindow nodeEditorWindow = GetWindow<NodeEditorWindow>();
-            nodeEditorWindow.InitializeWindow();
-            nodeEditorWindow.CreateViews();
+            NodeEditorWindow instance = GetWindow<NodeEditorWindow>();
+            instance.InitializeWindow();
+            instance.CreateViews();
         }
 
         public void Update()
@@ -96,7 +111,7 @@ namespace Benco.Graph
             }
         }
 
-        private void InitializeWindow()
+        internal void InitializeWindow()
         {
             titleContent = new GUIContent("Node Editor");
 
@@ -138,7 +153,7 @@ namespace Benco.Graph
             Repaint();
         }
 
-        void CreateViews()
+        private void CreateViews()
         {
             NodeWorkView workView = new NodeWorkView(this);
             NodeToolbarView toolbarView = new NodeToolbarView(this);
@@ -149,7 +164,7 @@ namespace Benco.Graph
             };
             typeView.updateDisplayRect = () =>
             {
-                return new Rect(0, TOOLBAR_HEIGHT, dividerPosition,
+                return new Rect(0, TOOLBAR_HEIGHT + 1, dividerPosition,
                                 position.height - TOOLBAR_HEIGHT);
             };
             workView.updateDisplayRect = () =>
@@ -162,6 +177,11 @@ namespace Benco.Graph
             views.Add(workView);
             views.Add(toolbarView);
             views.Add(typeView);
+        }
+
+        internal void ShowSettingsView(bool show)
+        {
+            //if (show && views.Contains())
         }
     }
 }

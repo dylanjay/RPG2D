@@ -22,7 +22,7 @@ namespace Benco.Graph
             if (graph != null)
             {
                 //e.mousePosition -= displayRect.position;
-                parentWindow.graphController.UpdateGraphGUI(e, displayRect);
+                parentWindow.graphViewer.UpdateGraphGUI(e, displayRect);
             }
         }
     }

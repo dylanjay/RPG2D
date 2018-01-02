@@ -52,6 +52,7 @@ namespace Benco.Graph
                 guiMatrix.m03 = (int)offset.x;
                 guiMatrix.m13 = (int)offset.y;
                 GUI.matrix = guiMatrix;
+
                 Rect guiRect = GUIExtensions.BeginTrueClip(guiMatrix, viewRect);
                 {
                     DrawGrid(viewRect, guiRect);
@@ -72,17 +73,18 @@ namespace Benco.Graph
 
         private void DrawGrid(Rect viewRect, Rect guiRect)
         {
-            float zoomPower = (Mathf.Log10(Mathf.Max(viewRect.width, viewRect.height)) - .5f
-                               - Mathf.Log10(scale.x)) / Mathf.Log10(17f);
+            int snapSize = parentWindow.graphEditorSettings.snapSize;
+            float baseValue = 1.0f / Mathf.Log10(Mathf.Max(10, snapSize));
+            float zoomPower = (Mathf.Log10(Mathf.Max(viewRect.width, viewRect.height)) * baseValue
+                               - Mathf.Log10(scale.x) * baseValue) / Mathf.Log10(17.0f);
 
-            // Split grid draws into 2 zoom groups: rounded down power of 2 and rounded up power of two
+            // Split grid draws into 2 zoom groups: low zoom and high zoom
             int lowPower = (int)zoomPower;
             float lowZoomPower = (1 - (zoomPower - (int)zoomPower));
             lowZoomPower *= lowZoomPower;
-            int lowLineSpacing = Mathf.RoundToInt(Mathf.Pow(10f, lowPower));
-            int highPower = lowPower + 1;
+            int lowLineSpacing = Mathf.RoundToInt(Mathf.Pow(Mathf.Max(10, snapSize), lowPower));
             float highZoomPower = (1 - lowZoomPower);
-            int highLineSpacing = Mathf.RoundToInt(Mathf.Pow(10f, highPower));
+            int highLineSpacing = lowLineSpacing * 5;
             Color prevHandleColor = Handles.color;
             DrawVerticalLines(guiRect, lowZoomPower, lowLineSpacing);
             DrawVerticalLines(guiRect, highZoomPower, highLineSpacing);
@@ -151,6 +153,18 @@ namespace Benco.Graph
             uiEventEngine.OnGUI(e);
         }
 
+        public Rect GetViewRect(NodeBase node)
+        {
+            Rect nodeRect = node.rect;
+            if (parentWindow.graphEditorSettings.snapDimensions)
+            {
+                int snapSize = parentWindow.graphEditorSettings.snapSize;
+                nodeRect.width = Mathf.Ceil(nodeRect.width / snapSize) * snapSize;
+                nodeRect.height = Mathf.Ceil(nodeRect.height / snapSize) * snapSize;
+            }
+            return nodeRect;
+        }
+
         //TODO(mderu): Move this out of GraphController.
         void DrawNode(NodeBase node)
         {
@@ -179,7 +193,7 @@ namespace Benco.Graph
                     nodeStyle = GUI.skin.GetStyle("flow node 0");
                 }
             }
-            GUI.Box(node.rect, node.title, nodeStyle);
+            GUI.Box(GetViewRect(node), node.title, nodeStyle);
             EditorUtility.SetDirty(node);
         }
 
@@ -192,7 +206,7 @@ namespace Benco.Graph
                 Handles.color = new Color(0.42f, 0.7f, 1.0f);
             }
             Vector2 startPosition, endPosition;
-            edge.GetPoints(out startPosition, out endPosition);
+            GetEdgePoints(edge, out startPosition, out endPosition);
             if (edge.edgeType == EdgeType.Directed)
             {
                 float arrowWidth = 6.0f;
@@ -218,6 +232,34 @@ namespace Benco.Graph
             }
             Handles.DrawAAPolyLine(3, 2, startPosition, endPosition);
             Handles.color = oldColor;
+        }
+
+        public void GetEdgePoints(NodeEdge edge, out Vector2 startPoint, out Vector2 endPoint)
+        {
+            Rect destinationNodeRect = GetViewRect(edge.destination.node);
+            Rect sourceNodeRect = GetViewRect(edge.source.node);
+            if (edge.edgeType == EdgeType.Directed)
+            {
+                // counterClockwiseOffset makes the directed edges offset. This splits the directed
+                // edges so they do not align:
+                //   ____  /___________ ____
+                //  /  |R\ \           /  |R\
+                // |  <>  |           |  <>  | (Radius R, <> == center of node)
+                //  \____/___________\ \____/
+                //                   /
+                Vector2 directionVector = destinationNodeRect.center - sourceNodeRect.center;
+                // The math below gets the Right vector from the directionVector above.
+                Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
+                counterClockwiseOffset.Normalize();
+                counterClockwiseOffset *= NodeEdge.DIRECTED_EDGE_OFFSET_DISTANCE;
+                startPoint = sourceNodeRect.center + counterClockwiseOffset;
+                endPoint = destinationNodeRect.center + counterClockwiseOffset;
+            }
+            else
+            {
+                startPoint = sourceNodeRect.center;
+                endPoint = destinationNodeRect.center;
+            }
         }
 
         public Vector2 GetLastMousePosition()

@@ -55,7 +55,7 @@ namespace Benco.Graph
             if (currentGraphPath != path)
             {
                 currentGraph = AssetDatabase.LoadAssetAtPath(finalPath, typeof(NodeGraph)) as NodeGraph;
-                nodeEditorWindow.graphController.Reset();
+                nodeEditorWindow.graphViewer.Reset();
 
                 if (currentGraph != null)
                 {

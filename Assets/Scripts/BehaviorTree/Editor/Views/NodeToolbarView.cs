@@ -8,7 +8,7 @@ namespace Benco.Graph
     {
         private static GUILayoutOption buttonHeight;
         private static GUILayoutOption noExpandWidth;
-        private static GUILayoutOption expandHeight;
+        private Vector2 scrollPosition = Vector2.zero;
 
         public NodeToolbarView(NodeEditorWindow parentWindow) : base(parentWindow)
         {
@@ -17,6 +17,11 @@ namespace Benco.Graph
                 buttonHeight = GUILayout.ExpandHeight(true);
                 noExpandWidth = GUILayout.ExpandWidth(false);
             }
+        }
+
+        private GUIStyle GetDropdownStyle()
+        {
+            return GUI.skin.GetStyle("GV Gizmo DropDown");
         }
 
         public override void UpdateView(Event e, NodeGraph graph)
@@ -58,10 +63,47 @@ namespace Benco.Graph
                             NodeUtilities.DeleteGraph();
                         }
                     }
+                    GUILayout.FlexibleSpace();
+                    GUIContent settingsContent = new GUIContent("Settings");
+                    if (EditorGUILayout.DropdownButton(settingsContent, FocusType.Passive, GetDropdownStyle()))
+                    {
+                        Debug.Log("Here");
+                    }
                 }
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndArea();
+            
+
+            EditorGUI.BeginChangeCheck();
+            Rect settingsRect = new Rect(displayRect.xMax - 231, displayRect.yMax + 2, 230, 400);
+            GUI.Box(settingsRect, "", "WindowBackground");
+            GUILayout.BeginArea(settingsRect);
+            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
+
+            bool showHotbar = parentWindow.graphEditorSettings.showHotbar;
+            parentWindow.graphEditorSettings.showHotbar = EditorGUILayout.Toggle("Show Hot Bar", showHotbar);
+
+            bool snapToGrid = parentWindow.graphEditorSettings.snapToGrid;
+            parentWindow.graphEditorSettings.snapToGrid = EditorGUILayout.Toggle("Snap To Grid", snapToGrid);
+
+            EditorGUI.BeginDisabledGroup(!parentWindow.graphEditorSettings.snapToGrid);
+            {
+                int snapSize = parentWindow.graphEditorSettings.snapSize;
+                parentWindow.graphEditorSettings.snapSize = EditorGUILayout.IntField("Snap Size", snapSize);
+
+                bool snapDimensions = parentWindow.graphEditorSettings.snapDimensions;
+                parentWindow.graphEditorSettings.snapDimensions = EditorGUILayout.Toggle("Dimensions Match Grid",
+                                                                                         snapDimensions);
+            }
+            EditorGUI.EndDisabledGroup();
+
+            EditorGUILayout.EndScrollView();
+            GUILayout.EndArea();
+            if (EditorGUI.EndChangeCheck())
+            {
+                parentWindow.graphEditorSettings.SaveSettings();
+            }
         }
     }
 }

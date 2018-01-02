@@ -29,6 +29,11 @@ namespace Benco.Graph
         private Vector2 dragStartLocation = Vector2.zero;
 
         /// <summary>
+        /// When snapping is enabled, this stores the remainder of the drag distance not used.
+        /// </summary>
+        private Vector2 dragRemainder = Vector2.zero;
+
+        /// <summary>
         /// The node an edge is being created from.
         /// </summary>
         private NodeBase startTransitionNode = null;
@@ -48,6 +53,22 @@ namespace Benco.Graph
                 float startY = Mathf.Min(firstSelectionPosition.y, secondSelectionPosition.y);
                 float height = firstSelectionPosition.y + secondSelectionPosition.y - startY - startY;
                 return new Rect(startX, startY, width, height);
+            }
+        }
+
+        private bool snapToGrid
+        {
+            get
+            {
+                return graphViewer.parentWindow.graphEditorSettings.snapToGrid;
+            }
+        }
+
+        private int gridSnapSize
+        {
+            get
+            {
+                return snapToGrid ? graphViewer.parentWindow.graphEditorSettings.snapSize : 1;
             }
         }
 
@@ -163,13 +184,15 @@ namespace Benco.Graph
                     modifiers = ModifierKeys.None,
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
-                    onEventUpdate = (Event e) => Drag(e.delta, from obj in Selection.objects
-                                                               where typeof(NodeBase).IsAssignableFrom(obj.GetType())
-                                                               select (NodeBase)obj),
-                    onEventCancel = (Event e) => Drag(e.mousePosition - dragStartLocation,
+                    onEventUpdate = (Event e) => Drag(e.delta,
                                                       from obj in Selection.objects
                                                       where typeof(NodeBase).IsAssignableFrom(obj.GetType())
                                                       select (NodeBase)obj),
+                    onEventCancel = (Event e) => SnaplessDrag(dragStartLocation - e.mousePosition,
+                                                              from obj in Selection.objects
+                                                              where typeof(NodeBase).IsAssignableFrom(obj.GetType())
+                                                              select (NodeBase)obj),
+                    onEventExit = (Event e) => dragRemainder = Vector2.zero
                 },
 
                 new UIEvent("Pan View")
@@ -415,7 +438,7 @@ namespace Benco.Graph
         {
             foreach (NodeBase node in graphViewer.graph.nodes)
             {
-                if (node.rect.Contains(position))
+                if (graphViewer.GetViewRect(node).Contains(position))
                 {
                     return node;
                 }
@@ -432,7 +455,7 @@ namespace Benco.Graph
 
             foreach (NodeBase node in graphViewer.graph.nodes)
             {
-                if (node.rect.Contains(e.mousePosition))
+                if (graphViewer.GetViewRect(node).Contains(e.mousePosition))
                 {
                     if ((e.control || e.shift) && !Selection.objects.Contains(graphViewer.graph))
                     {
@@ -508,6 +531,28 @@ namespace Benco.Graph
 
         private void Drag(Vector2 delta, IEnumerable<NodeBase> nodes)
         {
+            dragRemainder += delta;
+            int xDistance = (int)(dragRemainder.x / gridSnapSize) * gridSnapSize;
+            int yDistance = (int)(dragRemainder.y / gridSnapSize) * gridSnapSize;
+            foreach (NodeBase node in nodes)
+            {
+                node.rect.x = (int)((xDistance + node.rect.x) / gridSnapSize) * gridSnapSize;
+                node.rect.y = (int)((yDistance + node.rect.y) / gridSnapSize) * gridSnapSize;
+            }
+            dragRemainder.x -= xDistance;
+            dragRemainder.y -= yDistance;
+            graphViewer.Repaint();
+        }
+
+        /// <summary>
+        /// Drags nodes without snapping. Desired for cancelling a drag that was on a node that was
+        /// not snapped-to-grid originally, but the setting for snap-to-grid was on, and the user
+        /// wants to undo the movement to bring the node back to the unsnapped position.
+        /// </summary>
+        /// <param name="delta"></param>
+        /// <param name="nodes"></param>
+        private void SnaplessDrag(Vector2 delta, IEnumerable<NodeBase> nodes)
+        {
             foreach (NodeBase node in nodes)
             {
                 node.rect.x += delta.x;
@@ -546,7 +591,7 @@ namespace Benco.Graph
             secondSelectionPosition = e.mousePosition;
             foreach (NodeBase node in graphViewer.graph.nodes)
             {
-                node.isHighlighted = selectionRect.Overlaps(node.rect);
+                node.isHighlighted = selectionRect.Overlaps(graphViewer.GetViewRect(node));
             }
             graphViewer.Repaint();
         }
@@ -557,7 +602,7 @@ namespace Benco.Graph
             List<Object> selection = new List<Object>(Selection.objects);
             foreach (NodeBase node in graphViewer.graph.nodes)
             {
-                if (selectionRect.Overlaps(node.rect))
+                if (selectionRect.Overlaps(graphViewer.GetViewRect(node)))
                 {
                     selection.Add(node);
                     addedNode = true;

@@ -14,7 +14,18 @@ namespace Benco.Graph
     [System.Serializable]
     public class NodeEdge : ScriptableObject
     {
-        public EdgeType edgeType = EdgeType.Directed;
+        protected EdgeType _edgeType = EdgeType.Directed;
+        public virtual EdgeType edgeType
+        {
+            get
+            {
+                return _edgeType;
+            }
+            protected set
+            {
+                _edgeType = value;
+            }
+        }
 
         private IEdge _edge;
         public IEdge edge { get { return _edge; } }
@@ -22,8 +33,11 @@ namespace Benco.Graph
         public NodePort source;
         public NodePort destination;
 
-        private const float DIRECTED_EDGE_OFFSET_DISTANCE = 6.0f;
+        //TODO(mderu): Move this when below obsolete is removed.
+        public const float DIRECTED_EDGE_OFFSET_DISTANCE = 6.0f;
 
+        //TODO(mderu): Move DIRECTED_EDGE_OFFSET_DISTANCE.
+        [System.Obsolete("I'll figure it out later. Needs GetViewRect(node) access.")]
         public void GetPoints(out Vector2 startPoint, out Vector2 endPoint)
         {
             if (edgeType == EdgeType.Directed)
