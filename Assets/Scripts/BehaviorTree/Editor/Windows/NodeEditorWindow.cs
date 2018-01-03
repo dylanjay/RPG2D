@@ -51,6 +51,8 @@ namespace Benco.Graph
         [SerializeField]
         public NodeGraph currentGraph = null;
 
+        public bool showSettingsWindow { get; set; }
+
         UIEventEngine uiEventEngine;
 
         [MenuItem("Node Editor/Launch Editor")]
@@ -177,11 +179,6 @@ namespace Benco.Graph
             views.Add(workView);
             views.Add(toolbarView);
             views.Add(typeView);
-        }
-
-        internal void ShowSettingsView(bool show)
-        {
-            //if (show && views.Contains())
         }
     }
 }

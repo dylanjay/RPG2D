@@ -8,7 +8,12 @@ namespace Benco.Graph
     {
         private static GUILayoutOption buttonHeight;
         private static GUILayoutOption noExpandWidth;
-        private Vector2 scrollPosition = Vector2.zero;
+
+        /// <summary>
+        /// The use of this Rect is suggested by: https://docs.unity3d.com/ScriptReference/PopupWindow.html
+        /// </summary>
+        private Rect dropdownButtonRect;
+        private NodeSettingsPopup nodeSettingsPopup;
 
         public NodeToolbarView(NodeEditorWindow parentWindow) : base(parentWindow)
         {
@@ -17,6 +22,7 @@ namespace Benco.Graph
                 buttonHeight = GUILayout.ExpandHeight(true);
                 noExpandWidth = GUILayout.ExpandWidth(false);
             }
+            nodeSettingsPopup = new NodeSettingsPopup(parentWindow.graphEditorSettings, parentWindow.graphViewer);
         }
 
         private GUIStyle GetDropdownStyle()
@@ -62,48 +68,23 @@ namespace Benco.Graph
                         {
                             NodeUtilities.DeleteGraph();
                         }
+
                     }
                     GUILayout.FlexibleSpace();
                     GUIContent settingsContent = new GUIContent("Settings");
-                    if (EditorGUILayout.DropdownButton(settingsContent, FocusType.Passive, GetDropdownStyle()))
+                    if (GUILayout.Button(settingsContent, GetDropdownStyle()))
                     {
-                        Debug.Log("Here");
+                        dropdownButtonRect.x = displayRect.width + displayRect.x - 206;
+                        PopupWindow.Show(dropdownButtonRect, nodeSettingsPopup);
+                    }
+                    if (e.type == EventType.Repaint)
+                    {
+                        dropdownButtonRect = GUILayoutUtility.GetLastRect();
                     }
                 }
                 GUILayout.EndHorizontal();
             }
             GUILayout.EndArea();
-            
-
-            EditorGUI.BeginChangeCheck();
-            Rect settingsRect = new Rect(displayRect.xMax - 231, displayRect.yMax + 2, 230, 400);
-            GUI.Box(settingsRect, "", "WindowBackground");
-            GUILayout.BeginArea(settingsRect);
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition);
-
-            bool showHotbar = parentWindow.graphEditorSettings.showHotbar;
-            parentWindow.graphEditorSettings.showHotbar = EditorGUILayout.Toggle("Show Hot Bar", showHotbar);
-
-            bool snapToGrid = parentWindow.graphEditorSettings.snapToGrid;
-            parentWindow.graphEditorSettings.snapToGrid = EditorGUILayout.Toggle("Snap To Grid", snapToGrid);
-
-            EditorGUI.BeginDisabledGroup(!parentWindow.graphEditorSettings.snapToGrid);
-            {
-                int snapSize = parentWindow.graphEditorSettings.snapSize;
-                parentWindow.graphEditorSettings.snapSize = EditorGUILayout.IntField("Snap Size", snapSize);
-
-                bool snapDimensions = parentWindow.graphEditorSettings.snapDimensions;
-                parentWindow.graphEditorSettings.snapDimensions = EditorGUILayout.Toggle("Dimensions Match Grid",
-                                                                                         snapDimensions);
-            }
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUILayout.EndScrollView();
-            GUILayout.EndArea();
-            if (EditorGUI.EndChangeCheck())
-            {
-                parentWindow.graphEditorSettings.SaveSettings();
-            }
         }
     }
 }

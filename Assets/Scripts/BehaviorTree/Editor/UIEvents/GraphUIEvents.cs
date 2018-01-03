@@ -491,7 +491,7 @@ namespace Benco.Graph
                 foreach (NodeEdge edge in graphViewer.graph.edges)
                 {
                     Vector2 startPoint, endPoint;
-                    edge.GetPoints(out startPoint, out endPoint);
+                    graphViewer.GetEdgePoints(edge, out startPoint, out endPoint);
 
                     if (MathUtilities.PointWithinLineSegment(startPoint, endPoint, width: 8, point: e.mousePosition))
                     {

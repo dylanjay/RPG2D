@@ -91,6 +91,14 @@ namespace Benco.Graph
             DrawHorizontalLines(guiRect, lowZoomPower, lowLineSpacing);
             DrawHorizontalLines(guiRect, highZoomPower, highLineSpacing);
 
+            if (parentWindow.graphEditorSettings.showAxes)
+            {
+                Handles.color = Color.black;
+                Handles.DrawAAPolyLine(2.0f / scale.x, 2, new Vector2(guiRect.xMin, 0), new Vector2(guiRect.xMax, 0));
+                Handles.DrawAAPolyLine(2.0f / scale.x, 2, new Vector2(0, guiRect.yMin), new Vector2(0, guiRect.yMax));
+            }
+
+
             Handles.color = prevHandleColor;
         }
 
