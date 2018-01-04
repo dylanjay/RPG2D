@@ -39,6 +39,7 @@ namespace Benco.Graph
             EditorGUI.EndDisabledGroup();
             if (EditorGUI.EndChangeCheck())
             {
+                graphViewer.Repaint();
                 settings.SaveSettings();
             }
 
