@@ -30,5 +30,10 @@ namespace Benco.Graph
             EditorPrefs.SetBool("NodeEditor_showHotbar", showHotbar);
             EditorPrefs.SetBool("NodeEditor_showAxes", showAxes);
         }
+
+        public DrawingSettings GetDrawingSettings()
+        {
+            return new DrawingSettings(this);
+        }
     }
 }

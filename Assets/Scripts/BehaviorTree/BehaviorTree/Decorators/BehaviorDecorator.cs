@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Benco.BehaviorTree
 {
-    [NodeType(typeof(BehaviorDecorator), "Decorator")]
+    [NodeType("Benco.BehaviorTree.NodeDecorator", "Decorator")]
     public abstract class BehaviorDecorator : BehaviorComponent
     {
         [SerializeField]

@@ -6,7 +6,6 @@ using BindingFlags = System.Reflection.BindingFlags;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
-using UnityEditor;
 
 namespace ExtensionMethods
 {
@@ -198,6 +197,18 @@ namespace ExtensionMethods
             return type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
+        public static int GetHierarchyDepth(this Type type)
+        {
+            Type currentType = type;
+            int depth = 1;
+            while(type.BaseType != null)
+            {
+                currentType = type.BaseType;
+                depth++;
+            }
+            return depth;
+        }
+
         public delegate string PrintDelegate<T>(T t);
 
         public static void PrintAll<T>(this IEnumerable<T> list, PrintDelegate<T> lambda)
@@ -209,6 +220,11 @@ namespace ExtensionMethods
                 stringBuilder.Append(", ");
             }
             Debug.Log(stringBuilder.ToString());
+        }
+
+        public static void Sort<T>(this List<T> list, GetComparable<T> comp)
+        {
+            list.Sort((x, y) => comp(x).CompareTo(comp(y)));
         }
     }
 }

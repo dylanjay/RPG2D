@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Benco.Utilities;
 
 namespace Benco.BehaviorTree
 {
@@ -20,7 +19,7 @@ namespace Benco.BehaviorTree
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      from type in assembly.GetTypes()
                      where type.IsSubclassOf(typeof(SharedVariable)) && type.BaseType.IsGenericType
-                     let attributes = (TypeNameOverrideAttribute[])type.GetCustomAttributes(typeof(TypeNameOverrideAttribute), false)
+                     let attributes = type.GetAttributes<TypeNameOverrideAttribute>(false)
                      let name = attributes.Length > 0 ? attributes[0].newDisplayName : type.BaseType.GetGenericArguments()[0].Name
                      orderby name
                      select type.BaseType.GetGenericArguments()[0]).ToArray();
@@ -29,7 +28,7 @@ namespace Benco.BehaviorTree
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      from type in assembly.GetTypes()
                      where type.IsSubclassOf(typeof(SharedVariable)) && type.BaseType.IsGenericType
-                     let attributes = (TypeNameOverrideAttribute[])type.GetCustomAttributes(typeof(TypeNameOverrideAttribute), false)
+                     let attributes = type.GetAttributes<TypeNameOverrideAttribute>(false)
                      let name = attributes.Length > 0 ? attributes[0].newDisplayName : type.BaseType.GetGenericArguments()[0].Name
                      orderby name
                      select new GUIContent(name)).ToArray();
@@ -38,7 +37,7 @@ namespace Benco.BehaviorTree
                     (from assembly in AppDomain.CurrentDomain.GetAssemblies()
                      from type in assembly.GetTypes()
                      where type.IsSubclassOf(typeof(SharedVariable)) && type.BaseType.IsGenericType
-                     let attributes = (TypeNameOverrideAttribute[])type.GetCustomAttributes(typeof(TypeNameOverrideAttribute), false)
+                     let attributes = type.GetAttributes<TypeNameOverrideAttribute>(false)
                      let name = attributes.Length > 0 ? attributes[0].newDisplayName : type.Name
                      orderby name
                      select type).ToArray();

@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using ExtensionMethods;
 using Conditional = System.Diagnostics.ConditionalAttribute;
 using Type = System.Type;
-using Benco.BehaviorTree;
 using Benco.Utilities;
 
 namespace Benco.Graph
@@ -55,14 +53,17 @@ namespace Benco.Graph
 
                 Rect guiRect = GUIExtensions.BeginTrueClip(guiMatrix, viewRect);
                 {
+                    DrawingSettings drawingSettings = parentWindow.graphEditorSettings.GetDrawingSettings();
                     DrawGrid(viewRect, guiRect);
                     foreach (NodeEdge edge in graph.edges)
                     {
-                        DrawEdge(edge);
+                        edge.OnDraw(drawingSettings, e);
+                        //drawerService.Draw(edge, drawingSettings, e);
                     }
                     foreach (NodeBase node in graph.nodes)
                     {
-                        DrawNode(node);
+                        node.OnDraw(drawingSettings, e);
+                        //drawerService.Draw(node, drawingSettings, e);
                     }
                     OnGUI(e);
                 }
@@ -142,7 +143,7 @@ namespace Benco.Graph
                     break;
                 }
             }
-
+            
             if (!registeredEvents.ContainsKey(selectedType))
             {
                 Selection.activeObject = graph;

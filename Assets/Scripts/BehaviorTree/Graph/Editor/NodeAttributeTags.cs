@@ -6,6 +6,7 @@ using System.Text;
 using ExtensionMethods;
 using UnityEditor;
 using System.Collections.ObjectModel;
+using System.Reflection;
 
 namespace Benco.Graph
 {
@@ -84,7 +85,9 @@ namespace Benco.Graph
         {
             nodeTypeToAttr = new Dictionary<Type, NodeInfo>();
 
-            List<Type> iNodeTypeList = (from assembly in AppDomain.CurrentDomain.GetAssemblies()
+            Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+            List<Type> iNodeTypeList = (from assembly in assemblies
                                         from type in assembly.GetTypes()
                                         where type.GetInterfaces().Contains(typeof(INode))
                                         select type).ToList();
@@ -112,7 +115,14 @@ namespace Benco.Graph
                         menuPathStack.Push(ntAttr.menuPath);
                         if (nodeType == null)
                         {
-                            nodeType = ntAttr.nodeType;
+                            nodeType = (from assembly in assemblies
+                                        where assembly.GetType(ntAttr.nodeTypeName) != null
+                                        select assembly.GetType(ntAttr.nodeTypeName)).FirstOrDefault();
+                            if (nodeType == null)
+                            {
+                                Debug.LogErrorFormat("Unable to find NodeType \"{0}\" for class {1}.",
+                                                     ntAttr.nodeTypeName, ancestor.Name);
+                            }
                         }
                     }
                     ShowInNodeEditorAttribute sineAttr = ancestor.GetAttribute<ShowInNodeEditorAttribute>();

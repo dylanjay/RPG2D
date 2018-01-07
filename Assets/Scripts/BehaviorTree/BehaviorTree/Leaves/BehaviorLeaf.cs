@@ -5,7 +5,7 @@ using Benco.Graph;
 
 namespace Benco.BehaviorTree
 {
-    [NodeType(typeof(NodeLeaf), "Action")]
+    [NodeType("Benco.BehaviorTree.NodeLeaf", "Action")]
     public abstract class BehaviorLeaf : BehaviorComponent
     {
         private bool callOnStart = true;

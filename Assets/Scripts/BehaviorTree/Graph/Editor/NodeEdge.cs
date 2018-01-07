@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Benco.Utilities;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
@@ -32,38 +33,9 @@ namespace Benco.Graph
 
         public NodePort source;
         public NodePort destination;
-
-        //TODO(mderu): Move this when below obsolete is removed.
+        
         public const float DIRECTED_EDGE_OFFSET_DISTANCE = 6.0f;
-
-        //TODO(mderu): Move DIRECTED_EDGE_OFFSET_DISTANCE.
-        [System.Obsolete("I'll figure it out later. Needs GetViewRect(node) access.")]
-        public void GetPoints(out Vector2 startPoint, out Vector2 endPoint)
-        {
-            if (edgeType == EdgeType.Directed)
-            {
-                // counterClockwiseOffset makes the directed edges offset. This splits the directed
-                // edges so they do not align:
-                //   ____  /___________ ____
-                //  /  |R\ \           /  |R\
-                // |  <>  |           |  <>  | (Radius R, <> == center of node)
-                //  \____/___________\ \____/
-                //                   /
-                Vector2 directionVector = destination.node.rect.center - source.node.rect.center;
-                // The math below gets the Right vector from the directionVector above.
-                Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
-                counterClockwiseOffset.Normalize();
-                counterClockwiseOffset *= DIRECTED_EDGE_OFFSET_DISTANCE;
-                startPoint = source.node.rect.center + counterClockwiseOffset;
-                endPoint = destination.node.rect.center + counterClockwiseOffset;
-            }
-            else
-            {
-                startPoint = source.node.rect.center;
-                endPoint = destination.node.rect.center;
-            }
-        }
-
+        
         public bool isSelected { get { return Selection.Contains(this); } }
         public bool isHighlighted { get; set; }
 
@@ -134,6 +106,70 @@ namespace Benco.Graph
             edge.source.node.parentGraph.RemoveEdge(edge);
             edge.source.Remove(edge);
             Undo.DestroyObjectImmediate(edge);
+        }
+
+        public void GetEdgePoints(out Vector2 startPoint, out Vector2 endPoint)
+        {
+            Rect destinationNodeRect = destination.node.rect;
+            Rect sourceNodeRect = source.node.rect;
+            if (edgeType == EdgeType.Directed)
+            {
+                // counterClockwiseOffset makes the directed edges offset. This splits the directed
+                // edges so they do not align:
+                //   ____  /___________ ____
+                //  /  |R\ \           /  |R\
+                // |  <>  |           |  <>  | (Radius R, <> == center of node)
+                //  \____/___________\ \____/
+                //                   /
+                Vector2 directionVector = destinationNodeRect.center - sourceNodeRect.center;
+                // The math below gets the Right vector from the directionVector above.
+                Vector2 counterClockwiseOffset = new Vector2(-directionVector.y, directionVector.x);
+                counterClockwiseOffset.Normalize();
+                counterClockwiseOffset *= DIRECTED_EDGE_OFFSET_DISTANCE;
+                startPoint = sourceNodeRect.center + counterClockwiseOffset;
+                endPoint = destinationNodeRect.center + counterClockwiseOffset;
+            }
+            else
+            {
+                startPoint = sourceNodeRect.center;
+                endPoint = destinationNodeRect.center;
+            }
+        }
+
+        public virtual void OnDraw(DrawingSettings settings, Event e)
+        {
+            Color oldColor = Handles.color;
+            if (isSelected || isHighlighted)
+            {
+                Handles.color = new Color(0.42f, 0.7f, 1.0f);
+            }
+            Vector2 startPosition, endPosition;
+            GetEdgePoints(out startPosition, out endPosition);
+            if (edgeType == EdgeType.Directed)
+            {
+                float arrowWidth = 6.0f;
+
+                Vector2 line = endPosition - startPosition;
+                // Below are the 3 points of the arrow of the directed edge.
+                Vector2 forwardPoint = line.normalized * 7;
+                Vector2 leftPoint = forwardPoint.RotatedBy(120);
+                Vector2 rightPoint = forwardPoint.RotatedBy(240);
+
+                // The arrows Unity's Animation Window uses are centered around the cartesian center, 
+                // rather than the arrow's center of mass. To mimic Unity, we'll calculate the cartesian
+                // center of the arrow in offsetMidpoint.
+                // If we decide later we don't care for this, we can use:
+                //  Vector2 midpoint = startPosition + line / 2.0f;
+                Vector2 offsetMidpoint = line.WithMagnitude(
+                    ((Mathf.Cos(60.0f * Mathf.Deg2Rad) - 1.0f) * arrowWidth + line.magnitude) / 2.0f) + startPosition;
+                Handles.DrawAAConvexPolygon(
+                    offsetMidpoint + forwardPoint,
+                    offsetMidpoint + leftPoint,
+                    offsetMidpoint + rightPoint,
+                    offsetMidpoint + forwardPoint);
+            }
+            Handles.DrawAAPolyLine(3, 2, startPosition, endPosition);
+            Handles.color = oldColor;
         }
     }
 }

@@ -4,7 +4,7 @@ using Benco.Graph;
 
 namespace Benco.BehaviorTree
 {
-    [NodeType(typeof(NodeComposite), "Composite")]
+    [NodeType("Benco.BehaviorTree.NodeComposite", "Composite")]
     public abstract class BehaviorComposite : BehaviorComponent
     {
         [SerializeField]

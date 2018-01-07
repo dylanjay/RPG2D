@@ -7,7 +7,6 @@ namespace Benco.Graph
 {
     public static class NodeUtilities
     {
-#if UNITY_EDITOR
         public static string currentGraphPath;
 
         public static T CreateNodeGraph<T>(string graphName) where T : NodeGraph
@@ -199,6 +198,5 @@ namespace Benco.Graph
         {
             EditorUtility.DisplayDialog("Error", body, "OK");
         }
-#endif
     }
 }

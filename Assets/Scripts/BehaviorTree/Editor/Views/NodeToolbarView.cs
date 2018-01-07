@@ -71,7 +71,7 @@ namespace Benco.Graph
 
                     }
                     GUILayout.FlexibleSpace();
-                    GUIContent settingsContent = new GUIContent("Settings");
+                    GUIContent settingsContent = new GUIContent("Settings", "Show the settings popup content window.");
                     if (GUILayout.Button(settingsContent, GetDropdownStyle()))
                     {
                         dropdownButtonRect.x = displayRect.width + displayRect.x - 206;

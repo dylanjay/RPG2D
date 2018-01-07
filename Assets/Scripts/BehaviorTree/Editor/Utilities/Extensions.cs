@@ -68,7 +68,13 @@ namespace Benco.Utilities
         {
             return new Vector2(vector.x * scaleVector.x, vector.y * scaleVector.y);
         }
+    }
 
+    /// <summary>
+    /// Extensions to the Rect struct.
+    /// </summary>
+    public static class RectExtensions
+    {
         /// <summary>
         /// 
         /// </summary>
@@ -80,6 +86,23 @@ namespace Benco.Utilities
         public static Rect WithOffset(this Rect rect, Vector2 offset)
         {
             return new Rect(rect.position + offset, rect.size);
+        }
+    }
+
+    /// <summary>
+    /// Extensions to the Type class.
+    /// </summary>
+    public static class TypeExtensions
+    {
+        /// <summary>
+        /// When overridden in a derived class, returns an array of all custom attributes applied to this member.
+        /// </summary>
+        /// <typeparam name="T">The attribute type to look for.</typeparam>
+        /// <param name="inherit"> True to search this member's inheritance chain to find the attributes; otherwise, false.</param>
+        /// <returns>An array of attributes of type <code>T</code>.</returns>
+        public static T[] GetAttributes<T>(this System.Type type, bool inherit) where T : System.Attribute
+        {
+            return (T[])type.GetCustomAttributes(typeof(T), inherit);
         }
     }
 }

@@ -62,7 +62,7 @@ namespace Benco.Graph
         /// <summary>
         /// The type of node the class should be associated with.
         /// </summary>
-        public readonly Type nodeType;
+        public readonly string nodeTypeName;
         /// <summary>
         /// The name that should be displayed in the graph editor. This value will be ignored if a ShowInNodeEditor 
         /// attribute exists on the same object.
@@ -96,21 +96,21 @@ namespace Benco.Graph
         }
 
         /// <param name="nodeType">The type of node the class should be associated with.</param>
-        public NodeTypeAttribute(Type nodeType)
+        public NodeTypeAttribute(string nodeTypeName)
         {
-            this.nodeType = nodeType;
+            this.nodeTypeName = nodeTypeName;
         }
 
-        public NodeTypeAttribute(Type nodeType, string displayName)
+        public NodeTypeAttribute(string nodeTypeName, string displayName)
         {
-            this.nodeType = nodeType;
+            this.nodeTypeName = nodeTypeName;
             this.displayName = displayName;
             _menuPath = string.Format("{{0}}/{0}", displayName);
         }
 
-        public NodeTypeAttribute(Type nodeType, string displayName, string menuPath)
+        public NodeTypeAttribute(string nodeTypeName, string displayName, string menuPath)
         {
-            this.nodeType = nodeType;
+            this.nodeTypeName = nodeTypeName;
             this.displayName = displayName;
             _menuPath = menuPath;
         }

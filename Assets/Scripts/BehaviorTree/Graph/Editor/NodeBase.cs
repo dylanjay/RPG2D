@@ -185,5 +185,51 @@ namespace Benco.Graph
         {
             parentGraph.DeleteNode(this);
         }
+
+        private Rect GetBounds(DrawingSettings settings)
+        {
+            if (settings.snapDimensions && settings.snapSize > 1)
+            {
+                Rect rect = this.rect;
+                int snapSize = settings.snapSize;
+                rect.width = Mathf.Ceil(rect.width / snapSize) * snapSize;
+                rect.height = Mathf.Ceil(rect.height / snapSize) * snapSize;
+                return rect;
+            }
+            else
+            {
+                return new Rect(rect.position, new Vector2(150, 35));
+            }
+        }
+
+        public virtual void OnDraw(DrawingSettings drawingSettings, Event e)
+        {
+            GUIStyle nodeStyle;
+
+            if (isSelected || isHighlighted)
+            {
+                if (parentGraph.root == this)
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 3 on");
+                }
+                else
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 0 on");
+                }
+            }
+            else
+            {
+                if (parentGraph.root == this)
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 3");
+                }
+                else
+                {
+                    nodeStyle = GUI.skin.GetStyle("flow node 0");
+                }
+            }
+            rect = GetBounds(drawingSettings);
+            GUI.Box(rect, title, nodeStyle);
+        }
     }
 }
