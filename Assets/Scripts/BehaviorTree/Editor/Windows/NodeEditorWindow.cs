@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Type = System.Type;
 
 namespace Benco.Graph
 {
@@ -61,6 +62,19 @@ namespace Benco.Graph
             NodeEditorWindow instance = GetWindow<NodeEditorWindow>();
             instance.InitializeWindow();
             instance.CreateViews();
+        }
+
+        public void OnSelectionChange()
+        {
+            Object activeObject = Selection.activeObject;
+            if (activeObject != null)
+            {
+                Type selectedType = activeObject.GetType();
+                if (selectedType.IsSubclassOf(typeof(NodeGraph)))
+                {
+                    LoadGraph((NodeGraph)activeObject);
+                }
+            }
         }
 
         public void Update()
@@ -179,6 +193,20 @@ namespace Benco.Graph
             views.Add(workView);
             views.Add(toolbarView);
             views.Add(typeView);
+        }
+
+        public void LoadGraph(NodeGraph graph)
+        {
+            if (graph != currentGraph)
+            {
+                if (EditorUtility.DisplayDialog("Save Graph", "Save the current graph?", "Yes", "No"))
+                {
+                    NodeUtilities.SaveGraph();
+                }
+                currentGraph = graph;
+                graphViewer.Reset();
+                Repaint();
+            }
         }
     }
 }

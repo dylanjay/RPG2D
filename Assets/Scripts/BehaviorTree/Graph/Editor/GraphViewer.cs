@@ -146,8 +146,7 @@ namespace Benco.Graph
             
             if (!registeredEvents.ContainsKey(selectedType))
             {
-                Selection.activeObject = graph;
-                selectedType = Selection.activeObject.GetType();
+                selectedType = graph.GetType();
             }
 
             foreach (Type type in registeredEvents.Keys)

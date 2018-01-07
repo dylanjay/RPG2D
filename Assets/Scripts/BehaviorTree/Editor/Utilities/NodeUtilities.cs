@@ -5,6 +5,7 @@ using Benco.BehaviorTree;
 
 namespace Benco.Graph
 {
+    //TODO(mderu): Get rid of all of this.
     public static class NodeUtilities
     {
         public static string currentGraphPath;
@@ -21,59 +22,12 @@ namespace Benco.Graph
             NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
             if (currentWindow != null)
             {
-                AskSaveGraph(currentWindow);
-                currentGraphPath = "Assets/Resources/BehaviorTrees/" + graphName + ".asset";
+                currentGraphPath = "Assets/Resources/" + graphName + ".asset";
                 currentWindow.currentGraph = currentGraph;
+                currentWindow.LoadGraph(currentGraph);
             }
 
             return currentGraph;
-        }
-
-        static void AskSaveGraph(NodeEditorWindow currentWindow)
-        {
-            if (currentWindow.currentGraph != null)
-            {
-                if (EditorUtility.DisplayDialog("Save Graph", "Save the current graph?", "Yes", "No"))
-                {
-                    SaveGraph();
-                }
-            }
-        }
-
-        public static void LoadGraph(NodeEditorWindow nodeEditorWindow)
-        {
-            NodeGraph currentGraph;
-            string path = EditorUtility.OpenFilePanel("Load Graph", Application.dataPath + @"/Resources/BehaviorTrees/", "asset");
-            if (string.IsNullOrEmpty(path))
-            {
-                return;
-            }
-            int appPathLen = Application.dataPath.Length;
-            string finalPath = path.Substring(appPathLen - 6);
-            NodeEditorWindow currentWindow = EditorWindow.GetWindow<NodeEditorWindow>();
-            if (currentGraphPath != path)
-            {
-                currentGraph = AssetDatabase.LoadAssetAtPath(finalPath, typeof(NodeGraph)) as NodeGraph;
-                nodeEditorWindow.graphViewer.Reset();
-
-                if (currentGraph != null)
-                {
-                    if (currentWindow != null)
-                    {
-                        AskSaveGraph(currentWindow);
-                        currentGraphPath = path;
-                        currentWindow.currentGraph = currentGraph;
-                    }
-                    else
-                    {
-                        ErrorMessage("The node editor window is lost, reopen it. Then try reloading the graph. ");
-                    }
-                }
-                else
-                {
-                    ErrorMessage("The selected asset can't be loaded as a Node Graph. ");
-                }
-            }
         }
 
         static bool TreeIsValid(BehaviorNodeBase node)
@@ -100,6 +54,7 @@ namespace Benco.Graph
             return true;
         }
 
+        // TODO(mderu): Get rid of this, or turn it into a baker.
         public static void SaveGraph()
         {
             NodeBehaviorTree savedGraph = AssetDatabase.LoadAssetAtPath<NodeBehaviorTree>(currentGraphPath);

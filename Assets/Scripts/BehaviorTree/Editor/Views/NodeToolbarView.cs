@@ -42,27 +42,30 @@ namespace Benco.Graph
                     {
                         NodePopupWindow.Init();
                     }
-                    if (GUILayout.Button("Load", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
-                    {
-                        NodeUtilities.LoadGraph(parentWindow);
-                    }
+                    //if (GUILayout.Button("Load", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
+                    //{
+                    //    NodeUtilities.LoadGraph(parentWindow);
+                    //}
                     GUILayout.Box("", EditorStyles.label, GUILayout.Width(6), buttonHeight);
                     if (graph != null)
                     {
-                        if (GUILayout.Button("Save", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
-                        {
-                            NodeUtilities.SaveGraph();
-                        }
+                        // This should happen by default
+                        //if (GUILayout.Button("Save", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
+                        //{
+                        //    NodeUtilities.SaveGraph();
+                        //}
 
-                        if (GUILayout.Button("Clear", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
+                        GUIContent clearContent = new GUIContent("Clear", "Resets the graph to a fresh state.");
+                        if (GUILayout.Button(clearContent, EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
                         {
                             NodeUtilities.ClearGraph();
                         }
 
-                        if (GUILayout.Button("Unload", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
-                        {
-                            NodeUtilities.UnloadGraph();
-                        }
+                        //GUIContent unloadContent = new GUIContent("Unload", "Unloads the graph so no graph is selected.");
+                        //if (GUILayout.Button("Unload", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
+                        //{
+                        //    NodeUtilities.UnloadGraph();
+                        //}
 
                         if (GUILayout.Button("Delete", EditorStyles.toolbarButton, noExpandWidth, buttonHeight))
                         {

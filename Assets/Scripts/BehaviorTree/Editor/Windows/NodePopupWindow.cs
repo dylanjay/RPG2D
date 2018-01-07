@@ -38,8 +38,7 @@ namespace Benco.Graph
                 {
                     if (!string.IsNullOrEmpty(graphName) && !graphName.Equals("Enter a name..."))
                     {
-                        NodeBehaviorTree newGraph = NodeUtilities.CreateNodeGraph<NodeBehaviorTree>(graphName);
-                        Selection.activeObject = newGraph;
+                        Selection.activeObject = NodeUtilities.CreateNodeGraph<NodeBehaviorTree>(graphName);
                         Close();
                     }
                     else
