@@ -28,11 +28,9 @@ namespace Benco.Graph
         /// </summary>
         private Vector2 dragStartLocation = Vector2.zero;
 
-        /// <summary>
-        /// When snapping is enabled, this stores the remainder of the drag distance not used.
-        /// </summary>
-        private Vector2 dragRemainder = Vector2.zero;
-
+        private Vector2[] nodeStartLocations;
+        private NodeBase[] nodesBeingDragged;
+        
         /// <summary>
         /// The node an edge is being created from.
         /// </summary>
@@ -183,16 +181,9 @@ namespace Benco.Graph
                     mouseButtons = MouseButtons.Left,
                     modifiers = ModifierKeys.None,
                     eventType = EventType.MouseDrag,
-                    onEventBegin = (Event e) => dragStartLocation = e.mousePosition,
-                    onEventUpdate = (Event e) => Drag(e.delta,
-                                                      from obj in Selection.objects
-                                                      where typeof(NodeBase).IsAssignableFrom(obj.GetType())
-                                                      select (NodeBase)obj),
-                    onEventCancel = (Event e) => SnaplessDrag(dragStartLocation - e.mousePosition,
-                                                              from obj in Selection.objects
-                                                              where typeof(NodeBase).IsAssignableFrom(obj.GetType())
-                                                              select (NodeBase)obj),
-                    onEventExit = (Event e) => dragRemainder = Vector2.zero
+                    onEventBegin = (Event e) => StartDragNodes(e), 
+                    onEventUpdate = (Event e) => DragNodes(e.mousePosition - dragStartLocation),
+                    onEventCancel = (Event e) => SnaplessDrag(dragStartLocation - e.mousePosition)
                 },
 
                 new UIEvent("Pan View")
@@ -529,18 +520,29 @@ namespace Benco.Graph
             }
         }
 
-        private void Drag(Vector2 delta, IEnumerable<NodeBase> nodes)
+        private void StartDragNodes(Event e)
         {
-            dragRemainder += delta;
-            int xDistance = (int)(dragRemainder.x / gridSnapSize) * gridSnapSize;
-            int yDistance = (int)(dragRemainder.y / gridSnapSize) * gridSnapSize;
-            foreach (NodeBase node in nodes)
+            dragStartLocation = e.mousePosition;
+
+            nodesBeingDragged = (from obj in Selection.objects
+                                 where typeof(NodeBase).IsAssignableFrom(obj.GetType())
+                                 select (NodeBase)obj)
+                                 .ToArray();
+
+            nodeStartLocations = (from node in nodesBeingDragged
+                                  select node.rect.position)
+                                  .ToArray();
+        }
+
+        private void DragNodes(Vector2 dragDelta)
+        {
+            for (int i = 0; i < nodesBeingDragged.Length; i++)
             {
-                node.rect.x = (int)((xDistance + node.rect.x) / gridSnapSize) * gridSnapSize;
-                node.rect.y = (int)((yDistance + node.rect.y) / gridSnapSize) * gridSnapSize;
+                NodeBase node = nodesBeingDragged[i];
+                Vector2 startLocation = nodeStartLocations[i];
+                node.rect.x = Mathf.RoundToInt((dragDelta.x + startLocation.x) / gridSnapSize) * gridSnapSize;
+                node.rect.y = Mathf.RoundToInt((dragDelta.y + startLocation.y) / gridSnapSize) * gridSnapSize;
             }
-            dragRemainder.x -= xDistance;
-            dragRemainder.y -= yDistance;
             graphViewer.Repaint();
         }
 
@@ -549,14 +551,14 @@ namespace Benco.Graph
         /// not snapped-to-grid originally, but the setting for snap-to-grid was on, and the user
         /// wants to undo the movement to bring the node back to the unsnapped position.
         /// </summary>
-        /// <param name="delta"></param>
-        /// <param name="nodes"></param>
-        private void SnaplessDrag(Vector2 delta, IEnumerable<NodeBase> nodes)
+        /// <param name="delta">The amount to move the nodes by.</param>
+        private void SnaplessDrag(Vector2 delta)
         {
-            foreach (NodeBase node in nodes)
+            for (int i = 0; i < nodesBeingDragged.Length; i++)
             {
-                node.rect.x += delta.x;
-                node.rect.y += delta.y;
+                NodeBase node = nodesBeingDragged[i];
+                Vector2 startLocation = nodeStartLocations[i];
+                node.rect.position = startLocation;
             }
             graphViewer.Repaint();
         }
