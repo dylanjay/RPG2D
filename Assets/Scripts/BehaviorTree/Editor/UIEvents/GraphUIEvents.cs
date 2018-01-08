@@ -183,7 +183,7 @@ namespace Benco.Graph
                     eventType = EventType.MouseDrag,
                     onEventBegin = (Event e) => StartDragNodes(e), 
                     onEventUpdate = (Event e) => DragNodes(e.mousePosition - dragStartLocation),
-                    onEventCancel = (Event e) => SnaplessDrag(dragStartLocation - e.mousePosition)
+                    onEventCancel = (Event e) => SnaplessDrag(dragStartLocation - e.mousePosition),
                 },
 
                 new UIEvent("Pan View")
@@ -439,11 +439,19 @@ namespace Benco.Graph
 
         private void AttemptNodeObjectSelection(Event e)
         {
+            // The delete command will not go through if focus is on a int/float/text field
+            // within the window. Upon selecting a new object, keyboard control is not
+            // transferred.
+            //
+            // We can transfer control here because no matter what we click on, an object will
+            // be selected. Also, keyboard control is re-established or maintained to the field
+            // after this function is called.
+            GUIUtility.keyboardControl = 0;
+
             // UnityShenanigans:
             // If you Ctrl/Shift + Click a node/edge twice in a row without moving the mouse,
             // It doesn't update the selection on the second click. The third click will
             // toggle the selection as expected.
-
             foreach (NodeBase node in graphViewer.graph.nodes)
             {
                 if (graphViewer.GetViewRect(node).Contains(e.mousePosition))

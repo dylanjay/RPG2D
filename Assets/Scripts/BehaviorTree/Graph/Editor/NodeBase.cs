@@ -186,11 +186,11 @@ namespace Benco.Graph
             parentGraph.DeleteNode(this);
         }
 
-        private Rect GetBounds(DrawingSettings settings)
+        protected Rect SnapRectToBounds(DrawingSettings settings, int width = 150, int height = 35)
         {
             if (settings.snapDimensions && settings.snapSize > 1)
             {
-                Rect rect = this.rect;
+                Rect rect = new Rect(this.rect.position.x, this.rect.position.y, width, height);
                 int snapSize = settings.snapSize;
                 rect.width = Mathf.Ceil(rect.width / snapSize) * snapSize;
                 rect.height = Mathf.Ceil(rect.height / snapSize) * snapSize;
@@ -198,7 +198,7 @@ namespace Benco.Graph
             }
             else
             {
-                return new Rect(rect.position, new Vector2(150, 35));
+                return new Rect(rect.position.x, rect.position.y, width, height);
             }
         }
 
@@ -228,7 +228,7 @@ namespace Benco.Graph
                     nodeStyle = GUI.skin.GetStyle("flow node 0");
                 }
             }
-            rect = GetBounds(drawingSettings);
+            rect = SnapRectToBounds(drawingSettings);
             GUI.Box(rect, title, nodeStyle);
         }
     }
